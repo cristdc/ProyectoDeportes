@@ -1,0 +1,206 @@
+openapi: 3.0.0
+info:
+  title: API de Carreras Multideporte
+  description: API para la gestión de usuarios, carreras e inscripciones en eventos deportivos.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Servidor local de desarrollo
+paths:
+  /users/register:
+    post:
+      summary: Registro de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Juan Pérez
+                email:
+                  type: string
+                  example: juan@example.com
+                password:
+                  type: string
+                  example: "123456"
+                role:
+                  type: string
+                  enum: ["user", "admin"]
+      responses:
+        "201":
+          description: Usuario registrado exitosamente
+
+  /users/login:
+    post:
+      summary: Inicio de sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: juan@example.com
+                password:
+                  type: string
+                  example: "123456"
+      responses:
+        "200":
+          description: Autenticación exitosa
+
+  /users/me:
+    get:
+      summary: Obtener el usuario autenticado
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Información del usuario autenticado
+
+  /races:
+    get:
+      summary: Listar todas las carreras
+      responses:
+        "200":
+          description: Lista de carreras disponibles
+
+    post:
+      summary: Crear una nueva carrera (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Maratón de Madrid"
+                sport:
+                  type: string
+                  enum: ["running", "trail", "cycling"]
+                date:
+                  type: string
+                  format: date-time
+                  example: "2024-05-15T09:00:00Z"
+                location:
+                  type: string
+                  example: "Madrid, España"
+                maxParticipants:
+                  type: integer
+                  example: 5000
+      responses:
+        "201":
+          description: Carrera creada exitosamente
+
+  /races/{id}:
+    get:
+      summary: Obtener detalles de una carrera específica
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Información de la carrera
+
+    put:
+      summary: Actualizar datos de una carrera (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Maratón de Barcelona"
+                status:
+                  type: string
+                  enum: ["open", "closed", "finished"]
+      responses:
+        "200":
+          description: Carrera actualizada exitosamente
+
+    delete:
+      summary: Eliminar una carrera (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Carrera eliminada exitosamente
+
+  /registrations:
+    post:
+      summary: Inscribir a un usuario en una carrera
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                raceId:
+                  type: string
+      responses:
+        "201":
+          description: Inscripción completada
+
+  /registrations/{userId}:
+    get:
+      summary: Obtener inscripciones de un usuario
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lista de inscripciones del usuario
+
+  /admin/stats:
+    get:
+      summary: Obtener métricas del sistema
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Datos estadísticos generales
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
