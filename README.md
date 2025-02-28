@@ -106,8 +106,7 @@ Esta colección almacena la información sobre las carreras disponibles en la pl
   "podium": [ObjectId("user1_id"), ObjectId("user2_id"), ObjectId("user3_id")],
   "createdBy": ObjectId("admin_id"),
   "status": "open",
-  "createdAt": "2024-02-27T10:00:00Z",
-  "finalizeAt": "2024-06-01T18:00:00Z"
+  "createdAt": "2024-02-27T10:00:00Z"
 }
 ```
 
@@ -128,7 +127,6 @@ Esta colección almacena la información sobre las carreras disponibles en la pl
 | `createdBy`  | ObjectId | ID del administrador que creó la carrera. |
 | `status`     | String   | Estado de la carrera (`"open"`, `"closed"`, `"finished"`). |
 | `createdAt`  | Date     | Fecha en la que se registró la carrera en la plataforma. |
-| `finalizeAt` | Date     | Fecha de finalización de la carrera. |
 
 ---
 
@@ -141,6 +139,7 @@ Esta colección almacena las inscripciones de los usuarios en las carreras, es l
   "_id": ObjectId,
   "userId": ObjectId("user_id"),
   "raceId": ObjectId("race_id"),
+  "dorsal": null,
   "registeredAt": "2024-03-01T08:00:00Z",
   "status": "registered",
   "time": null,
@@ -155,6 +154,7 @@ Esta colección almacena las inscripciones de los usuarios en las carreras, es l
 | `_id`        | ObjectId | Identificador único de la inscripción. |
 | `userId`     | ObjectId | ID del usuario que se inscribe. |
 | `raceId`     | ObjectId | ID de la carrera en la que se inscribe. |
+| `dorsal`     | Number | Numero del corredor en la carrera. |
 | `registeredAt` | Date   | Fecha y hora de la inscripción. |
 | `status`     | String   | Estado de la inscripción (`"registered"`, `"cancelled"`, `"finished"`). |
 | `time`       | String   | Tiempo registrado en la carrera (si finaliza). |
@@ -196,7 +196,7 @@ Estos son los endpoints que permitirán interactuar con la API:
 - `POST /users/register` → Registro de usuario.
 - `POST /users/login` → Inicio de sesión.
 - `POST /users/logout` → Cerrar sesión.
-- `GET /users/me` → Obtener el usuario autenticado (según el token).
+- `GET /users/profile` → Obtener el usuario autenticado (según el token).
 - `GET /users/:id` → Obtener usuario por ID.
 - `GET /users?name=Juan` → Buscar usuarios por nombre.
 - `PUT /users/:id` → Actualizar información de usuario.
@@ -210,7 +210,7 @@ Estos son los endpoints que permitirán interactuar con la API:
 - `POST /races` → Crear una nueva carrera (admin).
 - `GET /races/:id` → Obtener detalles de una carrera específica.
 - `PUT /races/:id` → Actualizar datos de una carrera (admin).
-- `DELETE /races/:id` → Eliminar una carrera (admin).
+- `PUT /races/:id` → Eliminar una carrera (admin). (state = cancelled)
 - `POST /races/:id/results` → Registrar resultados de una carrera.
 - `GET /races/:id/results` → Consultar los resultados de una carrera.
 
@@ -218,7 +218,7 @@ Estos son los endpoints que permitirán interactuar con la API:
 - `POST /registrations` → Inscribir a un usuario en una carrera.
 - `GET /registrations/:userId` → Obtener inscripciones de un usuario.
 - `PUT /registrations/:id/time` → Registrar el tiempo final de un usuario en una carrera.
-- `DELETE /registrations/:id` → Cancelar una inscripción.
+- `PUT /registrations/:id` → Cancelar una inscripción. (state = cancelled)
 
 ### **Panel de administración (`/admin`)**
 - `GET /admin/stats` → Obtener métricas del sistema (usuarios registrados, carreras activas, inscripciones).
