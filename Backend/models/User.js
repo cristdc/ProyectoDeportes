@@ -3,15 +3,19 @@ import bcrypt from "bcryptjs";
 
 // Esquema de la colección User
 const userSchema=new mongoose.Schema({
-    username:{type: String, required: true, unique:true},
+    email:{type: String, required: true, unique:true},
     password:{type: String, required: true},
-
+    name:{type: String, required: true},
+    role:{type: String, enum: ["admin", "user"], default: "user"},
+    avatar:{type: String, default: "default.jpg"},
+    age: {type: Number },
+    registrationDate:{type: Date, default: Date.now()}
 })
 
 // Debería de encriptar la contraseña antes de guardarla en la base de datos
 userSchema.pre("save", async function(next){
     if(this.isModified("password")){
-        this.password=await bcrypt.hash(this.password, 10);
+        this.password = bcrypt.hash(this.password, 10);
     }
     next();
 })
