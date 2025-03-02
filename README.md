@@ -103,7 +103,18 @@ Esta colección almacena la información sobre las carreras disponibles en la pl
   "unevenness": 500,
   "tour": "URL del archivo GPX",
   "qualifyingTime": "02:30:00",
-  "podium": [ObjectId("user1_id"), ObjectId("user2_id"), ObjectId("user3_id")],
+  "classification":[
+    {
+      "corredor1" : "",
+      "tiempo": 5
+    
+    },
+    {
+      "corredor2" : "",
+      "tiempo": 10
+    
+    },
+  ],
   "createdBy": ObjectId("admin_id"),
   "status": "open",
   "createdAt": "2024-02-27T10:00:00Z"
@@ -123,7 +134,7 @@ Esta colección almacena la información sobre las carreras disponibles en la pl
 | `unevenness` | Number   | Desnivel total en metros. |
 | `tour`       | String   | URL o referencia a un archivo GPX con la ruta. |
 | `qualifyingTime` | String | Tiempo de clasificación necesario |
-| `podium`     | Array    | Lista de IDs de los ganadores. |
+| `classification`     | Array    | Lista de IDs de los ganadores. |
 | `createdBy`  | ObjectId | ID del administrador que creó la carrera. |
 | `status`     | String   | Estado de la carrera (`"open"`, `"closed"`, `"finished"`). |
 | `createdAt`  | Date     | Fecha en la que se registró la carrera en la plataforma. |
@@ -207,6 +218,7 @@ Estos son los endpoints que permitirán interactuar con la API:
 - `GET /races` → Listar todas las carreras.
 - `GET /races?date=YYYY-MM-DD` → Obtener carreras en una fecha específica.
 - `GET /races?location=Madrid` → Filtrar por ubicación.
+- `GET /races?sport=Ciclismo` → Filtrar por tipo de deporte.
 - `POST /races` → Crear una nueva carrera (admin).
 - `GET /races/:id` → Obtener detalles de una carrera específica.
 - `PUT /races/:id` → Actualizar datos de una carrera (admin).
