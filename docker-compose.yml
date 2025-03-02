@@ -1,0 +1,32 @@
+services:
+  mongodb:
+    image: mongo:4.4
+    container_name: my-mongo
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME="${MONGO_INITDB_ROOT_USERNAME}"
+      - MONGO_INITDB_ROOT_PASSWORD="${MONGO_INITDB_ROOT_PASSWORD}"
+      - MONGO_INITDB_DATABASE="${MONGO_INITDB_DATABASE}"
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  app:
+    build: ./Backend
+    container_name: node_app
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI="${MONGODB_URI}"
+      - JWT_SECRET="${JWT_SECRET}"
+      - FRONTEND_URL="${FRONTEND_URL}"
+    depends_on:
+      - mongodb
+    volumes:
+      - ./Backend:/app
+      - /app/node_modules
+      - ./Backend/.env:/app/.env
+
+volumes:
+  mongo_data:
