@@ -11,11 +11,11 @@ const raceSchema = mongoose.Schema({
     tour: {type: String, required: true},
     qualifyingTime: {type: String, required: true},
     classification: [{
-        corredor: {
+        runner: {
             type: String,
             required: true
         },
-        tiempo: {
+        mark: {
             type: Number,
             required: true
         }
@@ -28,7 +28,7 @@ const raceSchema = mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['open', 'closed', 'finished'],
+        enum: ['open', 'closed', 'finished', 'deleted'],
         default: 'open'
     },
     createdAt: {

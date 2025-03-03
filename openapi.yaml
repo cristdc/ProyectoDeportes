@@ -1,206 +1,1584 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: API de Carreras Multideporte
-  description: API para la gestión de usuarios, carreras e inscripciones en eventos deportivos.
+  title: API Carreras Multideporte
+  description: API para gestionar usuarios, carreras e inscripciones en eventos multideporte.
   version: 1.0.0
 servers:
-  - url: http://localhost:3000
-    description: Servidor local de desarrollo
-paths:
-  /users/register:
-    post:
-      summary: Registro de usuario
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: Juan Pérez
-                email:
-                  type: string
-                  example: juan@example.com
-                password:
-                  type: string
-                  example: "123456"
-                role:
-                  type: string
-                  enum: ["user", "admin"]
-      responses:
-        "201":
-          description: Usuario registrado exitosamente
-
-  /users/login:
-    post:
-      summary: Inicio de sesión
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  example: juan@example.com
-                password:
-                  type: string
-                  example: "123456"
-      responses:
-        "200":
-          description: Autenticación exitosa
-
-  /users/me:
-    get:
-      summary: Obtener el usuario autenticado
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Información del usuario autenticado
-
-  /races:
-    get:
-      summary: Listar todas las carreras
-      responses:
-        "200":
-          description: Lista de carreras disponibles
-
-    post:
-      summary: Crear una nueva carrera (admin)
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: "Maratón de Madrid"
-                sport:
-                  type: string
-                  enum: ["running", "trail", "cycling"]
-                date:
-                  type: string
-                  format: date-time
-                  example: "2024-05-15T09:00:00Z"
-                location:
-                  type: string
-                  example: "Madrid, España"
-                maxParticipants:
-                  type: integer
-                  example: 5000
-      responses:
-        "201":
-          description: Carrera creada exitosamente
-
-  /races/{id}:
-    get:
-      summary: Obtener detalles de una carrera específica
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Información de la carrera
-
-    put:
-      summary: Actualizar datos de una carrera (admin)
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: "Maratón de Barcelona"
-                status:
-                  type: string
-                  enum: ["open", "closed", "finished"]
-      responses:
-        "200":
-          description: Carrera actualizada exitosamente
-
-    delete:
-      summary: Eliminar una carrera (admin)
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Carrera eliminada exitosamente
-
-  /registrations:
-    post:
-      summary: Inscribir a un usuario en una carrera
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                raceId:
-                  type: string
-      responses:
-        "201":
-          description: Inscripción completada
-
-  /registrations/{userId}:
-    get:
-      summary: Obtener inscripciones de un usuario
-      security:
-        - bearerAuth: []
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Lista de inscripciones del usuario
-
-  /admin/stats:
-    get:
-      summary: Obtener métricas del sistema
-      security:
-        - bearerAuth: []
-      responses:
-        "200":
-          description: Datos estadísticos generales
+  - url: http://localhost:3000/api
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+  schemas:
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "60d21b4667d0d8992e610c85"
+        email:
+          type: string
+          format: email
+          example: "usuario@ejemplo.com"
+        name:
+          type: string
+          example: "Juan Pérez"
+        role:
+          type: string
+          enum: [user, admin]
+          example: "user"
+        avatar:
+          type: string
+          example: "default.jpg"
+        age:
+          type: integer
+          minimum: 0
+          example: 28
+        registrationDate:
+          type: string
+          format: date-time
+          example: "2023-08-24T14:15:22Z"
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Inicio de sesión exitoso"
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "60d21b4667d0d8992e610c85"
+            name:
+              type: string
+              example: "Juan Pérez"
+            email:
+              type: string
+              example: "usuario@ejemplo.com"
+            role:
+              type: string
+              example: "user"
+          example:
+            id: "60d21b4667d0d8992e610c85"
+            name: "Juan Pérez"
+            email: "usuario@ejemplo.com"
+            role: "user"
+    UserCredentials:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "usuario@ejemplo.com"
+        password:
+          type: string
+          example: "contraseña123"
+    NewUser:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          example: "nuevo@ejemplo.com"
+        password:
+          type: string
+          example: "contraseña123"
+        name:
+          type: string
+          example: "Nuevo Usuario"
+        age:
+          type: integer
+          minimum: 0
+          example: 25
+    RegisterResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Usuario registrado exitosamente"
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "60d21b4667d0d8992e610c85"
+            name:
+              type: string
+              example: "Nuevo Usuario"
+            email:
+              type: string
+              example: "nuevo@ejemplo.com"
+    UserRole:
+      type: object
+      required:
+        - userId
+        - role
+      properties:
+        userId:
+          type: string
+          example: "60d21b4667d0d8992e610c85"
+        role:
+          type: string
+          enum: [user, admin]
+          example: "admin"
+    Race:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "60d21b4667d0d8992e610c86"
+        name:
+          type: string
+          example: "Maratón Urbano 2023"
+        sport:
+          type: string
+          enum: [running, trailRunning, cycling]
+          example: "running"
+        date:
+          type: string
+          format: date-time
+          example: "2023-12-15T08:00:00Z"
+        location:
+          type: string
+          example: "Parque Central"
+        distance:
+          type: number
+          format: float
+          example: 42.2
+        maxParticipants:
+          type: integer
+          example: 500
+        unevenness:
+          type: number
+          example: 150
+        tour:
+          type: string
+          example: "ruta-maraton.gpx"
+        qualifyingTime:
+          type: string
+          example: "04:00:00"
+        classification:
+          type: array
+          items:
+            type: object
+            properties:
+              runner:
+                type: string
+                example: "Juan Corredor"
+              mark:
+                type: number
+                example: 3600
+          example: []
+        createdBy:
+          type: string
+          example: "60d21b4667d0d8992e610c85"
+        status:
+          type: string
+          enum: [open, closed, finished, deleted]
+          example: "open"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-08-24T14:15:22Z"
+    NewRace:
+      type: object
+      required:
+        - name
+        - sport
+        - date
+        - location
+        - distance
+        - maxParticipants
+        - unevenness
+        - tour
+        - qualifyingTime
+      properties:
+        name:
+          type: string
+          example: "Maratón Urbano 2023"
+        sport:
+          type: string
+          enum: [running, trailRunning, cycling]
+          example: "running"
+        date:
+          type: string
+          format: date-time
+          example: "2023-12-15T08:00:00Z"
+        location:
+          type: string
+          example: "Parque Central"
+        distance:
+          type: number
+          format: float
+          example: 42.2
+        maxParticipants:
+          type: integer
+          example: 500
+        unevenness:
+          type: number
+          example: 150
+        tour:
+          type: string
+          example: "ruta-maraton.gpx"
+        qualifyingTime:
+          type: string
+          example: "04:00:00"
+    Registration:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "60d21b4667d0d8992e610c87"
+        race:
+          type: string
+          description: ID de la carrera
+          example: "60d21b4667d0d8992e610c86"
+        user:
+          type: string
+          description: ID del usuario
+          example: "60d21b4667d0d8992e610c85"
+        registeredAt:
+          type: string
+          format: date-time
+          example: "2023-09-01T10:30:00Z"
+        status:
+          type: string
+          enum: [registered, cancelled, finished]
+          example: "registered"
+        time:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+        position:
+          type: integer
+          nullable: true
+          example: null
+    NewRegistration:
+      type: object
+      required:
+        - race
+      properties:
+        race:
+          type: string
+          description: ID de la carrera
+          example: "60d21b4667d0d8992e610c86"
+    RegistrationResult:
+      type: object
+      required:
+        - time
+        - position
+      properties:
+        time:
+          type: string
+          example: "03:45:30"
+        position:
+          type: integer
+          example: 42
+    ErrorResponse:
+      type: object
+      required:
+        - message
+        - error
+      properties:
+        message:
+          type: string
+          example: "Error en la operación"
+        error:
+          type: string
+          example: "Descripción detallada del error"
+        code:
+          type: string
+          example: "RACE_NOT_FOUND"
+
+paths:
+  /:
+    get:
+      summary: API Root
+      description: Página de bienvenida o información sobre la API
+      responses:
+        "200":
+          description: Información de la API
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: "API Carreras Multideporte"
+                  version:
+                    type: string
+                    example: "1.0.0"
+                  endpoints:
+                    type: array
+                    items:
+                      type: string
+                    example: ["/api/users", "/api/races", "/api/registrations"]
+
+  # Rutas de autenticación
+  /users/login:
+      post:
+        summary: Iniciar sesión
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserCredentials"
+        responses:
+          "200":
+            description: Inicio de sesión exitoso
+            headers:
+              Set-Cookie:
+                schema:
+                  type: string
+                  example: "token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; HttpOnly; Secure; SameSite=Strict; Max-Age=3600"
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: Token JWT para autenticación
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    user:
+                      $ref: "#/components/schemas/User"
+          "400":
+            description: Datos faltantes o inválidos
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Se requiere email y contraseña"
+          "401":
+            description: Credenciales inválidas
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "Usuario o contraseña incorrectos"
+          "500":
+            description: Error interno del servidor
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/ErrorResponse"
+
+  /users/register:
+    post:
+      summary: Registrar nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewUser"
+      responses:
+        "201":
+          description: Usuario registrado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponse"
+        "400":
+          description: Datos inválidos o usuario ya existe
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "El usuario ya existe"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/logout:
+    post:
+      summary: Cerrar sesión
+      responses:
+        "200":
+          description: Cierre de sesión exitoso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Cierre de sesión exitoso"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Rutas de usuario
+  /users/profile:
+    get:
+      summary: Obtener perfil del usuario actual
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Perfil del usuario
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario no encontrado"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: Actualizar perfil del usuario actual
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "usuario@ejemplo.com"
+                name:
+                  type: string
+                  example: "Juan Pérez"
+                age:
+                  type: integer
+                  example: 30
+                avatar:
+                  type: string
+                  example: "avatar.jpg"
+      responses:
+        "200":
+          description: Perfil actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "El email ya está en uso"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permiso para actualizar campos protegidos"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario no encontrado"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+
+  # Rutas de administración de usuarios
+  /admin/users:
+    get:
+      summary: Obtener todos los usuarios
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "403":
+          description: No autorizado (se requiere rol admin)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para acceder a este recurso"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Crear usuario (por admin)
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/NewUser"
+                - type: object
+                  properties:
+                    role:
+                      type: string
+                      enum: [user, admin]
+                      example: "user"
+      responses:
+        "201":
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario creado exitosamente"
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "60d21b4667d0d8992e610c85"
+                      name:
+                        type: string
+                        example: "Nuevo Usuario"
+                      email:
+                        type: string
+                        example: "nuevo@ejemplo.com"
+                      role:
+                        type: string
+                        example: "user"
+        "400":
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "El usuario ya existe"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para acceder a este recurso"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/users/{id}:
+    get:
+      summary: Obtener usuario por ID
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "60d21b4667d0d8992e610c85"
+      responses:
+        "200":
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para acceder a este recurso"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario no encontrado"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: Actualizar usuario
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "60d21b4667d0d8992e610c85"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "usuario@ejemplo.com"
+                name:
+                  type: string
+                  example: "Juan Pérez"
+                role:
+                  type: string
+                  enum: [user, admin]
+                  example: "admin"
+                age:
+                  type: integer
+                  example: 30
+                avatar:
+                  type: string
+                  example: "avatar.jpg"
+      responses:
+        "200":
+          description: Usuario actualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "El email ya está en uso"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para acceder a este recurso"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario no encontrado"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Eliminar usuario
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "60d21b4667d0d8992e610c85"
+      responses:
+        "200":
+          description: Usuario eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario eliminado exitosamente"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para acceder a este recurso"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario no encontrado"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/users/search:
+    get:
+      summary: Buscar usuarios por nombre
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+          example: "Juan"
+      responses:
+        "200":
+          description: Usuarios encontrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "400":
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Se requiere un nombre para la búsqueda"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para acceder a este recurso"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/users/change-role:
+    post:
+      summary: Cambiar rol de usuario
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRole"
+      responses:
+        "200":
+          description: Rol actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Rol actualizado correctamente"
+                  user:
+                    $ref: "#/components/schemas/User"
+        "400":
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Rol inválido"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para cambiar roles"
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Usuario no encontrado"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # Rutas de carreras
+  /races/{sport}:
+    get:
+      summary: Listar carreras por deporte
+      parameters:
+        - in: path
+          name: sport
+          required: true
+          schema:
+            type: string
+            enum: [running, trailRunning, cycling]
+          example: "running"
+      responses:
+        "200":
+          description: Lista de carreras
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Race"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Crear carrera
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: sport
+          required: true
+          schema:
+            type: string
+            enum: [running, trailRunning, cycling]
+          example: "running"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewRace"
+      responses:
+        "201":
+          description: Carrera creada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Race"
+        "400":
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error al crear la carrera"
+                  error:
+                    type: string
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No hay token de autenticación"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para acceder a este recurso"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /races/detail/{id}:
+    get:
+      summary: Obtener carrera por ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "60d21b4667d0d8992e610c86"
+      responses:
+        "200":
+          description: Carrera encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Race"
+        "404":
+          description: Carrera no encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Carrera no encontrada"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error al obtener la carrera"
+                  error:
+                    type: string
+    put:
+      summary: Actualizar carrera
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "60d21b4667d0d8992e610c86"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewRace"
+      responses:
+        "200":
+          description: Carrera actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Race"
+        "400":
+          description: Datos inválidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error al actualizar la carrera"
+                  error:
+                    type: string
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No autenticado"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para actualizar esta carrera"
+        "404":
+          description: Carrera no encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Carrera no encontrada"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error al actualizar la carrera"
+                  error:
+                    type: string
+    delete:
+      summary: Eliminar carrera
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          example: "60d21b4667d0d8992e610c86"
+      responses:
+        "200":
+          description: Carrera eliminada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Carrera eliminada correctamente"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No autenticado"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No tienes permisos para eliminar esta carrera"
+        "404":
+          description: Carrera no encontrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Carrera no encontrada"
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Error al eliminar la carrera"
+                  error:
+                    type: string
+
+  /registrations:
+    post:
+      summary: Crear una nueva inscripción
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewRegistration"
+      responses:
+        "201":
+          description: Inscripción creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Registration"
+        "400":
+          description: Datos inválidos o carrera llena
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Carrera no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      summary: Obtener inscripciones del usuario actual
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [registered, cancelled, finished]
+          description: Filtrar por estado de inscripción
+      responses:
+        "200":
+          description: Lista de inscripciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Registration"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /registrations/{id}:
+    put:
+      summary: Actualizar inscripción
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistrationResult"
+      responses:
+        "200":
+          description: Inscripción actualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Registration"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Inscripción no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Cancelar inscripción
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Inscripción cancelada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Inscripción cancelada exitosamente"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Inscripción no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /admin/stats:
+    get:
+      summary: Obtener estadísticas del sistema
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Estadísticas del sistema
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalUsers:
+                    type: integer
+                    example: 150
+                  activeRaces:
+                    type: integer
+                    example: 25
+                  totalRegistrations:
+                    type: integer
+                    example: 500
+                  registrationsByStatus:
+                    type: object
+                    properties:
+                      registered:
+                        type: integer
+                        example: 300
+                      cancelled:
+                        type: integer
+                        example: 50
+                      finished:
+                        type: integer
+                        example: 150
+                  racesByType:
+                    type: object
+                    properties:
+                      running:
+                        type: integer
+                        example: 10
+                      trailRunning:
+                        type: integer
+                        example: 8
+                      cycling:
+                        type: integer
+                        example: 7
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /races/{id}/results:
+    get:
+      summary: Obtener resultados de una carrera
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Resultados de la carrera
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    position:
+                      type: integer
+                      example: 1
+                    runner:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "60d21b4667d0d8992e610c85"
+                        name:
+                          type: string
+                          example: "Juan Pérez"
+                    time:
+                      type: string
+                      example: "02:45:30"
+        "404":
+          description: Carrera no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      summary: Registrar resultados de una carrera
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                required:
+                  - runnerId
+                  - time
+                  - position
+                properties:
+                  runnerId:
+                    type: string
+                    example: "60d21b4667d0d8992e610c85"
+                  time:
+                    type: string
+                    example: "02:45:30"
+                  position:
+                    type: integer
+                    example: 1
+      responses:
+        "200":
+          description: Resultados registrados exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Resultados registrados correctamente"
+        "401":
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Carrera no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
