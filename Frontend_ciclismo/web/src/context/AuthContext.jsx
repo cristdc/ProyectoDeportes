@@ -3,7 +3,6 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    // Inicializamos el estado con los valores almacenados en localStorage si existen
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
         return localStorage.getItem('isAuthenticated') === 'true'
     });
@@ -13,7 +12,6 @@ export const AuthProvider = ({ children }) => {
     });
     const [error, setError] = useState(null);
 
-    // Efecto para guardar el estado de autenticación cuando cambie
     useEffect(() => {
         if (isAuthenticated) {
             localStorage.setItem('isAuthenticated', 'true');
@@ -27,6 +25,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('user');
         }
     }, [isAuthenticated, user]);
+
 
     const login = async (userData) => {
         try {
@@ -69,8 +68,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(null);
                 localStorage.removeItem('isAuthenticated');
                 localStorage.removeItem('user');
-                setError(null);
-            }
+                setError(null);            }
         } catch (error) {
             setError(error.message);
         }

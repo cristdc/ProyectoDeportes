@@ -5,11 +5,9 @@ import { router } from './router/index'
 
 const App = () => {
   return (
-    <div>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </div>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   )
 }
 
