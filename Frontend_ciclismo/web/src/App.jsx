@@ -6,12 +6,9 @@ import NavBar from './components/NavBar'
 
 const App = () => {
   return (
-    <div>
-      <AuthProvider>
-        <NavBar />
-        <RouterProvider router={router} />
-      </AuthProvider>
-    </div>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   )
 }
 
