@@ -9,10 +9,7 @@ export const AuthProvider = ({ children }) => {
     });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [token, setToken] = useState(() => {
-        const savedToken = localStorage.getItem('token');
-        return savedToken ? JSON.parse(savedToken) : null;
-    });
+
 
     const handleSetUser = (userData) => {
         if (userData) {
@@ -42,13 +39,6 @@ export const AuthProvider = ({ children }) => {
             
             const data = await response.json();
             handleSetUser(data.user);
-            
-            // Token handling directly in login
-            if (data.token) {
-                localStorage.setItem('token', JSON.stringify(data.token));
-                setToken(data.token);
-            }
-            
             return { success: true };
         } catch (error) {
             setError(error);
@@ -59,27 +49,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = async () => {
-        try {
-            await fetch(`${API_URL}/users/logout`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-        } catch (error) {
-            console.error("Error en logout:", error);
-        } finally {
-            setUser(null);
-            setToken(null);
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-        }
+    const logout = () => {
+        setUser(null);
+        localStorage.removeItem("user");
     };
 
     const value = {
         user,
-        token,
         error,
         loading,
         login,
