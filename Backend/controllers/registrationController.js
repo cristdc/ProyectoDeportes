@@ -1,57 +1,94 @@
+import mongoose from "mongoose";
 import Registration from "../models/Registrations.js";
 import Race from "../models/Race.js";
 import User from "../models/User.js";
 
-// Crear inscripción
 const createRegistration = async (req, res) => {
-  // TODO:
-  // - Extraer el ID de la carrera (race) del body
-  // - Validar que el ID de carrera tenga formato válido de MongoDB
-  // - Verificar que la carrera exista con Race.findById()
-  // - Comprobar que la carrera tenga estado 'open'
-  // - Verificar que la carrera no haya alcanzado su maxParticipants
-  // - Comprobar si el usuario ya está inscrito en esta carrera para evitar duplicados
-  // - Crear una nueva instancia de Registration con:
-  //   * race: ID de la carrera
-  //   * user: ID del usuario actual (req.user.id)
-  //   * status: 'registered' (por defecto)
-  //   * registeredAt: fecha actual
-  // - Guardar la inscripción en la base de datos
-  // - Devolver la inscripción creada con código 201
-  // - Manejar errores con try/catch
-   try {
-     // Respuesta temporal
-     return res.status(200).json({
-       message:
-         "Endpoint conectado correctamente, metodo pendiente de programar",
-     });
-   } catch (error) {
-     return res.status(500).json({
-       message: "Error en la conexión al endpoint",
-       error: error.message,
-     });
-   }
+  try {
+    const { raceId } = req.body;
+    const userId = req.user._id;
+
+    // Validar que el ID de la carrera tenga formato válido de MongoDB
+    if (!mongoose.Types.ObjectId.isValid(raceId)) {
+      return res.status(400).json({ message: "ID de carrera no válido" });
+    }
+
+    // Verificar que la carrera exista
+    const race = await Race.findById(raceId);
+    if (!race) {
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    // Comprobar que la carrera tenga estado 'open'
+    if (race.status !== "open") {
+      return res.status(400).json({ message: "La carrera no está abierta para inscripciones" });
+    }
+
+    // Verificar que la carrera no haya alcanzado su límite de participantes
+    const registrationsCount = await Registration.countDocuments({ race: raceId });
+    if (registrationsCount >= race.maxParticipants) {
+      return res.status(400).json({ message: "La carrera ha alcanzado el número máximo de participantes" });
+    }
+
+    // Comprobar si el usuario ya está inscrito
+    const existingRegistration = await Registration.findOne({ race: raceId, user: userId });
+    if (existingRegistration) {
+      return res.status(400).json({ message: "El usuario ya está inscrito en esta carrera" });
+    }
+
+    // Crear nueva inscripción
+    const registration = new Registration({
+      race: raceId,
+      user: userId,
+      status: "registered",
+      registeredAt: new Date(),
+    });
+
+    // Guardar inscripción en la base de datos
+    await registration.save();
+
+    // Populate the registration with race and user details before sending response
+    const populatedRegistration = await Registration.findById(registration._id)
+      .populate('race', 'name date sport')
+      .populate('user', 'name email');
+
+    return res.status(201).json({
+      message: "Inscripción realizada exitosamente",
+      registration: populatedRegistration
+    });
+  } catch (error) {
+    console.log('Error details:', error); // For debugging
+    return res.status(500).json({ 
+      message: "Error al registrar la inscripción", 
+      error: error.message 
+    });
+  }
 };
 
 // Obtener inscripciones del usuario
 const getUserRegistrations = async (req, res) => {
-  // TODO:
-  // - Obtener el ID del usuario autenticado (req.user.id)
-  // - Buscar todas las inscripciones donde user coincida con el ID del usuario
-  // - Usar .populate('race') para incluir los detalles de las carreras
-  // - Filtrar por estado de inscripción si se proporciona en query params
-  // - Ordenar resultados (por ejemplo, por fecha de carrera o fecha de registro)
-  // - Devolver la lista de inscripciones con código 200
-  // - Manejar posibles errores de base de datos
    try {
-     // Respuesta temporal
-     return res.status(200).json({
-       message:
-         "Endpoint conectado correctamente, metodo pendiente de programar",
-     });
+     const userId = req.user._id;
+
+     if (!req.user || !userId) {
+      return res.status(401).json({ message: "No hay token de autenticación" });
+    }
+     const { status } = req.query;
+
+     let query = { user: userId };
+     if (status) {
+       query.status = status;
+     }
+ 
+     const registrations = await Registration.find(query)
+       .populate("race")
+       .sort({ registeredAt: -1 });
+ 
+     return res.status(200).json(registrations);
+
    } catch (error) {
      return res.status(500).json({
-       message: "Error en la conexión al endpoint",
+       message: "Error al obtener las inscripciones",
        error: error.message,
      });
    }
@@ -59,130 +96,228 @@ const getUserRegistrations = async (req, res) => {
 
 // Obtener inscripciones por carrera
 const getRaceRegistrations = async (req, res) => {
-  // TODO:
-  // - Extraer el ID de la carrera de req.params.raceId
-  // - Validar que el ID tenga formato válido
-  // - Verificar permisos del usuario (solo admin/creador de la carrera deberían acceder)
-  // - Buscar inscripciones con Registration.find({ race: raceId })
-  // - Usar .populate('user', 'name email') para incluir información de los usuarios
-  // - Ordenar por filtros (marcas de tiempo, posicion...etc)
-  // - Devolver la lista de inscripciones con código 200
-  // - Manejar errores con try/catch
-   try {
-     // Respuesta temporal
-     return res.status(200).json({
-       message:
-         "Endpoint conectado correctamente, metodo pendiente de programar",
-     });
-   } catch (error) {
-     return res.status(500).json({
-       message: "Error en la conexión al endpoint",
-       error: error.message,
-     });
-   }
+  try {
+    const raceId = req.params._id; 
+    const userId = req.user._id; 
+
+    if (!req.user) {
+      return res.status(401).json({ message: "No hay token de autenticación" });
+    }
+
+    if(!userId){
+      return res.status(404).json({ message: "Usuario no encontrado" })
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(raceId)) {
+      return res.status(400).json({ message: "ID de carrera no válido" });
+    }
+
+    // Verificar que la carrera exista
+    const race = await Race.findById(raceId);
+    if (!race) {
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    // Verificar permisos (admin o creador de la carrera)
+    if (req.user.role !== "admin" || race.createdBy.toString() !== userId) {
+      return res.status(403).json({ message: "No tienes permisos para acceder a este recurso" });
+    }
+
+    // Buscar inscripciones asociadas a la carrera
+    const registrations = await Registration.find({ race: raceId })
+      .populate("user", "name email")
+      .sort({ registeredAt: -1 });
+
+    return res.status(200).json(registrations);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al obtener las inscripciones",
+      error: error.message,
+    });
+  }
 };
 
 // Actualizar inscripción con los resultados de la carrera (finished)
 const updateRegistration = async (req, res) => {
-  // TODO:
-  // - Extraer el ID de inscripción de req.params.id
-  // - Extraer tiempo y posición del body
-  // - Validar formato del tiempo (podría ser una duración en segundos o formato HH:MM:SS)
-  // - Validar que la posición sea un número positivo
-  // - Verificar permisos (solo admin debería poder registrar resultados)
-  // - Verificar que la carrera asociada tenga estado 'finished'
-  // - Actualizar la inscripción con tiempo y posición
-  // - Cambiar status a 'finished'
-  // - Devolver la inscripción actualizada con código 200
-  // - Manejar errores con try/catch
-   try {
-     // Respuesta temporal
-     return res.status(200).json({
-       message:
-         "Endpoint conectado correctamente, metodo pendiente de programar",
-     });
-   } catch (error) {
-     return res.status(500).json({
-       message: "Error en la conexión al endpoint",
-       error: error.message,
-     });
-   }
+  try {
+    const registrationId = req.params._id;
+    const { time, position } = req.body;
+
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "No tienes permisos para acceder a este recurso" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(registrationId)) {
+      return res.status(400).json({ message: "ID de inscripción no válido" });
+    }
+
+
+    const registration = await Registration.findById(registrationId).populate("race");
+    if (!registration) {
+      return res.status(404).json({ message: "Inscripción no encontrada" });
+    }
+
+    if (registration.race.status !== "finished") {
+      return res.status(400).json({ message: "La carrera no esta en estado finished" });
+    }
+
+    registration.time = time;
+    registration.position = position;
+    registration.status = "finished";
+    await registration.save();
+
+    return res.status(200).json(registration);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al actualizar la inscripción",
+      error: error.message,
+    });
+  }
 };
 
 // Cancelar inscripción
 const cancelRegistration = async (req, res) => {
-  // TODO:
-  // - Extraer el ID de inscripción de req.params.id
-  // - Validar que el ID tenga formato válido
-  // - Verificar que la inscripción pertenezca al usuario actual (req.user.id)
-  // - Comprobar que la inscripción tenga estado 'registered' (no cancelar algo ya cancelado o finalizado)
-  // - Verificar que la fecha de la carrera no haya pasado
-  // - Actualizar el estado a 'cancelled' usando findByIdAndUpdate
-  // - Si la inscripción no existe, devolver 404
-  // - Devolver la inscripción actualizada o un mensaje de éxito con código 200
-  // - Manejar errores con try/catch
-   try {
-     // Respuesta temporal
-     return res.status(200).json({
-       message:
-         "Endpoint conectado correctamente, metodo pendiente de programar",
-     });
-   } catch (error) {
-     return res.status(500).json({
-       message: "Error en la conexión al endpoint",
-       error: error.message,
-     });
-   }
+  try {
+    const registrationId = req.params._id;
+    const userId = req.user._id;
+
+    if (!mongoose.Types.ObjectId.isValid(registrationId)) {
+      return res.status(400).json({ message: "ID de inscripción no válido" });
+    }
+
+
+    const registration = await Registration.findById(registrationId).populate('race');
+    
+    if (!registration) {
+      return res.status(404).json({ message: "Inscripción no encontrada" });
+    }
+
+    if (registration.user.toString() !== userId) {
+      return res.status(403).json({ message: "No puedes cancelar una inscripción que no te pertenece" });
+    }
+
+  
+    if (registration.status !== "registered") {
+      return res.status(409).json({ message: "No se puede cancelar una inscripción ya finalizada o cancelada" });
+    }
+
+
+    if (new Date(registration.race.date) < new Date()) {
+      return res.status(409).json({ message: "No se puede cancelar una inscripción cuando la carrera ya pasó" });
+    }
+
+  
+    registration.status = "cancelled";
+    await registration.save();
+
+    return res.status(200).json({
+      message: "Inscripción cancelada exitosamente",
+      registration
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al cancelar la inscripción",
+      error: error.message
+    });
+  }
 };
 
 // Actualizar inscripción con tiempo
 const updateRegistrationTime = async (req, res) => {
-
-  // TODO:
-  // - Extraer ID de inscripción
-  // - Extraer tiempo y posición del body
-  // - Validar formato del tiempo
-  // - Validar que la posición sea un número positivo
-  // - Verificar permisos (solo admin)
-  // - Actualizar la inscripción
-  // - Cambiar status a 'finished'
-  // - Devolver la inscripción actualizada
-  // - Manejar errores con try/catch
   try {
-    // Respuesta temporal
+    const registrationId = req.params._id; 
+    const { time, position } = req.body;
+
+
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({ message: "No tienes permisos para realizar esta acción" });
+    }
+
+ 
+    if (!mongoose.Types.ObjectId.isValid(registrationId)) {
+      return res.status(400).json({ message: "ID de inscripción no válido" });
+    }
+
+
+    const timeRegex = /^([0-9]{2}):([0-9]{2}):([0-9]{2})$/;
+    if (!timeRegex.test(time)) {
+      return res.status(400).json({ message: "Formato de tiempo inválido. Use HH:mm:ss" });
+    }
+
+  
+    if (!Number.isInteger(position) || position <= 0) {
+      return res.status(400).json({ message: "La posición debe ser un número entero positivo" });
+    }
+
+  
+    const registration = await Registration.findById(registrationId).populate('race');
+    if (!registration) {
+      return res.status(404).json({ message: "Inscripción no encontrada" });
+    }
+
+    
+    if (registration.race.status !== "finished") {
+      return res.status(409).json({ message: "No se puede registrar tiempo para una carrera que no ha finalizado" });
+    }
+
+    registration.time = time;
+    registration.position = position;
+    registration.status = "finished";
+    await registration.save();
+
     return res.status(200).json({
-      message:
-        "Endpoint conectado correctamente, metodo pendiente de programar",
+      message: "Tiempo registrado exitosamente",
+      registration
     });
   } catch (error) {
     return res.status(500).json({
-      message: "Error en la conexión al endpoint",
-      error: error.message,
+      message: "Error al registrar el tiempo",
+      error: error.message
     });
   }
 };
 
 // Obtener todas las inscripciones (admin)
 const getAllRegistrations = async (req, res) => {
-  
-try {
-  // Respuesta temporal
-  return res.status(200).json({
-    message: "Endpoint conectado correctamente, metodo pendiente de programar",
-  });
-} catch (error) {
-  return res.status(500).json({
-    message: "Error en la conexión al endpoint",
-    error: error.message,
-  });
-}
-  // TODO:
-  // - Obtener todas las inscripciones
-  // - Poblar información de usuarios y carreras
-  // - Implementar filtros (por estado, por carrera, etc.)
-  // - Implementar paginación
-  // - Devolver lista de inscripciones
-  // - Manejar errores con try/catch
+  try {
+    const { status, race, page = 1, limit = 10 } = req.query;
+    
+    let query = {};
+    if (status) query.status = status;
+    if (race) query.race = race;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    if (pageNum < 1 || limitNum < 1) {
+      return res.status(400).json({ message: "Parámetros de paginación inválidos" });
+    }
+
+    const skip = (pageNum - 1) * limitNum;
+
+ 
+    const totalRegistrations = await Registration.countDocuments(query);
+    const totalPages = Math.ceil(totalRegistrations / limitNum);
+
+
+    const registrations = await Registration.find(query)
+      .populate('race', 'name date sport')
+      .populate('user', 'name email')
+      .sort({ registeredAt: -1 })
+      .skip(skip)
+      .limit(limitNum);
+
+    return res.status(200).json({
+      registrations,
+      totalRegistrations,
+      totalPages,
+      currentPage: pageNum
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error al obtener las inscripciones",
+      error: error.message
+    });
+  }
 };
 
 
