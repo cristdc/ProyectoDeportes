@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../services/api';
-import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setIsAuthenticated } = useAuth();
+  const { login } = useAuth();
   const { showSuccessToast, showErrorToast } = useToast();
 
   const handleSubmit = async (e) => {
@@ -21,12 +20,8 @@ const LoginPage = () => {
         password: formData.get('password')
       };
 
-      console.log('Intentando login con:', credentials);
-      const response = await login(credentials);
-      console.log('Login exitoso:', response);
-      
+      await login(credentials);
       showSuccessToast('Login exitoso');
-      setIsAuthenticated(true);
       navigate('/');
     } catch (error) {
       console.error('Error en login:', error);
