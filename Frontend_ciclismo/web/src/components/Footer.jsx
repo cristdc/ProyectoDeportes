@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
@@ -9,9 +10,9 @@ function Footer() {
             &copy; {new Date().getFullYear()} CicloApp. Todos los derechos reservados.
           </div>
           <div className="flex space-x-4">
-            <a href="/about" className="hover:text-[#8EAC93] transition-colors duration-200">Sobre Nosotros</a>
-            <a href="/contact" className="hover:text-[#8EAC93] transition-colors duration-200">Contacto</a>
-            <a href="/privacy" className="hover:text-[#8EAC93] transition-colors duration-200">Política de Privacidad</a>
+            <Link to="/about" className="hover:text-[#8EAC93] transition-colors duration-200">Sobre Nosotros</Link>
+            <Link to="/contact" className="hover:text-[#8EAC93] transition-colors duration-200">Contacto</Link>
+            <Link to="/privacy" className="hover:text-[#8EAC93] transition-colors duration-200">Política de Privacidad</Link>
           </div>
         </div>
       </div>
