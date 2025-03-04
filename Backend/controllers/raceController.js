@@ -2,6 +2,14 @@ import Race from "../models/Race.js";
 import mongoose from "mongoose";
 import Registration from "../models/Registrations.js";
 
+// Importaciones para archivos CSV
+import fs from "fs";
+import path from "path";
+import Papa from "papaparse";
+const { parse, unparse } = Papa;
+import User from "../models/User.js";
+
+
 /**
  * Funciones auxiliares para validaciones comunes
  */
@@ -815,15 +823,57 @@ const registerRaceResults = async (req, res) => {
       updatedRegistrations.push(registration);
     }
 
+    // Enviar emails en segundo plano (para no hacer esperar a la respuesta API)
+    const sendEmails = async () => {
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (let result of results) {
+        const { userId, time, position } = result;
+
+        try {
+          // Obtener datos completos del usuario
+          const user = await User.findById(userId);
+
+          if (user && user.email) {
+            const success = await sendRaceResultsEmail(user, race, {
+              time,
+              position,
+            });
+            if (success) successCount++;
+            else errorCount++;
+          }
+        } catch (emailError) {
+          console.error(
+            `Error al procesar email para usuario ${userId}:`,
+            emailError
+          );
+          errorCount++;
+        }
+      }
+
+      console.log(
+        `Envío de emails completado: ${successCount} exitosos, ${errorCount} fallidos`
+      );
+    };
+
+    // Iniciar el proceso de envío sin esperar
+    // (no bloqueará la respuesta de la API)
+    sendEmails().catch((e) =>
+      console.error("Error en el proceso de envío de emails:", e)
+    );
+
+    // Responder inmediatamente al cliente
     return res.status(200).json({
       message: "Resultados registrados correctamente",
       raceId: id,
       raceName: race.name,
       totalResults: results.length,
-      results: updatedRegistrations.map((reg) => ({
-        userId: reg.user,
-        position: reg.position,
-        time: reg.time,
+      emailsScheduled: true,
+      results: results.map((r) => ({
+        userId: r.userId,
+        position: r.position,
+        time: r.time,
       })),
     });
   } catch (error) {
@@ -900,6 +950,271 @@ const getRaceResults = async (req, res) => {
   }
 };
 
+
+/**
+ * Descargar el CSV con dorsales para rellenar tiempos
+ * @route GET /api/races/:id/runners-csv
+ */
+const downloadRunnersCSV = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: "ID de carrera inválido" });
+    }
+
+    // Verificar que la carrera existe
+    const race = await Race.findById(id);
+    if (!race) {
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    // Verificar que el usuario es el creador o un admin
+    if (race.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.status(403).json({ message: "No tienes permisos para descargar datos de esta carrera" });
+    }
+    
+    // Obtener todas las inscripciones de la carrera
+    const registrations = await Registration.find({
+      race: id,
+      status: 'registered'
+    }).populate('user', 'email name');
+    
+    if (registrations.length === 0) {
+      return res.status(404).json({ message: "No hay inscripciones registradas para esta carrera" });
+    }
+    
+    // Preparar datos para el CSV
+    const csvData = registrations.map(reg => ({
+      email: reg.user.email,
+      nombre: reg.user.name,
+      dorsal: reg.dorsal || '',
+      tiempo: ''
+    }));
+    
+    // Generar CSV
+    const csvString = Papa.unparse(csvData);
+    
+    // Determinar nombre del archivo
+    const filename = `resultados_${race.name.replace(/\s+/g, '_')}.csv`;
+    
+    // Configurar encabezados para descarga
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    // Enviar el archivo
+    return res.send(csvString);
+  } catch (error) {
+    console.error('Error en downloadRunnersCSV:', error);
+    return res.status(500).json({
+      message: "Error al descargar datos para resultados",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Subir CSV con tiempos de los corredores
+ * @route POST /api/races/:id/results-csv
+ */
+const uploadResultsCSV = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!req.file) {
+      return res.status(400).json({ message: "No se ha subido ningún archivo" });
+    }
+
+    if (!isValidObjectId(id)) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: "ID de carrera inválido" });
+    }
+
+    // Verificar que la carrera existe y el usuario tiene permisos
+    const race = await Race.findById(id);
+    if (!race) {
+      fs.unlinkSync(req.file.path);
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    // Verificar que el usuario es el creador o un admin
+    if (race.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+      fs.unlinkSync(req.file.path);
+      return res.status(403).json({ message: "No tienes permisos para subir resultados a esta carrera" });
+    }
+
+    // Procesar el CSV
+    const fileContent = fs.readFileSync(req.file.path, 'utf8');
+    const csvData = Papa.parse(fileContent, {
+      header: true,
+      skipEmptyLines: true
+    });
+
+    // Validar estructura del CSV
+    if (!csvData.data.length) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ message: "El archivo CSV está vacío o tiene un formato incorrecto" });
+    }
+
+    // Verificar que todas las columnas necesarias existen
+    const requiredColumns = ['email', 'dorsal', 'tiempo'];
+    const missingColumns = requiredColumns.filter(col => !csvData.meta.fields.includes(col));
+    
+    if (missingColumns.length > 0) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ 
+        message: `El CSV no tiene las columnas requeridas: ${missingColumns.join(', ')}` 
+      });
+    }
+
+    // Validar tiempos y dorsales
+    const errors = [];
+    const results = [];
+    const timeRegex = /^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
+    
+    for (let i = 0; i < csvData.data.length; i++) {
+      const row = csvData.data[i];
+      
+      // Solo procesar si tiene tiempo
+      if (row.tiempo && row.tiempo.trim() !== '') {
+        // Validar formato de tiempo
+        if (!timeRegex.test(row.tiempo)) {
+          errors.push(`Fila ${i+1}: Formato de tiempo inválido (${row.tiempo}). Use formato HH:mm:ss`);
+          continue;
+        }
+        
+        // Buscar usuario por email
+        const user = await User.findOne({ email: row.email });
+        
+        if (!user) {
+          errors.push(`Fila ${i+1}: No se encontró ningún usuario con el email ${row.email}`);
+          continue;
+        }
+        
+        // Verificar si está inscrito
+        const registration = await Registration.findOne({ 
+          user: user._id,
+          race: race._id,
+          status: 'registered'
+        });
+        
+        if (!registration) {
+          errors.push(`Fila ${i+1}: El usuario ${row.email} no está inscrito en esta carrera`);
+          continue;
+        }
+        
+        // Verificar que el dorsal coincide
+        if (registration.dorsal && registration.dorsal.toString() !== row.dorsal) {
+          errors.push(`Fila ${i+1}: El dorsal ${row.dorsal} no coincide con el asignado (${registration.dorsal}) al usuario ${row.email}`);
+          continue;
+        }
+        
+        // Añadir a la lista de resultados
+        results.push({
+          userId: user._id.toString(),
+          time: row.tiempo,
+          position: i + 1, // Posición basada en el orden del CSV
+          dorsal: parseInt(row.dorsal)
+        });
+      }
+    }
+    
+    // Si hay errores, no continuar
+    if (errors.length > 0) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ 
+        message: "El CSV contiene errores", 
+        errors 
+      });
+    }
+    
+    // Si no hay resultados con tiempo
+    if (results.length === 0) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ 
+        message: "No se encontraron tiempos válidos en el CSV" 
+      });
+    }
+
+    // Marcar la carrera como finalizada
+    race.status = "finished";
+    await race.save();
+
+    // Actualizar las inscripciones con los resultados
+    for (const result of results) {
+      await Registration.updateOne(
+        { race: id, user: result.userId },
+        { 
+          $set: { 
+            time: result.time,
+            position: result.position,
+            status: "finished",
+            dorsal: result.dorsal
+          } 
+        }
+      );
+    }
+
+    // Guardar el nuevo CSV reemplazando el anterior
+    if (race.runnersCSVPath && fs.existsSync(race.runnersCSVPath)) {
+      fs.unlinkSync(race.runnersCSVPath);
+    }
+    
+    // Almacenar el nuevo CSV
+    race.runnersCSVPath = req.file.path;
+    race.lastCSVUpdate = new Date();
+    await race.save();
+
+    const sendEmails = async () => {
+      let successCount = 0;
+      let errorCount = 0;
+      
+      for (const result of results) {
+        try {
+          const user = await User.findById(result.userId);
+          if (user && user.email) {
+            const success = await sendRaceResultsEmail(user, race, {
+              time: result.time,
+              position: result.position
+            });
+            
+            if (success) successCount++;
+            else errorCount++;
+          }
+        } catch (emailError) {
+          console.error(`Error al enviar email al usuario ${result.userId}:`, emailError);
+          errorCount++;
+        }
+      }
+      
+      console.log(`Envío de emails completado: ${successCount} exitosos, ${errorCount} fallidos`);
+    };
+    
+    // Iniciar proceso de envío de emails sin bloquear
+    sendEmails().catch(e => console.error('Error en proceso de envío de emails:', e));
+
+    return res.status(200).json({
+      message: "Resultados procesados correctamente",
+      raceId: id,
+      raceName: race.name,
+      totalResults: results.length,
+      emailsScheduled: true
+    });
+  } catch (error) {
+    console.error('Error en uploadResultsCSV:', error);
+    
+    // Eliminar archivo si existe
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    return res.status(500).json({
+      message: "Error al procesar el CSV de resultados",
+      error: error.message
+    });
+  }
+};
+
 export {
   getAllRaces,
   getRacesByDate,
@@ -911,4 +1226,6 @@ export {
   deleteRace,
   registerRaceResults,
   getRaceResults,
+  downloadRunnersCSV,
+  uploadResultsCSV,
 };
