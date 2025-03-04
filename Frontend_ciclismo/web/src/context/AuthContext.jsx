@@ -7,37 +7,25 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
 
-    const register = async (userData) => {
-        try{
-            const response = await fetch("http://localhost:3000/api/users/register", {
-                method: "POST",
-                body: JSON.stringify(userData),
-                headers: { "Content-Type": "application/json" }
-        });
-        if (response.ok) {
-            const data = await response.json();
-            setIsAuthenticated(true);
-            setUser(data);
-        }
-        } catch (error) {
-            setError(error.message);
-        }
-    };
 
     const login = async (userData) => {
         try {
             const response = await fetch("http://localhost:3000/api/users/login", {
                 method: "POST",
                 body: JSON.stringify(userData),
-                headers: { "Content-Type": "application/json" }
-        });
-        if (response.ok) {
-            const data = await response.json();
-            setIsAuthenticated(true);
-            setUser(data);
-        }
+                credentials: "include",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${userData.token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setIsAuthenticated(true);
+                setUser(data.user);
+                return true;
+            }
+            return false;
         } catch (error) {
             setError(error.message);
+            return false;
         }
     };
 
@@ -47,7 +35,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, login, logout, register, error, setError }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, login, logout, error, setError }}>
             {children}
         </AuthContext.Provider>
     );
