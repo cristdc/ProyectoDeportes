@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
+  const { user } = useAuth
   return (
     <>
       <div className="flex justify-between items-center p-2 bg-cyan-600">
@@ -28,7 +28,6 @@ const Navbar = () => {
           <Link>Usuario</Link>
         </div>
       </div>
-
       {/* Menú Móvil (visible solo cuando isOpen es true) */}
       <div 
         className={`sm:hidden flex flex-col bg-cyan-700 text-white py-3 space-y-2 
