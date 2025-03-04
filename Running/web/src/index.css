@@ -1,1 +1,56 @@
 @import "tailwindcss";
+
+:root {
+  --text: #1a1204;
+  --background: #fdf7ed;
+  --primary: #9B9D79;
+  --secondary: #B4C7B2;
+  --accent: #8EAC93;
+  --hover-primary: #8b8d6c;
+  --hover-accent: #7d9982;
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--background)] text-[var(--text)];
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .nav-link {
+    @apply px-4 py-2 rounded-lg hover:bg-[var(--primary)] hover:text-white transition-colors;
+  }
+
+  .logo {
+    @apply text-2xl font-bold text-[var(--primary)] hover:text-[var(--hover-primary)] transition-colors;
+  }
+
+  .stats-container {
+    @apply max-w-4xl mx-auto p-6 rounded-2xl bg-white shadow-lg mt-8;
+  }
+
+  .stats-header {
+    @apply flex justify-between items-center mb-6;
+  }
+
+  .stats-title {
+    @apply text-xl font-semibold px-4 py-2 rounded-lg bg-[var(--accent)] text-white;
+  }
+
+  .stats-table {
+    @apply w-full border-collapse;
+  }
+
+  .stats-table th {
+    @apply py-3 px-4 text-left border-b-2 border-[var(--secondary)] text-[var(--primary)] font-semibold;
+  }
+
+  .stats-table td {
+    @apply py-3 px-4 border-b border-[var(--secondary)]/30;
+  }
+
+  .stats-table tr:hover {
+    @apply bg-[var(--secondary)]/10 transition-colors;
+  }
+}

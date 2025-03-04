@@ -1,6 +1,6 @@
 import { RouterProvider } from 'react-router-dom';
-import { router } from './routes.jsx'; // Añadimos la extensión .jsx
-import './styles/index.css';
+import { router } from './router/index.jsx';
+import './index.css';
 
 function App() {
   return <RouterProvider router={router} />;
