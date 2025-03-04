@@ -3,21 +3,19 @@ import { faFacebook, faInstagram } from '@fortawesome/free-brands-svg-icons';
 
 const Footer = () => {
   return (
-    <>
-      <div className="flex justify-between items-center bg-cyan-600 p-4">
-        <div>
-          <h1 className="text-white">TrailRunning</h1>
-        </div>
-        <div className="flex space-x-4">
-          <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
-            <FontAwesomeIcon icon={faFacebook} className="text-white" />
-          </a>
-          <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
-            <FontAwesomeIcon icon={faInstagram} className="text-white" />
-          </a>
+    <footer className="bg-background shadow-lg text-text">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col items-center text-center">
+          <h2 className="text-2xl font-bold mb-4">¡Thanks for visiting!</h2>
+          <p className="mb-4">
+            Explore more about pokemon and discover all the nice things we have ready for you
+          </p>
+          <p className="mt-4 text-sm">
+            © {new Date().getFullYear()} TrailRunning Company. All rights reserved.
+          </p>
         </div>
       </div>
-    </>
+    </footer>
   );
 }
 

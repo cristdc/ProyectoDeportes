@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import useAuth from "../hooks/useAuth";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user } = useAuth
+  const { user } = useAuth();
   return (
     <>
-      <div className="flex justify-between items-center p-2 bg-cyan-600">
+      <div className="flex justify-between items-center p-2 bg-background">
         {/* Logo */}
         <div>
           <Link to="/">Trail</Link>
