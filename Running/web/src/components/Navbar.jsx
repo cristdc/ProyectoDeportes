@@ -26,7 +26,7 @@ const Navbar = () => {
           </NavLink>
 
           <NavLink
-            to="/user"
+            to="/profile"
             className={({ isActive }) =>
               `flex flex-col items-center text-gray-600 ${
                 isActive ? "text-blue-600 font-semibold" : ""
