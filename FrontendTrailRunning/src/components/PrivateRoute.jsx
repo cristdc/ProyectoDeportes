@@ -1,10 +1,10 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth"; // Asegúrate de tener el hook de autenticación
+import useAuth from "../hooks/useAuth.js"; // Asegúrate de tener el hook de autenticación
 
 const PrivateRoute = ({ children }) => {
-  const { isAuth } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  if (!isAuth) {
+  if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
   return children;

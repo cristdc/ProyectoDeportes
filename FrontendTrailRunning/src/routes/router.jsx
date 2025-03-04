@@ -7,6 +7,7 @@ import { ROUTES } from "./paths.js"
 import Races from "../pages/Races.jsx";
 import RacesUser from "../pages/RacesUser.jsx";
 import Login from "../pages/Login.jsx";
+import PrivateRoute from "../components/PrivateRoute.jsx";
 
 export const router = createBrowserRouter([
     {
