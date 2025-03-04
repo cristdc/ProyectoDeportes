@@ -1,29 +1,37 @@
-import { NavLink } from 'react-router-dom'
+import { FaHome, FaRunning, FaUser } from 'react-icons/fa';
+import { MdEmojiEvents } from 'react-icons/md';
 
 const Navbar = () => {
   return (
-    <nav className="bg-white shadow-md">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+    <nav className="nav-container">
+      <div className="nav-content">
+        <div className="nav-items">
           <a href="/" className="logo">
             LOGO
           </a>
           
-          <div className="flex gap-4">
+          <div className="nav-links">
+            <a href="/" className="nav-link">
+              <span className="nav-link-icon"><FaHome /></span>
+              <span>Inicio</span>
+            </a>
             <a href="/carreras-dispo" className="nav-link">
-              Carreras dispo
+              <span className="nav-link-icon"><MdEmojiEvents /></span>
+              <span>Carreras</span>
             </a>
             <a href="/participar" className="nav-link">
-              Participar
+              <span className="nav-link-icon"><FaRunning /></span>
+              <span>Participar</span>
             </a>
             <a href="/user" className="nav-link">
-              User
+              <span className="nav-link-icon"><FaUser /></span>
+              <span>Perfil</span>
             </a>
           </div>
         </div>
       </div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
