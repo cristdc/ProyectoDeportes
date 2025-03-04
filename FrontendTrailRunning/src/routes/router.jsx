@@ -7,6 +7,7 @@ import { ROUTES } from "./paths.js"
 import Races from "../pages/Races.jsx";
 import RacesUser from "../pages/RacesUser.jsx";
 import Login from "../pages/Login.jsx";
+import PrivateRoute from "../components/PrivateRoute.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -22,15 +23,27 @@ export const router = createBrowserRouter([
             },
             {
                 path: ROUTES.HOME,
-                element: <Home />
+                element: (          
+                    <PrivateRoute>
+                        <Home />
+                    </PrivateRoute>
+                )
             },
             {
                 path: ROUTES.RACES,
-                element: <Races />
+                element: (          
+                    <PrivateRoute>
+                        <Races />
+                    </PrivateRoute>
+                )
             },
             {
                 path: ROUTES.RACESUSER,
-                element: <RacesUser />
+                element: (          
+                    <PrivateRoute>
+                        <RacesUser />
+                    </PrivateRoute>
+                )
             },
             {
               path: "404",

@@ -47,7 +47,7 @@ export const AuthProvider = ({ children }) => {
       });
       
       const data = await response.json();
-      
+      console.log(data);
       if (!response.ok) {
         throw new Error(data.message || 'Error al iniciar sesión');
       }
@@ -92,6 +92,3 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-
-
