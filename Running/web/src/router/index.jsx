@@ -3,6 +3,9 @@ import RootLayout from '../layout/RootLayout.jsx';
 import Home from '../pages/Home.jsx';
 import AvailableRaces from '../pages/AvailableRaces.jsx';
 import Participate from '../pages/Participate.jsx';
+import LoginPage from '../pages/LoginPage.jsx';
+import ProfilePage from '../pages/ProfilePage.jsx';
+import HistoryPage from '../pages/HistoryPage.jsx';
 
 export const router = createBrowserRouter([
   {
