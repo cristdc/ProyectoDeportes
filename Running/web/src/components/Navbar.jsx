@@ -1,4 +1,4 @@
-import { FaHome, FaRunning, FaUser } from 'react-icons/fa';
+import { FaHome, FaUser } from 'react-icons/fa';
 import { MdEmojiEvents } from 'react-icons/md';
 
 const Navbar = () => {
@@ -18,10 +18,6 @@ const Navbar = () => {
             <a href="/carreras-dispo" className="nav-link">
               <span className="nav-link-icon"><MdEmojiEvents /></span>
               <span>Carreras</span>
-            </a>
-            <a href="/participar" className="nav-link">
-              <span className="nav-link-icon"><FaRunning /></span>
-              <span>Participar</span>
             </a>
             <a href="/user" className="nav-link">
               <span className="nav-link-icon"><FaUser /></span>
