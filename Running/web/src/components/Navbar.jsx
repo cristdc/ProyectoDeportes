@@ -1,28 +1,29 @@
-import { FaHome, FaUser } from 'react-icons/fa';
+import { FaRunning, FaUser } from 'react-icons/fa';
 import { MdEmojiEvents } from 'react-icons/md';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
     <nav className="nav-container">
       <div className="nav-content">
         <div className="nav-items">
-          <a href="/" className="logo">
+          <Link to="/" className="logo">
             LOGO
-          </a>
+          </Link>
           
           <div className="nav-links">
-            <a href="/" className="nav-link">
-              <span className="nav-link-icon"><FaHome /></span>
-              <span>Inicio</span>
-            </a>
-            <a href="/carreras-dispo" className="nav-link">
+            <Link to="/carreras-disponibles" className="nav-link">
               <span className="nav-link-icon"><MdEmojiEvents /></span>
               <span>Carreras</span>
-            </a>
-            <a href="/user" className="nav-link">
+            </Link>
+            <Link to="/participar" className="nav-link">
+              <span className="nav-link-icon"><FaRunning /></span>
+              <span>Participar</span>
+            </Link>
+            <Link to="/user" className="nav-link">
               <span className="nav-link-icon"><FaUser /></span>
               <span>Perfil</span>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
