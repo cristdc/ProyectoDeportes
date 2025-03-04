@@ -2,26 +2,114 @@ import Race from "../models/Race.js";
 import mongoose from "mongoose";
 import Registration from "../models/Registrations.js";
 
-// Listar carreras por deporte
-const getRacesBySport = async (req, res) => {
+/**
+ * Funciones auxiliares para validaciones comunes
+ */
+
+// Validar formato de ID de MongoDB
+const isValidObjectId = (id) => {
+  return mongoose.Types.ObjectId.isValid(id);
+};
+
+// Validar deporte (enum)
+const isValidSport = (sport) => {
+  const validSports = ["running", "trailRunning", "cycling"];
+  return validSports.includes(sport);
+};
+
+// Validar y parsear fecha
+const validateAndParseDate = (dateString) => {
+  // Para formato YYYY-MM-DD
+  if (typeof dateString === "string") {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(dateString)) {
+      return {
+        valid: false,
+        message: "Formato de fecha inválido. Debe ser YYYY-MM-DD",
+      };
+    }
+  }
+
+  const parsedDate = new Date(dateString);
+  if (isNaN(parsedDate.getTime())) {
+    return { valid: false, message: "Fecha inválida" };
+  }
+
+  return { valid: true, date: parsedDate };
+};
+
+// Validar formato de tiempo
+const isValidTimeFormat = (time) => {
+  const timeRegex = /^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
+  return timeRegex.test(time);
+};
+
+// Convertir formato de tiempo HH:mm:ss a Date
+const timeStringToDate = (timeString) => {
+  const [hours, minutes, seconds] = timeString.split(":").map(Number);
+  return new Date(1970, 0, 1, hours, minutes, seconds);
+};
+
+// Convertir Date a formato de tiempo HH:mm:ss
+const dateToTimeString = (date) => {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${hours}:${minutes}:${seconds}`;
+};
+
+/**
+ * Obtener todas las carreras con paginación
+ * @route GET /api/races
+ */
+const getAllRaces = async (req, res) => {
   try {
-    const { sport } = req.params;
-    
-    if(sport !== "running" && sport !== "trailRunning" && sport !== "cycling"){
+    // Parámetros de paginación y filtros
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const sport = req.query.sport;
+    const location = req.query.location;
+
+    if (page < 1 || limit < 1) {
       return res.status(400).json({
-        message: "Tipo de deporte inválido",
+        message: "Los parámetros de paginación deben ser números positivos",
       });
     }
-    
-    const races = await Race.find({ sport }).sort({ date: 1 });
 
-    if (races.length === 0) {
-      return res.status(404).json({ message: 'No hay carreras en este deporte' });
+    const skip = (page - 1) * limit;
+
+    // Construir el filtro base
+    let filter = { status: { $ne: "deleted" } };
+
+    // Añadir filtros adicionales si existen
+    if (sport && isValidSport(sport)) {
+      filter.sport = sport;
     }
 
-    return res.status(200).json(races);
+    if (location) {
+      filter.location = { $regex: new RegExp(location, "i") };
+    }
 
+    // Ejecutar consulta con paginación
+    const races = await Race.find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ date: 1 });
+
+    const totalRaces = await Race.countDocuments(filter);
+    const totalPages = Math.ceil(totalRaces / limit);
+
+    return res.status(200).json({
+      races,
+      pagination: {
+        totalRaces,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
+    });
   } catch (error) {
+    console.error("Error en getAllRaces:", error);
     return res.status(500).json({
       message: "Error al obtener las carreras",
       error: error.message,
@@ -29,98 +117,72 @@ const getRacesBySport = async (req, res) => {
   }
 };
 
-// Crear carrera
-const createRace = async (req, res) => {
-   try {
-    const { name, sport, date, location, distance, maxParticipants, unevenness, tour, qualifyingTime } = req.body;
-
-    if (!req.user || req.user.role !== "admin") {
-      return res.status(403).json({
-        message: "No tienes permisos para crear carreras",
-      });
-    }
-
-    const existingRace = await Race.findOne(req.body);
-
-    if (existingRace) {
-        return res.status(400).json({ message: 'Ya existe una carrera con estos datos' });
-    }
-
-    const parsedDate = new Date(date);
-    if(isNaN(parsedDate.getTime())){
-      return res.status(400).json({
-        message: "Formato de fecha inválido",
-      });
-    }
-
-    if(sport !== "running" && sport !== "trailRunning" && sport !== "cycling"){
-      return res.status(400).json({
-        message: "Tipo de deporte inválido",
-      });
-    }
-
-    if(distance <= 0 || maxParticipants <= 0 || unevenness <= 0){
-      return res.status(400).json({
-        message: "Los valores numéricos deben ser positivos",
-      });
-    }
-
-    const race = new Race({
-      name,
-      sport,
-      date: parsedDate,
-      location,
-      distance,
-      maxParticipants,
-      unevenness,
-      tour,
-      qualifyingTime,
-      createdBy: req.user.id,
-    });
-
-    await race.save();
-
-    return res.status(201).json(race);
-
-   } catch (error) {
-     return res.status(500).json({
-       message: "Error al crear la carrera",
-       error: error.message,
-     });
-   }
-};
-
-// Obtener carrera por ID
-const getRaceById = async (req, res) => {
-   try {
-      const { id } = req.params;
-
-      if(!mongoose.Types.ObjectId.isValid(id)){
-        return res.status(400).json({ message: "ID de carrera inválido" });
-      }
-
-      const race = await Race.findById(id);
-      
-      if (!race) {
-          return res.status(404).json({ message: 'Carrera no encontrada' });
-      }
-
-      await race.populate('createdBy', 'name email');
-
-      return res.status(200).json(race);
-
-   } catch (error) {
-      return res.status(500).json({
-        message: "Error al obtener la carrera",
-        error: error.message,
-      });
-   }
-};
-
-// Actualizar carrera
-const updateRace = async (req, res) => {
+/**
+ * Filtrar carreras por deporte
+ * @route GET /api/races/sport/:sport
+ */
+const getRacesBySport = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { sport } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    if (!isValidSport(sport)) {
+      return res.status(400).json({
+        message:
+          "Tipo de deporte inválido. Opciones válidas: running, trailRunning, cycling",
+      });
+    }
+
+    if (page < 1 || limit < 1) {
+      return res.status(400).json({
+        message: "Los parámetros de paginación deben ser números positivos",
+      });
+    }
+
+    const skip = (page - 1) * limit;
+
+    // Filtrar también las carreras eliminadas
+    const filter = { sport, status: { $ne: "deleted" } };
+
+    const races = await Race.find(filter)
+      .sort({ date: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalRaces = await Race.countDocuments(filter);
+    const totalPages = Math.ceil(totalRaces / limit);
+
+    if (races.length === 0 && page === 1) {
+      return res.status(404).json({
+        message: "No hay carreras disponibles para este deporte",
+      });
+    }
+
+    return res.status(200).json({
+      races,
+      pagination: {
+        totalRaces,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
+    });
+  } catch (error) {
+    console.error("Error en getRacesBySport:", error);
+    return res.status(500).json({
+      message: "Error al obtener las carreras por deporte",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Crear una nueva carrera
+ * @route POST /api/races
+ */
+const createRace = async (req, res) => {
+  try {
     const {
       name,
       sport,
@@ -131,78 +193,288 @@ const updateRace = async (req, res) => {
       unevenness,
       tour,
       qualifyingTime,
-      classification,
-      createdBy,
-      createdAt
     } = req.body;
 
+    // Verificar permisos
     if (!req.user || req.user.role !== "admin") {
       return res.status(403).json({
-        message: "No tienes permisos para acceder a este recurso",
+        message: "No tienes permisos para crear carreras",
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "El id no es válido" });
-    }
-
-    if (createdBy || createdAt) {
-      return res.status(400).json({
-        message: "No puedes modificar los campos 'createdBy' o 'createdAt'",
-      });
-    }
-
-    if (classification) {
-      const isValid = classification.every(
-        (item) => item.runner && item.mark
-      );
-      if (!isValid) {
-        return res.status(400).json({
-          message: "'classification' debe contener 'runner' y 'mark' en todos los elementos",
-        });
-      }
-    }
-
-    if (sport && sport !== "running" && sport !== "trailRunning" && sport !== "cycling") {
-      return res.status(400).json({
-        message: "El deporte no es válido, opciones permitidas: running, trailRunning, cycling",
-      });
-    }
-
+    // Validaciones de datos
     if (
-      (distance && distance < 0) ||
-      (maxParticipants && maxParticipants < 0) ||
-      (unevenness && unevenness < 0)
+      !name ||
+      !sport ||
+      !date ||
+      !location ||
+      !distance ||
+      !maxParticipants ||
+      !unevenness ||
+      !tour ||
+      !qualifyingTime
     ) {
+      return res.status(400).json({
+        message: "Todos los campos son requeridos",
+      });
+    }
+
+    // Validar formato de fecha
+    const dateValidation = validateAndParseDate(date);
+    if (!dateValidation.valid) {
+      return res.status(400).json({
+        message: dateValidation.message,
+      });
+    }
+
+    // Validar deporte
+    if (!isValidSport(sport)) {
+      return res.status(400).json({
+        message:
+          "Tipo de deporte inválido. Opciones válidas: running, trailRunning, cycling",
+      });
+    }
+
+    // Validar valores numéricos
+    if (distance <= 0 || maxParticipants <= 0 || unevenness <= 0) {
       return res.status(400).json({
         message: "Los valores numéricos deben ser positivos",
       });
     }
 
-    if (date && !(date instanceof Date)) {
+    // Validar formato de tiempo de calificación
+    if (!isValidTimeFormat(qualifyingTime)) {
       return res.status(400).json({
-        message: "'date' debe ser un formato de fecha válido",
+        message: "Formato de tiempo de calificación inválido. Use HH:mm:ss",
       });
     }
 
-    const updateFields = { ...req.body };
+    // Verificar si ya existe una carrera con el mismo nombre y fecha
+    const existingRace = await Race.findOne({
+      name,
+      date: dateValidation.date,
+      status: { $ne: "deleted" },
+    });
 
-    if (updateFields.createdBy || updateFields.createdAt) {
-      delete updateFields.createdBy;
-      delete updateFields.createdAt;
+    if (existingRace) {
+      return res.status(400).json({
+        message: "Ya existe una carrera con el mismo nombre y fecha",
+      });
     }
 
-    const race = await Race.findByIdAndUpdate(id, updateFields, {
+    // Crear y guardar la nueva carrera
+    const race = new Race({
+      name,
+      sport,
+      date: dateValidation.date,
+      location,
+      distance,
+      maxParticipants,
+      unevenness,
+      tour,
+      qualifyingTime,
+      createdBy: req.user.id,
+      status: "open",
+      createdAt: new Date(),
+    });
+
+    await race.save();
+
+    return res.status(201).json({
+      message: "Carrera creada exitosamente",
+      race,
+    });
+  } catch (error) {
+    console.error("Error en createRace:", error);
+    return res.status(500).json({
+      message: "Error al crear la carrera",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Obtener detalle de una carrera por ID
+ * @route GET /api/races/:id
+ */
+const getRaceById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        message: "ID de carrera inválido",
+      });
+    }
+
+    const race = await Race.findOne({
+      _id: id,
+      status: { $ne: "deleted" },
+    }).populate("createdBy", "name email");
+
+    if (!race) {
+      return res.status(404).json({
+        message: "Carrera no encontrada",
+      });
+    }
+
+    // Obtener información adicional: número de inscripciones
+    const registrationsCount = await Registration.countDocuments({
+      race: id,
+      status: "registered",
+    });
+
+    // Calcular plazas disponibles
+    const availableSlots = race.maxParticipants - registrationsCount;
+
+    // Añadir información adicional
+    const raceWithDetails = {
+      ...race.toObject(),
+      registrationsCount,
+      availableSlots,
+    };
+
+    return res.status(200).json(raceWithDetails);
+  } catch (error) {
+    console.error("Error en getRaceById:", error);
+    return res.status(500).json({
+      message: "Error al obtener la carrera",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Actualizar una carrera existente
+ * @route PUT /api/races/:id
+ */
+const updateRace = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateFields = { ...req.body };
+
+    // Verificar permisos
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        message: "No tienes permisos para actualizar carreras",
+      });
+    }
+
+    // Validar ID
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        message: "ID de carrera inválido",
+      });
+    }
+
+    // Proteger campos que no deben modificarse
+    const protectedFields = ["createdBy", "createdAt"];
+    protectedFields.forEach((field) => {
+      if (updateFields[field]) {
+        delete updateFields[field];
+      }
+    });
+
+    // Validar deporte si se está actualizando
+    if (updateFields.sport && !isValidSport(updateFields.sport)) {
+      return res.status(400).json({
+        message:
+          "Tipo de deporte inválido. Opciones válidas: running, trailRunning, cycling",
+      });
+    }
+
+    // Validar valores numéricos si se están actualizando
+    const numericFields = ["distance", "maxParticipants", "unevenness"];
+    for (const field of numericFields) {
+      if (updateFields[field] !== undefined && updateFields[field] <= 0) {
+        return res.status(400).json({
+          message: `El campo ${field} debe ser un número positivo`,
+        });
+      }
+    }
+
+    // Validar fecha si se está actualizando
+    if (updateFields.date) {
+      const dateValidation = validateAndParseDate(updateFields.date);
+      if (!dateValidation.valid) {
+        return res.status(400).json({
+          message: dateValidation.message,
+        });
+      }
+      updateFields.date = dateValidation.date;
+    }
+
+    // Validar tiempo de calificación si se está actualizando
+    if (
+      updateFields.qualifyingTime &&
+      !isValidTimeFormat(updateFields.qualifyingTime)
+    ) {
+      return res.status(400).json({
+        message: "Formato de tiempo de calificación inválido. Use HH:mm:ss",
+      });
+    }
+
+    // Validar classification si se está actualizando
+    if (updateFields.classification) {
+      if (!Array.isArray(updateFields.classification)) {
+        return res.status(400).json({
+          message: "El campo classification debe ser un array",
+        });
+      }
+
+      const isValid = updateFields.classification.every(
+        (item) => item.runner && item.mark && typeof item.mark === "number"
+      );
+
+      if (!isValid) {
+        return res.status(400).json({
+          message:
+            "classification debe contener 'runner' y 'mark' (número) en todos los elementos",
+        });
+      }
+    }
+
+    // Verificar si la carrera existe
+    const existingRace = await Race.findOne({
+      _id: id,
+      status: { $ne: "deleted" },
+    });
+
+    if (!existingRace) {
+      return res.status(404).json({
+        message: "Carrera no encontrada",
+      });
+    }
+
+    // Verificar si hay inscripciones si se intenta reducir maxParticipants
+    if (
+      updateFields.maxParticipants &&
+      updateFields.maxParticipants < existingRace.maxParticipants
+    ) {
+      const registrationsCount = await Registration.countDocuments({
+        race: id,
+        status: "registered",
+      });
+
+      if (updateFields.maxParticipants < registrationsCount) {
+        return res.status(400).json({
+          message: `No se puede reducir el número máximo de participantes por debajo del número actual de inscripciones (${registrationsCount})`,
+        });
+      }
+    }
+
+    // Actualizar la carrera
+    const updatedRace = await Race.findByIdAndUpdate(id, updateFields, {
       new: true,
       runValidators: true,
     });
 
-    if (!race) {
-      return res.status(404).json({ message: "Carrera no encontrada" });
-    }
-
-    res.status(200).json(race);
+    return res.status(200).json({
+      message: "Carrera actualizada exitosamente",
+      race: updatedRace,
+    });
   } catch (error) {
+    console.error("Error en updateRace:", error);
     return res.status(500).json({
       message: "Error al actualizar la carrera",
       error: error.message,
@@ -210,222 +482,352 @@ const updateRace = async (req, res) => {
   }
 };
 
-// Eliminar carrera
+/**
+ * Eliminar (marcar como eliminada) una carrera
+ * @route DELETE /api/races/:id
+ */
 const deleteRace = async (req, res) => {
-   try {
-     const { id } = req.params;
-     
-     if (!req.user || req.user.role !== "admin") {
-       return res.status(403).json({
-         message: "No tienes permisos para eliminar carreras",
-       });
-     }
+  try {
+    const { id } = req.params;
 
-     if(!mongoose.Types.ObjectId.isValid(id)){
-       return res.status(400).json({ message: "El id no es válido" });
-     }
+    // Verificar permisos
+    if (!req.user || req.user.role !== "admin") {
+      return res.status(403).json({
+        message: "No tienes permisos para eliminar carreras",
+      });
+    }
 
-     const race = await Race.findById(id);
-     if (!race) {
-       return res.status(404).json({ message: 'Carrera no encontrada' });
-     }
+    // Validar ID
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        message: "ID de carrera inválido",
+      });
+    }
 
-     const registrations = await Registration.find({ race: id });
+    // Buscar la carrera
+    const race = await Race.findById(id);
+    if (!race) {
+      return res.status(404).json({
+        message: "Carrera no encontrada",
+      });
+    }
 
-     if (registrations.length > 0) {
-       await Registration.deleteMany({ race: id });
-     }
+    if (race.status === "deleted") {
+      return res.status(400).json({
+        message: "Esta carrera ya ha sido eliminada",
+      });
+    }
 
-     race.status = "deleted"
+    // Actualizar inscripciones
+    const registrations = await Registration.find({ race: id });
+    if (registrations.length > 0) {
+      // Cancelar inscripciones pendientes
+      await Registration.updateMany(
+        { race: id, status: "registered" },
+        { $set: { status: "cancelled" } }
+      );
 
-     await race.save();
-     return res.status(200).json({ message: 'Carrera eliminada correctamente' });
+      // No modificar inscripciones ya finalizadas
+    }
 
-   } catch (error) {
-     return res.status(500).json({
-       message: "Error al eliminar la carrera",
-       error: error.message,
-     });
-   }
+    // Marcar carrera como eliminada
+    race.status = "deleted";
+    await race.save();
+
+    return res.status(200).json({
+      message: "Carrera eliminada correctamente",
+      affectedRegistrations: registrations.length,
+    });
+  } catch (error) {
+    console.error("Error en deleteRace:", error);
+    return res.status(500).json({
+      message: "Error al eliminar la carrera",
+      error: error.message,
+    });
+  }
 };
 
-const getAllRaces = async (req, res) => {
+/**
+ * Filtrar carreras por fecha
+ * @route GET /api/races/date/:date
+ */
+const getRacesByDate = async (req, res) => {
   try {
-    // Recibir parámetros de paginación
+    const { date } = req.params;
     const page = parseInt(req.query.page) || 1;
-    const pageSize = 10;
+    const limit = parseInt(req.query.limit) || 10;
 
-    const skip = (page - 1) * pageSize;
+    // Validar formato de fecha
+    const dateValidation = validateAndParseDate(date);
+    if (!dateValidation.valid) {
+      return res.status(400).json({
+        message: dateValidation.message,
+      });
+    }
 
-    const races = await Race.find({ status: { $ne: 'deleted' } })
+    // Ajustar para buscar en todo el día
+    const parsedDate = dateValidation.date;
+    const startOfDay = new Date(parsedDate.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(parsedDate.setHours(23, 59, 59, 999));
+
+    // Configurar paginación
+    if (page < 1 || limit < 1) {
+      return res.status(400).json({
+        message: "Los parámetros de paginación deben ser números positivos",
+      });
+    }
+
+    const skip = (page - 1) * limit;
+
+    // Filtrar carreras por fecha y que no estén eliminadas
+    const filter = {
+      date: {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      },
+      status: { $ne: "deleted" },
+    };
+
+    const races = await Race.find(filter)
+      .sort({ date: 1 })
       .skip(skip)
-      .limit(pageSize)
-      .sort({ date: 1 });
+      .limit(limit);
 
-    const totalRaces = await Race.countDocuments({ status: { $ne: 'deleted' } });
+    const totalRaces = await Race.countDocuments(filter);
+    const totalPages = Math.ceil(totalRaces / limit);
 
-    const totalPages = Math.ceil(totalRaces / pageSize);
+    if (races.length === 0 && page === 1) {
+      return res.status(404).json({
+        message: "No hay carreras disponibles para esta fecha",
+      });
+    }
 
-    res.status(200).json({
+    return res.status(200).json({
       races,
       pagination: {
         totalRaces,
         totalPages,
         currentPage: page,
-        pageSize,
+        limit,
+        date: startOfDay.toISOString().split("T")[0],
       },
     });
   } catch (error) {
+    console.error("Error en getRacesByDate:", error);
     return res.status(500).json({
-      message: "Error en la conexión al endpoint",
+      message: "Error al obtener las carreras por fecha",
       error: error.message,
     });
   }
 };
 
-// Filtrar carreras por fecha
-const getRacesByDate = async (req, res) => {
-  try {
-    const { date } = req.params;
-    
-    // Validar formato de fecha YYYY-MM-DD
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(date)) {
-      return res.status(400).json({
-        message: "Formato de fecha inválido",
-      });
-    }
-
-    const parsedDate = new Date(date);
-    if (isNaN(parsedDate.getTime())) {
-      return res.status(400).json({
-        message: "Formato de fecha inválido",
-      });
-    }
-
-    const startOfDay = new Date(parsedDate.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(parsedDate.setHours(23, 59, 59, 999));
-    
-    const races = await Race.find({
-      date: {
-        $gte: startOfDay,
-        $lte: endOfDay
-      }
-    }).sort({ date: 1 });
-
-    if (races.length === 0) {
-        return res.status(404).json({ message: 'No hay carreras en esta fecha' });
-    }
-
-    return res.status(200).json(races);
-
-  } catch (error) {
-    return res.status(500).json({
-      message: "Error al obtener las carreras",
-      error: error.message
-    });
-  }
-};
-
-// Filtrar carreras por ubicación
+/**
+ * Filtrar carreras por ubicación
+ * @route GET /api/races/location/:location
+ */
 const getRacesByLocation = async (req, res) => {
   try {
     const { location } = req.params;
-    const regex = new RegExp(location, 'i');
-    
-    const races = await Race.find({ location: { $regex: regex } }).sort({ date: 1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
 
-    if (races.length === 0) {
-      return res.status(404).json({ message: 'No hay carreras en esta ubicación' });
+    if (!location || location.trim() === "") {
+      return res.status(400).json({
+        message: "Se requiere especificar una ubicación válida",
+      });
     }
 
-    return res.status(200).json(races);
+    // Configurar paginación
+    if (page < 1 || limit < 1) {
+      return res.status(400).json({
+        message: "Los parámetros de paginación deben ser números positivos",
+      });
+    }
 
+    const skip = (page - 1) * limit;
+
+    // Búsqueda insensible a mayúsculas/minúsculas
+    const regex = new RegExp(location, "i");
+
+    // Filtrar también las carreras eliminadas
+    const filter = {
+      location: { $regex: regex },
+      status: { $ne: "deleted" },
+    };
+
+    const races = await Race.find(filter)
+      .sort({ date: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalRaces = await Race.countDocuments(filter);
+    const totalPages = Math.ceil(totalRaces / limit);
+
+    if (races.length === 0 && page === 1) {
+      return res.status(404).json({
+        message: "No hay carreras disponibles en esta ubicación",
+      });
+    }
+
+    return res.status(200).json({
+      races,
+      pagination: {
+        totalRaces,
+        totalPages,
+        currentPage: page,
+        limit,
+        location,
+      },
+    });
   } catch (error) {
+    console.error("Error en getRacesByLocation:", error);
     return res.status(500).json({
-      message: "Error al obtener las carreras",
+      message: "Error al obtener las carreras por ubicación",
       error: error.message,
     });
   }
 };
 
-// Registrar resultados de carrera
+/**
+ * Registrar resultados de una carrera
+ * @route POST /api/races/:id/results
+ */
 const registerRaceResults = async (req, res) => {
   try {
     const { id } = req.params;
     const { results } = req.body;
 
+    // Verificar permisos
     if (!req.user || req.user.role !== "admin") {
       return res.status(403).json({
         message: "No tienes permisos para registrar resultados",
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "ID de carrera inválido" });
+    // Validar ID
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        message: "ID de carrera inválido",
+      });
     }
 
-    if (!Array.isArray(results)) {
-      return res.status(400).json({ message: "El formato de los resultados es inválido" });
+    // Validar array de resultados
+    if (!Array.isArray(results) || results.length === 0) {
+      return res.status(400).json({
+        message: "Se requiere un array de resultados válido",
+      });
     }
 
+    // Buscar la carrera
     const race = await Race.findById(id);
     if (!race) {
-      return res.status(404).json({ message: "Carrera no encontrada" });
+      return res.status(404).json({
+        message: "Carrera no encontrada",
+      });
     }
 
-    // Validar y procesar cada resultado
+    if (race.status === "deleted") {
+      return res.status(400).json({
+        message: "No se pueden registrar resultados para una carrera eliminada",
+      });
+    }
+
+    // Verificar que todas las inscripciones existan
+    const userIds = results.map((result) => result.userId);
+    const existingRegistrations = await Registration.find({
+      race: id,
+      user: { $in: userIds },
+      status: "registered",
+    });
+
+    const existingUserIds = existingRegistrations.map((reg) =>
+      reg.user.toString()
+    );
+    const missingUserIds = userIds.filter(
+      (userId) => !existingUserIds.includes(userId)
+    );
+
+    if (missingUserIds.length > 0) {
+      return res.status(400).json({
+        message: `Los siguientes usuarios no están inscritos en esta carrera: ${missingUserIds.join(
+          ", "
+        )}`,
+      });
+    }
+
+    // Validar cada resultado
     for (let result of results) {
       const { userId, time, position } = result;
 
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ message: "ID de usuario inválido" });
-      }
-
-      // Validar formato de tiempo (HH:mm:ss)
-      const timeRegex = /^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
-      if (!timeRegex.test(time)) {
-        return res.status(400).json({ 
-          message: "Formato de tiempo inválido (debe ser HH:mm:ss)" 
+      // Validar ID de usuario
+      if (!isValidObjectId(userId)) {
+        return res.status(400).json({
+          message: `ID de usuario inválido: ${userId}`,
         });
       }
 
-      if (typeof position !== "number" || position <= 0) {
-        return res.status(400).json({ message: "La posición debe ser un número positivo" });
+      // Validar formato de tiempo
+      if (!isValidTimeFormat(time)) {
+        return res.status(400).json({
+          message: `Formato de tiempo inválido para usuario ${userId}: ${time} (debe ser HH:mm:ss)`,
+        });
+      }
+
+      // Validar posición
+      if (
+        typeof position !== "number" ||
+        position <= 0 ||
+        !Number.isInteger(position)
+      ) {
+        return res.status(400).json({
+          message: `La posición para usuario ${userId} debe ser un número entero positivo`,
+        });
       }
     }
 
-    // Actualizar el estado de la carrera
+    // Verificar posiciones duplicadas
+    const positions = results.map((r) => r.position);
+    if (new Set(positions).size !== positions.length) {
+      return res.status(400).json({
+        message: "Hay posiciones duplicadas en los resultados",
+      });
+    }
+
+    // Cambiar el estado de la carrera a finalizada
     race.status = "finished";
     await race.save();
 
-    // Actualizar los registros con los resultados
+    // Actualizar las inscripciones con los resultados
+    const updatedRegistrations = [];
     for (let result of results) {
       const { userId, time, position } = result;
-      
-      // Convertir el tiempo HH:mm:ss a milisegundos para almacenarlo
-      const [hours, minutes, seconds] = time.split(':').map(Number);
-      const timeInMs = new Date(1970, 0, 1, hours, minutes, seconds).getTime();
 
-      await Registration.updateOne(
+      const registration = await Registration.findOneAndUpdate(
         { race: id, user: userId },
-        { 
-          $set: { 
-            time: timeInMs, // Guardamos el tiempo en milisegundos
-            position,
-            status: "finished"
-          } 
-        }
+        {
+          time,
+          position,
+          status: "finished",
+        },
+        { new: true }
       );
+
+      updatedRegistrations.push(registration);
     }
 
-    return res.status(200).json({ 
+    return res.status(200).json({
       message: "Resultados registrados correctamente",
       raceId: id,
-      totalResults: results.length
+      raceName: race.name,
+      totalResults: results.length,
+      results: updatedRegistrations.map((reg) => ({
+        userId: reg.user,
+        position: reg.position,
+        time: reg.time,
+      })),
     });
-
   } catch (error) {
+    console.error("Error en registerRaceResults:", error);
     return res.status(500).json({
       message: "Error al registrar los resultados",
       error: error.message,
@@ -433,39 +835,64 @@ const registerRaceResults = async (req, res) => {
   }
 };
 
-// Obtener resultados de carrera
+/**
+ * Obtener resultados de una carrera
+ * @route GET /api/races/:id/results
+ */
 const getRaceResults = async (req, res) => {
   try {
     const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "El ID de la carrera no es válido" });
+    // Validar ID
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({
+        message: "ID de carrera inválido",
+      });
     }
 
-    const results = await Registration.find({ race: id, status: 'finished' })
-      .populate('user', 'name email')
+    // Verificar que la carrera exista
+    const race = await Race.findById(id);
+    if (!race) {
+      return res.status(404).json({
+        message: "Carrera no encontrada",
+      });
+    }
+
+    // Obtener resultados
+    const results = await Registration.find({
+      race: id,
+      status: "finished",
+    })
+      .populate("user", "name email age")
       .sort({ position: 1 });
 
     if (results.length === 0) {
-      return res.status(404).json({ message: 'No se encontraron resultados para esta carrera' });
+      return res.status(404).json({
+        message: "No se encontraron resultados para esta carrera",
+      });
     }
 
-    // Convertir los tiempos de milisegundos a formato HH:mm:ss
-    const formattedResults = results.map(result => {
-      const date = new Date(result.time);
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      
-      return {
-        ...result.toObject(),
-        time: `${hours}:${minutes}:${seconds}`
-      };
-    });
+    // Formatear resultados para incluir información de la carrera
+    const formattedResults = {
+      race: {
+        id: race._id,
+        name: race.name,
+        date: race.date,
+        sport: race.sport,
+        distance: race.distance,
+        location: race.location,
+      },
+      results: results.map((result) => ({
+        position: result.position,
+        user: result.user,
+        time: result.time,
+        registrationId: result._id,
+      })),
+    };
 
     return res.status(200).json(formattedResults);
-    
   } catch (error) {
+    console.error("Error en getRaceResults:", error);
     return res.status(500).json({
       message: "Error al obtener los resultados de la carrera",
       error: error.message,
