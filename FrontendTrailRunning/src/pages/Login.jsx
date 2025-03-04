@@ -18,8 +18,8 @@ const Login = () => {
   };
 
   return (
-    <div className="w-full flex justify-center items-center">
-      <div className="min-w-xl bg-white shadow-lg rounded-xl p-6">
+    <div className="w-full flex justify-center items-center ">
+      <div className="w-full sm:max-w-sm md:max-w-md lg:max-w-lg bg-white shadow-lg rounded-xl p-6 m-3">
         <h2 className="text-2xl font-bold text-center mb-4">Iniciar Sesión</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
