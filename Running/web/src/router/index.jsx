@@ -1,8 +1,9 @@
+import { createBrowserRouter } from "react-router-dom";
+import LoginPage from "../pages/LoginPage";
 
-const index = () => {
-  return (
-    <div>index</div>
-  )
-}
-
-export default index
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <LoginPage />,
+  }
+])
