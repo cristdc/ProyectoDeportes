@@ -22,15 +22,27 @@ export const router = createBrowserRouter([
             },
             {
                 path: ROUTES.HOME,
-                element: <Home />
+                element: (          
+                    <PrivateRoute>
+                        <Home />
+                    </PrivateRoute>
+                )
             },
             {
                 path: ROUTES.RACES,
-                element: <Races />
+                element: (          
+                    <PrivateRoute>
+                        <Races />
+                    </PrivateRoute>
+                )
             },
             {
                 path: ROUTES.RACESUSER,
-                element: <RacesUser />
+                element: (          
+                    <PrivateRoute>
+                        <RacesUser />
+                    </PrivateRoute>
+                )
             },
             {
               path: "404",

@@ -1,5 +1,18 @@
+import { useState } from "react"
 
 const Races = () => {
+
+  const [races, setRaces] = useState([]);
+
+  useEffect(() => {
+    first
+  
+    return () => {
+      second
+    }
+  }, [third])
+  
+
   return (
     <div>Races</div>
   )
