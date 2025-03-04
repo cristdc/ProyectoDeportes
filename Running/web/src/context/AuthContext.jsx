@@ -1,13 +1,18 @@
 import { createContext, useContext, useState } from "react";
-
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL + '/api'; // Add /api prefix
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(localStorage.getItem('user') || null);
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem('user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [token, setToken] = useState(localStorage.getItem("token") || null);
+    const [token, setToken] = useState(() => {
+        const savedToken = localStorage.getItem('token');
+        return savedToken ? JSON.parse(savedToken) : null;
+    });
 
     const handleSetUser = (userData) => {
         if (userData) {
@@ -27,17 +32,28 @@ export const AuthProvider = ({ children }) => {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ email, password }),
+                credentials: 'include',
             });
+            
             if (!response.ok) {
-                throw new Error("Error en login");
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Error en login");
             }
+            
             const data = await response.json();
             handleSetUser(data.user);
-            setToken(data.token);
-            localStorage.setItem("token", data.token);
+            
+            // Token handling directly in login
+            if (data.token) {
+                localStorage.setItem('token', JSON.stringify(data.token));
+                setToken(data.token);
+            }
+            
+            return { success: true };
         } catch (error) {
             setError(error);
-            console.log("Error en login", error);
+            console.error("Error en login:", error);
+            throw error;
         } finally {
             setLoading(false);
         }
@@ -52,7 +68,7 @@ export const AuthProvider = ({ children }) => {
                 },
             });
         } catch (error) {
-            console.log("Error en logout", error);
+            console.error("Error en logout:", error);
         } finally {
             setUser(null);
             setToken(null);

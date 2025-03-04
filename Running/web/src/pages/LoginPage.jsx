@@ -1,35 +1,33 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext';
+import { toast } from 'sonner';
 
 const LoginPage = () => {
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { login } = useAuth();
-  const { showSuccessToast, showErrorToast } = useToast();
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const { login } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
 
-    try {
-      const formData = new FormData(e.target);
-      const credentials = {
-        email: formData.get('email'),
-        password: formData.get('password')
-      };
+        try {
+            const formData = new FormData(e.target);
+            const credentials = {
+                email: formData.get('email'),
+                password: formData.get('password')
+            };
 
-      await login(credentials);
-      showSuccessToast('Login exitoso');
-      navigate('/');
-    } catch (error) {
-      console.error('Error en login:', error);
-      showErrorToast(error.message || 'Error al iniciar sesión');
-    } finally {
-      setLoading(false);
-    }
-  };
+            await login(credentials);
+            toast.success('Inicio de sesión exitoso');
+            navigate('/');
+        } catch (error) {
+            toast.error(error.message || 'Error al iniciar sesión');
+        } finally {
+            setLoading(false);
+        }
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
