@@ -18,7 +18,7 @@ export const router = createBrowserRouter([
         element: <AvailableRaces />
       },
       {
-        path: 'participar',
+        path: 'historial',
         element: <Participate />
       }
     ]

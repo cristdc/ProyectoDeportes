@@ -1,6 +1,6 @@
-import { FaRunning, FaUser } from 'react-icons/fa';
+import { FaHistory, FaUser } from 'react-icons/fa';
 import { MdEmojiEvents } from 'react-icons/md';
-import { Link } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 
 const Navbar = () => {
   return (
@@ -8,22 +8,31 @@ const Navbar = () => {
       <div className="nav-content">
         <div className="nav-items">
           <Link to="/" className="logo">
-            LOGO
+            RUNNING APP
           </Link>
           
           <div className="nav-links">
-            <Link to="/carreras-disponibles" className="nav-link">
+            <NavLink 
+              to="/carreras-disponibles" 
+              className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
+            >
               <span className="nav-link-icon"><MdEmojiEvents /></span>
               <span>Carreras</span>
-            </Link>
-            <Link to="/participar" className="nav-link">
-              <span className="nav-link-icon"><FaRunning /></span>
-              <span>Participar</span>
-            </Link>
-            <Link to="/user" className="nav-link">
+            </NavLink>
+            <NavLink 
+              to="/historial" 
+              className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
+            >
+              <span className="nav-link-icon"><FaHistory /></span>
+              <span>Historial</span>
+            </NavLink>
+            <NavLink 
+              to="/user" 
+              className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
+            >
               <span className="nav-link-icon"><FaUser /></span>
               <span>Perfil</span>
-            </Link>
+            </NavLink>
           </div>
         </div>
       </div>

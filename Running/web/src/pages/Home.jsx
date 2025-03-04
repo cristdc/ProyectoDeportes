@@ -1,6 +1,6 @@
 const Home = () => {
   return (
-    <div className="main-container">
+    <div className="content-wrapper">
       <div className="stats-container">
         <div className="stats-header">
           <div className="stats-title">ÚLTIMA CARRERA</div>
