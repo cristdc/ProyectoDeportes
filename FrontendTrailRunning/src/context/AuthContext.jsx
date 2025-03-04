@@ -46,12 +46,11 @@ export const AuthProvider = ({ children }) => {
         credentials: 'include' // Importante para recibir las cookies
       });
       
-      const data = await response.json();
-      console.log(data);
       if (!response.ok) {
         throw new Error(data.message || 'Error al iniciar sesión');
       }
       
+      const data = await response.json();
       setUser(data.user);
       return data;
     } catch (err) {

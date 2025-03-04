@@ -9,12 +9,16 @@ const Login = () => {
   const navigate = useNavigate();
 
 
-  const { user, login } = useAuth();
+  const { user, login } = useAuth({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    login(email, password, navigate);
-    console.log(user);
+    const data = await login(email, password);
+
+    if(data.user){
+      navigate('/home')
+    }
+    
   };
 
   return (
