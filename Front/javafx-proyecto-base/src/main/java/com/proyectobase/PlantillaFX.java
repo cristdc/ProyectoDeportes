@@ -5,6 +5,7 @@ import static javafx.application.Application.launch;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -23,7 +24,8 @@ public class PlantillaFX extends Application {
     @Override
     public void start(Stage primaryStage) {
         
-        VBox vbox=new VBox(10); //Layout padre (contenedor de nodos). 10 px separación
+        Label l1=new Label("hola");
+        VBox vbox=new VBox(10, l1); //Layout padre (contenedor de nodos). 10 px separación
         vbox.setPadding(new Insets(20));//Borde interno 20px
         Scene scene=new Scene(vbox, 500,400);
         primaryStage.setScene(scene);
