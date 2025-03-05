@@ -1,0 +1,14 @@
+:root {
+    --text: #1a1204;
+    --background: #fdf7ed;
+    --primary: #9B9D79;
+    --secondary: #B4C7B2;
+    --accent: #8EAC93;
+    
+    /* Colores adicionales */
+    --primary-light: #acae8a;
+    --secondary-light: #c5d8c3;
+    --accent-light: #9fbda4;
+    --overlay: rgba(26, 18, 4, 0.1);
+    --shadow: rgba(26, 18, 4, 0.15);
+  }
