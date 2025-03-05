@@ -23,7 +23,11 @@ javafx {
 }
 
 dependencies {
-    //No es necesario incluir las dependencias porque ya lo hace el plugin por nosotros
+    implementation 'org.openjfx:javafx-controls:23'
+    implementation 'org.openjfx:javafx-fxml:23'
+    implementation 'org.openjfx:javafx-graphics:17'
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
 }
 
 mainClassName = 'com.proyectobase.PlantillaFX'
@@ -32,7 +36,7 @@ sourceSets {
   main {
     resources {
         srcDirs = ["src/main/java"]
-        includes = ["**/*.fxml"]  //Importante para poder abrir una extensión no reconocida
+        includes = ["*/.fxml","*/.properties", "*/.jpg", "*/.png", "*/.jpeg","*/.css","*/.ttf", "*/.jasper", "*/.html"]
     }
   }
 }
