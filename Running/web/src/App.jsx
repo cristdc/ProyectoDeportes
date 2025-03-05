@@ -3,15 +3,11 @@ import { router } from './router/index.jsx';
 import './index.css';
 import { AuthProvider } from './context/AuthContext.jsx';
 
-const App = () => {
+function App() {
   return (
-    <>
-      <AuthProvider>
-        <RouterProvider router={router} />
-      </AuthProvider>
-      
-    </>
-    
+    <AuthProvider>
+      <RouterProvider router={router} />;
+    </AuthProvider>
   )
 }
 

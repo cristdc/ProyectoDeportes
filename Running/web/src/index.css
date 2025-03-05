@@ -387,6 +387,28 @@
   .stat-label {
     @apply text-sm text-gray-600;
   }
+
+  /* Login Page Styles */
+  .login-container {
+    @apply min-h-[calc(100vh-4rem)] flex items-center justify-center px-4;
+  }
+
+  .login-card {
+    @apply bg-white p-8 rounded-xl shadow-lg max-w-md w-full;
+  }
+
+  .login-title {
+    @apply text-2xl font-bold text-center text-gray-900 mb-6;
+  }
+
+  .login-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent;
+  }
+
+  .login-button {
+    @apply w-full bg-[var(--primary)] text-white py-2 px-4 rounded-md hover:bg-[var(--accent)] transition-colors
+    focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:ring-offset-2;
+  }
 }
 
 /* Custom Media Queries for specific adjustments */
