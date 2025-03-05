@@ -1,61 +1,74 @@
+import { FaRunning, FaMapMarkedAlt, FaMedal } from 'react-icons/fa';
+
 const Home = () => {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Tabla de última carrera */}
-      <div className="max-w-3xl mx-auto mt-8 p-6">
-        <div className="border-2 border-secondary rounded-lg p-4">
-          <div className="flex justify-between mb-4">
-            <div className="text-xl font-bold text-primary border-2 border-secondary rounded px-4 py-1">
-              ÚLTIMA CARRE
+    <div className="content-wrapper">
+      {/* Hero Section */}
+      <div className="hero-section">
+        <h1 className="hero-title">Running App</h1>
+        <p className="hero-subtitle">Tu plataforma para descubrir y participar en las mejores carreras de running</p>
+      </div>
+
+      {/* Featured Race Card */}
+      <div className="featured-race-card">
+        <div className="race-image-container">
+          <FaMapMarkedAlt className="placeholder-icon" />
+        </div>
+        <div className="race-info">
+          <div className="race-status">No disponible</div>
+          <div className="race-details">
+            <p><FaMapMarkedAlt className="detail-icon" /> Ubicación no disponible</p>
+            <p><FaRunning className="detail-icon" /> Fecha no disponible</p>
+            <div className="race-stats">
+              <div>
+                <span>Distancia</span>
+                <span>-- km</span>
+              </div>
+              <div>
+                <span>Desnivel</span>
+                <span>-- m</span>
+              </div>
             </div>
-            <div className="text-xl font-bold text-primary border-2 border-secondary rounded px-4 py-1">
-              MEJORES
+            <div className="race-actions">
+              <button className="btn-details">Ver Detalles</button>
+              <button className="btn-all">Ver Todas</button>
             </div>
           </div>
-          
-          <table className="w-full">
-            <thead>
-              <tr className="border-b-2 border-secondary">
-                <th className="py-2 text-left">TOP</th>
-                <th className="py-2 text-left">nombre</th>
-                <th className="py-2 text-left">tiempo</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[1, 2, 3].map((position) => (
-                <tr key={position} className="border-b border-secondary">
-                  <td className="py-3">{position}</td>
-                  <td className="py-3">—</td>
-                  <td className="py-3">h</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
 
-      {/* Sección inspiracional */}
-      <div className="max-w-4xl mx-auto mt-12 p-6">
-        <div className="relative">
-          <img 
-            src="/runner.jpg" 
-            alt="Runner" 
-            className="w-full h-[400px] object-cover rounded-lg"
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex flex-col justify-end p-8">
-            <h2 className="text-white text-3xl font-bold mb-4">
-              Frase inspiracional
-            </h2>
-            <div className="flex justify-between text-white text-xl">
-              <span>3500 corredores</span>
-              <span>5 carreras</span>
-              <span>300 km recorridos</span>
-            </div>
+      {/* Stats Section */}
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon">
+            <FaRunning />
+          </div>
+          <div className="stat-info">
+            <span className="stat-number">0</span>
+            <span className="stat-label">Carreras Totales</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">
+            <FaMapMarkedAlt />
+          </div>
+          <div className="stat-info">
+            <span className="stat-number">0</span>
+            <span className="stat-label">Carreras Activas</span>
+          </div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-icon">
+            <FaMedal />
+          </div>
+          <div className="stat-info">
+            <span className="stat-number">0</span>
+            <span className="stat-label">Carreras Completadas</span>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Home;

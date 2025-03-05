@@ -83,8 +83,96 @@
 
   /* Contenedor de contenido principal */
   .content-wrapper {
-    @apply flex-1 flex flex-col gap-8 py-6 /* Aumentado el gap y padding */
+    @apply container mx-auto px-4 py-6 flex flex-col gap-8
     md:py-8;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    @apply text-center mb-8;
+  }
+
+  .hero-title {
+    @apply text-3xl font-bold text-[var(--primary)]
+    md:text-4xl;
+  }
+
+  .hero-subtitle {
+    @apply text-gray-600 mt-2 max-w-2xl mx-auto
+    md:text-lg;
+  }
+
+  /* Featured Race Card */
+  .featured-race-card {
+    @apply bg-white rounded-2xl shadow-lg overflow-hidden
+    border border-[var(--secondary)]/10
+    max-w-4xl mx-auto w-full;
+  }
+
+  .race-image-container {
+    @apply bg-[var(--secondary)]/20 aspect-video flex items-center justify-center;
+  }
+
+  .placeholder-icon {
+    @apply text-6xl text-[var(--primary)]/50;
+  }
+
+  .race-info {
+    @apply p-6;
+  }
+
+  .race-status {
+    @apply inline-block px-3 py-1 rounded-full text-sm
+    bg-[var(--accent)]/10 text-[var(--accent)]
+    font-medium mb-4;
+  }
+
+  .race-details {
+    @apply space-y-4;
+  }
+
+  .race-details p {
+    @apply flex items-center gap-2 text-gray-600;
+  }
+
+  .detail-icon {
+    @apply text-[var(--primary)];
+  }
+
+  .race-stats {
+    @apply grid grid-cols-2 gap-4 my-4 text-sm;
+  }
+
+  .race-stats > div {
+    @apply flex flex-col gap-1 p-3 rounded-lg
+    bg-[var(--secondary)]/10;
+  }
+
+  .race-stats span:first-child {
+    @apply text-gray-600;
+  }
+
+  .race-stats span:last-child {
+    @apply font-semibold text-[var(--primary)];
+  }
+
+  .race-actions {
+    @apply flex gap-4 mt-6;
+  }
+
+  .btn-details, .btn-all {
+    @apply px-4 py-2 rounded-lg text-sm font-medium
+    transition-colors duration-200;
+  }
+
+  .btn-details {
+    @apply bg-[var(--primary)] text-white
+    hover:bg-[var(--primary)]/90;
+  }
+
+  .btn-all {
+    @apply border border-[var(--primary)] text-[var(--primary)]
+    hover:bg-[var(--primary)]/10;
   }
 
   /* Stats container con más espacio y mejor diseño */
@@ -225,6 +313,22 @@
     .footer-copyright {
       @apply text-xs py-2;
     }
+
+    .race-actions {
+      @apply flex-col;
+    }
+
+    .btn-details, .btn-all {
+      @apply w-full text-center;
+    }
+
+    .stat-card {
+      @apply flex-col text-center p-6;
+    }
+
+    .stat-info {
+      @apply items-center;
+    }
   }
 
   /* Efectos hover y activo para desktop */
@@ -253,6 +357,35 @@
     .nav-link-active::after {
       @apply transform translate-x-0;
     }
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    @apply grid grid-cols-1 gap-4 max-w-4xl mx-auto w-full
+    sm:grid-cols-3;
+  }
+
+  .stat-card {
+    @apply bg-white rounded-xl p-4 shadow-md
+    border border-[var(--secondary)]/10
+    flex items-center gap-4;
+  }
+
+  .stat-icon {
+    @apply text-2xl text-[var(--primary)]
+    bg-[var(--primary)]/10 p-3 rounded-full;
+  }
+
+  .stat-info {
+    @apply flex flex-col;
+  }
+
+  .stat-number {
+    @apply text-2xl font-bold text-[var(--primary)];
+  }
+
+  .stat-label {
+    @apply text-sm text-gray-600;
   }
 }
 
