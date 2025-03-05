@@ -4,18 +4,18 @@ const Races = () => {
 
   const [races, setRaces] = useState([]);
 
-  useEffect(() => {
-    first
+  // useEffect(() => {
+  //   first
   
-    return () => {
-      second
-    }
-  }, [third])
+  //   return () => {
+  //     second
+  //   }
+  // }, [third])
   
 
-  return (
-    <div>Races</div>
-  )
+  // return (
+  //   <div>Races</div>
+  // )
 }
 
 export default Races

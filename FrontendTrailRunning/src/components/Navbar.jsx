@@ -46,12 +46,13 @@ const Navbar = ( { user } ) => {
 
         {/* Menú en pantallas grandes (480px en adelante) */}
         <div className="hidden sm:flex space-x-3 ">
-          <Link to="/" className="text-text hover:text-accent transition-all duration-300">
+          <Link to="/user" className="text-text hover:text-accent transition-all duration-300">
             {user ? user.name : ""}
           </Link>
           {user ? (
             <>
             <Link to="/races" className="pr-3 text-text  hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+            <Link to="/racesuser" className="pr-3 text-text  hover:text-accent transition-all duration-300">Historial de Carreras</Link>
             <button
               onClick={handleLogout}
               className="text-text hover:text-accent transition-all duration-300"
@@ -71,12 +72,14 @@ const Navbar = ( { user } ) => {
         className={`sm:hidden flex flex-col bg-background text-white py-3 space-y-2 
         transition-all duration-300 ${isOpen ? "block" : "hidden"}`}
       >
-        <Link to="/" className="text-text text-center hover:text-accent transition-all duration-300">
+        <Link to="/user" className="text-text text-center hover:text-accent transition-all duration-300">
             {user ? user.name : ""}
           </Link>
           {user ? (
             <>
             <Link to="/races" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+            <Link to="/racesuser" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Historial de Carreras</Link>
+
             <button
               onClick={async () => logout()}
               className="text-text hover:text-accent transition-all duration-300"
