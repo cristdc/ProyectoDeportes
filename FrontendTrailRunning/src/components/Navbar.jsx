@@ -12,14 +12,11 @@ const Navbar = () => {
       <div className="flex justify-between items-center p-2 bg-background">
         {/* Logo */}
         <div>
-          <Link to="/" className="text-text hover:text-accent transition-all duration-300"><h1>Trail</h1></Link>
+          <Link to="/" className="text-text hover:text-accent transition-all duration-300 text-2xl font-bold">Trail</Link>
         </div>
 
-        {/* Nombre de usuario centrado en pantallas grandes */}
         <div className="hidden sm:flex flex-1 justify-center">
-          <Link to="/" className="text-text hover:text-accent transition-all duration-300">
-            {isAuthenticated ? user.name : ""}
-          </Link>
+          
         </div>
 
         {/* Botón Hamburguesa en pantallas menores a 480px */}
@@ -32,14 +29,19 @@ const Navbar = () => {
 
         {/* Menú en pantallas grandes (480px en adelante) */}
         <div className="hidden sm:flex space-x-3">
-          <Link to="" className="pr-3 text-text hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+          <Link to="/" className="text-text hover:text-accent transition-all duration-300">
+            {isAuthenticated ? user.name : ""}
+          </Link>
           {isAuthenticated ? (
+            <>
+            <Link to="" className="pr-3 text-text hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
             <button
               onClick={async () => logout()}
               className="text-text hover:text-accent transition-all duration-300"
             >
               Cerrar sesión
             </button>
+            </>
           ) : (
             <Link to="/" className="text-text hover:text-accent transition-all duration-300">
               Iniciar Sesion
