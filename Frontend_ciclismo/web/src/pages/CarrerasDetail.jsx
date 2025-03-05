@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useRace } from '../context/RaceContext';
 
@@ -82,11 +81,11 @@ const CarrerasDetail = () => {
                 </p>
               </div>
               <span className={`px-4 py-2 rounded-full text-sm font-medium ${
-                race.status === 'active' 
+                race.status === 'open' 
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-red-100 text-red-800'
               }`}>
-                {race.status === 'active' ? 'Activa' : 'Inactiva'}
+                {race.status === 'open' ? 'Abierta' : 'Cerrada'}
               </span>
             </div>
           </div>

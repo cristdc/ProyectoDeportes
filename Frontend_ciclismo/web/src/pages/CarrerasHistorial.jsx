@@ -15,12 +15,12 @@ const CarrerasHistorial = () => {
   useEffect(() => {
     if (!races) return
 
-    let filtered = [...races] // Comenzamos con todas las carreras
+    let filtered = [...races]
 
     // Aplicar filtro de búsqueda por nombre
-    if (filters.search) {
+    if (filters.search.trim()) {
       filtered = filtered.filter(race =>
-        race.name.toLowerCase().includes(filters.search.toLowerCase())
+        race.name.toLowerCase().includes(filters.search.toLowerCase().trim())
       )
     }
 
@@ -33,22 +33,37 @@ const CarrerasHistorial = () => {
 
     // Aplicar filtro de estado
     if (filters.status) {
-      filtered = filtered.filter(race =>
-        race.status.toLowerCase() === filters.status.toLowerCase()
-      )
+      filtered = filtered.filter(race => race.status === filters.status)
     }
 
     setFilteredRaces(filtered)
-  }, [races, filters]) // Dependencias del efecto
+  }, [races, filters])
 
   // Manejador de cambios en los filtros
   const handleFilterChange = (e) => {
     const { name, value } = e.target
-    console.log(`Cambiando filtro ${name} a: ${value}`) // Log para debugging
     setFilters(prev => ({
       ...prev,
       [name]: value
     }))
+  }
+
+  const getStatusBadge = (status) => {
+    const statusClasses = {
+      open: 'bg-green-100 text-green-800',
+      close: 'bg-red-100 text-red-800'
+    }
+
+    const statusText = {
+      open: 'Abierta',
+      close: 'Cerrada'
+    }
+
+    return (
+      <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusClasses[status] || 'bg-gray-100 text-gray-800'}`}>
+        {statusText[status] || status}
+      </span>
+    )
   }
 
   if (loading) {
@@ -99,9 +114,9 @@ const CarrerasHistorial = () => {
               className="p-2 border border-[#B4C7B2] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8EAC93]"
             >
               <option value="">Todas las ubicaciones</option>
-              <option value="sierra">Sierra</option>
-              <option value="costa">Costa</option>
-              <option value="valle">Valle</option>
+              <option value="Sierra del Norte">Sierra del Norte</option>
+              <option value="Parque Central">Parque Central</option>
+              <option value="Valle del Río">Valle del Río</option>
             </select>
             <select
               name="status"
@@ -110,9 +125,8 @@ const CarrerasHistorial = () => {
               className="p-2 border border-[#B4C7B2] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8EAC93]"
             >
               <option value="">Todos los estados</option>
-              <option value="active">Activas</option>
-              <option value="inactive">Inactivas</option>
-              <option value="completed">Completadas</option>
+              <option value="open">Abiertas</option>
+              <option value="close">Cerradas</option>
             </select>
           </div>
         </div>
@@ -121,13 +135,18 @@ const CarrerasHistorial = () => {
         {filteredRaces.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredRaces.map((race) => (
-              <CardRace key={race._id} race={race} />
+              <div key={race._id} className="relative">
+                <CardRace race={race} />
+                <div className="absolute top-2 right-2">
+                  {getStatusBadge(race.status)}
+                </div>
+              </div>
             ))}
           </div>
         ) : (
           <div className="text-center py-8">
             <p className="text-[#1a1204] opacity-75">
-              No se encontraron carreras que coincidan con los filtros
+              No se encontraron carreras que coincidan con los filtros seleccionados
             </p>
           </div>
         )}
@@ -139,15 +158,15 @@ const CarrerasHistorial = () => {
             <p className="text-2xl font-bold text-[#9B9D79]">{races?.length || 0}</p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold mb-2">Carreras Activas</h3>
+            <h3 className="text-lg font-semibold mb-2">Carreras Abiertas</h3>
             <p className="text-2xl font-bold text-[#9B9D79]">
-              {races?.filter(race => race.status === 'active').length || 0}
+              {races?.filter(race => race.status === 'open').length || 0}
             </p>
           </div>
           <div className="bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold mb-2">Carreras Completadas</h3>
+            <h3 className="text-lg font-semibold mb-2">Carreras Cerradas</h3>
             <p className="text-2xl font-bold text-[#9B9D79]">
-              {races?.filter(race => race.status === 'completed').length || 0}
+              {races?.filter(race => race.status === 'close').length || 0}
             </p>
           </div>
         </div>

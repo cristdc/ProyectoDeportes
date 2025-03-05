@@ -16,7 +16,7 @@ const CarrerasDisponibles = () => {
     if (!races) return;
 
     // Filtramos solo las carreras activas
-    let filtered = races.filter(race => race.status === 'active');
+    let filtered = races.filter(race => race.status === 'open');
 
     // Aplicar filtro de búsqueda por nombre
     if (filters.search) {
@@ -92,9 +92,9 @@ const CarrerasDisponibles = () => {
               className="p-2 border border-[#B4C7B2] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8EAC93]"
             >
               <option value="">Todas las ubicaciones</option>
-              <option value="sierra">Sierra</option>
-              <option value="costa">Costa</option>
-              <option value="valle">Valle</option>
+              <option value="Sierra del Norte">Sierra del Norte</option>
+              <option value="Parque Central">Parque Central</option>
+              <option value="Valle del Río">Valle del Río</option>
             </select>
           </div>
         </div>

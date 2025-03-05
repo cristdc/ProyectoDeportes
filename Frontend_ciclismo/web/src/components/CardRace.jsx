@@ -15,11 +15,11 @@ const CardRace = ({ race }) => {
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-bold text-[#1a1204] truncate">{race.name || 'Sin nombre'}</h3>
           <span className={`px-2 py-1 text-xs rounded-full ${
-            race.status === 'active' 
+            race.status === 'open' 
               ? 'bg-green-100 text-green-800' 
               : 'bg-red-100 text-red-800'
           }`}>
-            {race.status === 'active' ? 'Activa' : 'Inactiva'}
+            {race.status === 'open' ? 'Abierta' : 'Cerrada'}
           </span>
         </div>
 
