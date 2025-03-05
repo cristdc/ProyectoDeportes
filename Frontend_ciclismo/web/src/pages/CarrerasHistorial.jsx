@@ -5,35 +5,6 @@ import CardRace from '../components/CardRace'
 const CarrerasHistorial = () => {
   const { races, loading, error } = useRace()
 
-  // Datos de ejemplo para cuando no hay carreras
-  const placeholderRaces = [
-    {
-      _id: '1',
-      name: "Clásica de Primavera",
-      status: "completed",
-      date: "2024-03-15",
-      location: "Ruta del Sol",
-      distance: 150,
-      unevenness: 3000,
-      maxParticipants: 250,
-      qualifyingTime: 300
-    },
-    {
-      _id: '2',
-      name: "Reto de Montaña",
-      status: "completed",
-      date: "2024-02-28",
-      location: "Alpes Locales",
-      distance: 90,
-      unevenness: 2200,
-      maxParticipants: 180,
-      qualifyingTime: 210
-    }
-  ]
-
-  // Usar datos reales o datos de ejemplo
-  const displayRaces = (races && races.length > 0) ? races : placeholderRaces
-
   return (
     <div className="min-h-screen bg-[#fdf7ed] p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -71,13 +42,13 @@ const CarrerasHistorial = () => {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#9B9D79]">
-                  {displayRaces.length}
+                  {races.length}
                 </div>
                 <div className="text-sm text-[#1a1204]">Total Carreras</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-[#9B9D79]">
-                  {displayRaces.reduce((acc, race) => acc + race.distance, 0)}
+                  {races.reduce((acc, race) => acc + race.distance, 0)}
                 </div>
                 <div className="text-sm text-[#1a1204]">Km Totales</div>
               </div>
@@ -87,7 +58,7 @@ const CarrerasHistorial = () => {
 
         {/* Grid de carreras */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {displayRaces.map((race) => (
+          {races.map((race) => (
             <CardRace key={race._id} race={race} />
           ))}
         </div>

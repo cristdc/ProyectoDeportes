@@ -5,46 +5,6 @@ import CardRace from '../components/CardRace';
 const CarrerasDisponibles = () => {
   const { races, loading, error } = useRace();
 
-  // Datos de ejemplo para cuando no hay carreras
-  const placeholderRaces = [
-    {
-      _id: '1',
-      name: "Gran Fondo de Montaña",
-      status: "active",
-      date: "2024-12-31",
-      location: "Sierra Nevada",
-      distance: 120,
-      unevenness: 2500,
-      maxParticipants: 200,
-      qualifyingTime: 240
-    },
-    {
-      _id: '2',
-      name: "Vuelta al Valle",
-      status: "active",
-      date: "2024-11-15",
-      location: "Valle Central",
-      distance: 80,
-      unevenness: 1200,
-      maxParticipants: 150,
-      qualifyingTime: 180
-    },
-    {
-      _id: '3',
-      name: "Desafío Costero",
-      status: "active",
-      date: "2024-10-01",
-      location: "Costa del Sol",
-      distance: 100,
-      unevenness: 800,
-      maxParticipants: 300,
-      qualifyingTime: 200
-    }
-  ];
-
-  // Usar datos reales o datos de ejemplo
-  const displayRaces = (races && races.length > 0) ? races : placeholderRaces;
-
   return (
     <div className="min-h-screen bg-[#fdf7ed] p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -81,7 +41,7 @@ const CarrerasDisponibles = () => {
 
         {/* Grid de carreras */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {displayRaces.map((race) => (
+          {races.map((race) => (
             <CardRace key={race._id} race={race} />
           ))}
         </div>
