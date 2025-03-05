@@ -1,4 +1,6 @@
 import User from "../models/User.js";
+import Race from "../models/Race.js";
+import Registration from "../models/Registration.js";
 
 // Obtener todos los usuarios
 const getAllUsers = async (req, res) => {
@@ -141,29 +143,69 @@ const changeUserRole = async (req, res) => {
   }
 };
 
-
-
 const getSystemStats = async (req, res) => {
-
-  // TODO:
-  // - Obtener conteo de usuarios registrados (User.countDocuments())
-  // - Obtener conteo de usuarios por rol (admin/regular)
-  // - Obtener conteo de carreras activas por deporte
-  // - Obtener conteo de inscripciones por estado
-  // - Calcular estadísticas adicionales (usuarios registrados por mes, carreras por mes, etc.)
-  // - Devolver objeto con todas las estadísticas
-  // - Manejar errores con try/catch
-
   try {
-    // Respuesta temporal
-    return res.status(200).json({
-      message:
-        "Endpoint conectado correctamente, metodo pendiente de programar",
+    // Obtener conteo de usuarios registrados
+    const totalUsers = await User.countDocuments();
+    const adminUsers = await User.countDocuments({ role: "admin" });
+    const regularUsers = await User.countDocuments({ role: "user" });
+
+    // Obtener conteo de carreras activas por deporte
+    const runningRaces = await Race.countDocuments({ 
+      sport: "running", 
+      status: { $ne: "deleted" } 
     });
+    const trailRunningRaces = await Race.countDocuments({ 
+      sport: "trailRunning", 
+      status: { $ne: "deleted" } 
+    });
+    const cyclingRaces = await Race.countDocuments({ 
+      sport: "cycling", 
+      status: { $ne: "deleted" } 
+    });
+
+    // Obtener conteo de inscripciones por estado
+    const registeredCount = await Registration.countDocuments({ status: "registered" });
+    const finishedCount = await Registration.countDocuments({ status: "finished" });
+    const cancelledCount = await Registration.countDocuments({ status: "cancelled" });
+
+    // Obtener conteo de carreras por estado
+    const openRaces = await Race.countDocuments({ status: "open" });
+    const finishedRaces = await Race.countDocuments({ status: "finished" });
+    const deletedRaces = await Race.countDocuments({ status: "deleted" });
+
+    return res.status(200).json({
+      users: {
+        total: totalUsers,
+        byRole: {
+          admin: adminUsers,
+          regular: regularUsers
+        }
+      },
+      races: {
+        bySport: {
+          running: runningRaces,
+          trailRunning: trailRunningRaces,
+          cycling: cyclingRaces
+        },
+        byStatus: {
+          open: openRaces,
+          finished: finishedRaces,
+          deleted: deletedRaces
+        }
+      },
+      registrations: {
+        registered: registeredCount,
+        finished: finishedCount,
+        cancelled: cancelledCount,
+        total: registeredCount + finishedCount + cancelledCount
+      }
+    });
+
   } catch (error) {
     return res.status(500).json({
-      message: "Error en la conexión al endpoint",
-      error: error.message,
+      message: "Error al obtener las estadísticas del sistema",
+      error: error.message
     });
   }
 };
