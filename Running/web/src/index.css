@@ -1,1 +1,150 @@
 @import "tailwindcss";
+
+:root {
+  --text: #1a1204;
+  --background: #fdf7ed;
+  --primary: #9B9D79;
+  --secondary: #B4C7B2;
+  --accent: #8EAC93;
+  --hover-primary: #8b8d6c;
+  --hover-accent: #7d9982;
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--background)] text-[var(--text)] min-h-screen;
+    font-family: 'Inter', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@layer components {
+  /* Navbar Styles */
+  .nav-container {
+    @apply fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-50 
+    md:static md:shadow-md;
+  }
+
+  .nav-content {
+    @apply container mx-auto px-4;
+  }
+
+  .nav-items {
+    @apply flex justify-around items-center h-16 
+    md:justify-between;
+  }
+
+  .logo {
+    @apply hidden text-xl font-bold text-[var(--primary)] hover:text-[var(--hover-primary)] transition-colors
+    md:block md:text-2xl;
+  }
+
+  .nav-links {
+    @apply flex w-full justify-around items-center
+    md:w-auto md:gap-4;
+  }
+
+  .nav-link {
+    @apply flex flex-col items-center text-sm p-2 text-[var(--text)] 
+    md:flex-row md:text-base md:px-4 md:py-2 md:rounded-lg md:hover:bg-[var(--primary)] md:hover:text-white md:transition-colors;
+  }
+
+  .nav-link-icon {
+    @apply text-xl mb-1
+    md:hidden;
+  }
+
+  /* Stats Container Styles */
+  .main-container {
+    @apply container mx-auto px-4 py-4 pb-20 
+    md:py-8 md:pb-8;
+  }
+
+  .stats-container {
+    @apply w-full max-w-4xl mx-auto rounded-xl bg-white shadow-lg 
+    p-3 
+    sm:p-4 
+    md:p-6;
+  }
+
+  .stats-header {
+    @apply flex flex-col gap-3 mb-4
+    sm:flex-row sm:justify-between sm:items-center sm:mb-6;
+  }
+
+  .stats-title {
+    @apply text-base font-semibold px-3 py-2 rounded-lg bg-[var(--accent)] text-white text-center
+    sm:text-lg 
+    md:text-xl md:px-4;
+  }
+
+  .stats-table-container {
+    @apply overflow-x-auto -mx-3 
+    sm:-mx-4 
+    md:-mx-6;
+  }
+
+  .stats-table {
+    @apply w-full border-collapse min-w-[300px];
+  }
+
+  .stats-table th {
+    @apply py-2 px-3 text-left border-b-2 border-[var(--secondary)] text-[var(--primary)] font-semibold text-sm
+    sm:py-3 sm:px-4 
+    md:text-base;
+  }
+
+  .stats-table td {
+    @apply py-2 px-3 border-b border-[var(--secondary)]/30 text-sm
+    sm:py-3 sm:px-4 
+    md:text-base;
+  }
+
+  .stats-table tr:hover {
+    @apply bg-[var(--secondary)]/10 transition-colors;
+  }
+
+  /* Card Styles for Race Lists */
+  .race-card {
+    @apply bg-white rounded-lg shadow-md p-4 mb-4 
+    hover:shadow-lg transition-shadow;
+  }
+
+  .race-grid {
+    @apply grid gap-4 
+    grid-cols-1 
+    sm:grid-cols-2 
+    lg:grid-cols-3;
+  }
+}
+
+/* Custom Media Queries for specific adjustments */
+@media (max-width: 360px) {
+  .nav-link {
+    @apply text-xs;
+  }
+  
+  .stats-title {
+    @apply text-sm px-2 py-1;
+  }
+  
+  .stats-table th,
+  .stats-table td {
+    @apply text-xs py-1 px-2;
+  }
+}
+
+@media (min-width: 768px) {
+  .nav-link {
+    position: relative;
+  }
+  
+  .nav-link::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all duration-300;
+  }
+  
+  .nav-link:hover::after {
+    @apply w-full;
+  }
+}
