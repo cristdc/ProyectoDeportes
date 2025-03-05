@@ -27,7 +27,7 @@ const Navbar = () => {
               <span>Historial</span>
             </NavLink>
             <NavLink 
-              to="/user" 
+              to="/profile" 
               className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
             >
               <span className="nav-link-icon"><FaUser /></span>
