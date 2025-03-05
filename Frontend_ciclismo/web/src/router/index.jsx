@@ -4,16 +4,15 @@ import Login from "../pages/Login";
 import Profile from "../pages/Profile";
 import ErrorPage from "../pages/ErrorPage";
 import ProtectedRoute from "../components/ProtectedRoute";
+import RootLayout from "../layout/RootLayout";
+import CarrerasDisponibles from "../pages/CarrerasDisponibles";
+import CarrerasHistorial from "../pages/CarrerasHistorial";
+import CarrerasDetail from "../pages/CarrerasDetail";
 
 export const router = createBrowserRouter([
     {
-        path: "/login",
-        element: <Login />,
-        errorElement: <ErrorPage />
-    },
-    {
         path: "/",
-        element: <ProtectedRoute><Home /></ProtectedRoute>,
+        element: <RootLayout />,
         errorElement: <ErrorPage />,
         children: [
             {
@@ -21,8 +20,27 @@ export const router = createBrowserRouter([
                 element: <ProtectedRoute><Home /></ProtectedRoute>
             },
             {
+                path: "login",
+                element: <Login />
+            },
+            {
                 path: "profile",
                 element: <ProtectedRoute><Profile /></ProtectedRoute>
+            },
+            {
+                path: "carreras-disponibles",
+                element: <ProtectedRoute><CarrerasDisponibles /></ProtectedRoute>
+            },
+            {
+                path: "carreras-historial",
+                element: <ProtectedRoute><CarrerasHistorial /></ProtectedRoute>
+            },
+            {
+                path: "carrerasDetail/:carreraId",
+                element: <ProtectedRoute><CarrerasDetail /></ProtectedRoute>
+            },
+            {
+                
             }
         ]
     }
