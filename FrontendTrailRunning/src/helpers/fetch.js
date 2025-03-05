@@ -22,7 +22,7 @@ export const fetchAllRaces = async () =>{
     }
 }
 
-export const registration = async (raceId) =>{
+export const createRegistration = async (raceId) =>{
     try {
         const response = await fetch(`${api}/registrations`, {
             method: 'POST',
@@ -88,4 +88,29 @@ export const profile = async () => {
     } catch (error) {
         console.log("Error: ", error);
     }
+}
+
+// fetch para obtener historial de carreras del user
+export const fetchUserRegistrations = async () => {
+    try {
+        const response = await fetch(`${api}/registrations/user`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            }
+          })
+
+        if(!response.ok){
+            throw new Error("Error al conectar a la api")
+        }
+    
+        const data = await response.json();
+        return data.registrations;
+
+    } catch (error) {
+        console.log("Error: ", error);
+    }
+    
 }

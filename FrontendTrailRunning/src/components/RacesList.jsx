@@ -1,10 +1,10 @@
 import React from "react";
-import { registration } from "../helpers/fetch";
+import { createRegistration } from "../helpers/fetch";
 
 const RacesList = ({ races }) => {
 
   const handleClick = async (raceId) =>{
-    const data = await registration(raceId);
+    const data = await createRegistration(raceId);
     console.log(data);
   }
 
