@@ -6,8 +6,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 
 /**
  *
@@ -17,45 +19,16 @@ import javafx.scene.control.TableView;
 public class controladorLogin implements Initializable{
     
     @FXML
-    private Button btnDesapuntarse;
+    private Button btnIniciarSesion;
 
     @FXML
-    private Button btnParticipar;
+    private PasswordField txtPassword;
 
     @FXML
-    private TableColumn<?, ?> columnDistancia;
+    private TextField txtUsuario;
 
     @FXML
-    private TableColumn<?, ?> columnEstado;
-
-    @FXML
-    private TableColumn<?, ?> columnFecha;
-
-    @FXML
-    private TableColumn<?, ?> columnId;
-
-    @FXML
-    private TableColumn<?, ?> columnLocalizacion;
-
-    @FXML
-    private TableColumn<?, ?> columnNombre;
-
-    @FXML
-    private TableColumn<?, ?> columnTiempo;
-
-    @FXML
-    private TableColumn<?, ?> columnTour;
-
-    @FXML
-    private TableView<?> tvCarreras;
-    
-    @FXML
-    void btnAccionDesapuntarse(ActionEvent event) {
-
-    }
-
-    @FXML
-    void btnAccionParticipar(ActionEvent event) {
+    void btnAccionIniciarSesion(ActionEvent event) {
 
     }
 
