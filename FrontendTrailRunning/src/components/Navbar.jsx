@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogOut, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import useAuth from "../hooks/useAuth";
-import { ROUTES } from "../routes/paths";
 
 
 const Navbar = ( { user } ) => {
@@ -19,20 +18,21 @@ const Navbar = ( { user } ) => {
     <>
       <div className="flex justify-between items-center p-2 bg-white">
         {/* Logo */}
-        <div className="flex">
-          
-          <img 
-          src="../../img/logo.png" 
-          alt="Logo Trail" 
-          className="h-12 transition-all duration-300 hover:opacity-80 mr-[-30px]"
-          />
-          <img 
-          src="../../img/nombre.png" 
-          alt="Logo Trail" 
-          className="h-12 transition-all duration-300 hover:opacity-80"
-          />
-          
-        </div>
+        <a href="/home">
+          <div className="flex transition-all duration-300 hover:opacity-80">
+            
+            <img 
+            src="../../img/logo.png" 
+            alt="Logo Trail" 
+            className="h-12 mr-[-30px]"
+            />
+            <img 
+            src="../../img/nombre.png" 
+            alt="Logo Trail" 
+            className="h-12"
+            />
+          </div>
+        </a>
 
         <div className="hidden sm:flex flex-1 justify-center">
         </div>
