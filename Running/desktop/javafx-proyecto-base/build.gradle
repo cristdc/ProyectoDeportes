@@ -19,22 +19,38 @@ repositories {
 
 javafx {
     version = "23"
-    modules = [ 'javafx.base', 'javafx.swing', 'javafx.graphics', 'javafx.controls', 'javafx.fxml', 'javafx.media', 'javafx.web' ]
+    modules = ['javafx.base', 'javafx.swing', 'javafx.graphics', 'javafx.controls', 'javafx.fxml', 'javafx.media', 'javafx.web']
 }
 
 dependencies {
     //No es necesario incluir las dependencias porque ya lo hace el plugin por nosotros
 }
 
-mainClassName = 'com.proyectobase.PlantillaFX'
+mainClassName = 'com.proyectobase.Main'
+
+jar {
+    duplicatesStrategy 'exclude'
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+}
+
+dependencies {
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
+
+    implementation 'net.sf.jasperreports:jasperreports:7.0.1'
+    implementation 'net.sf.jasperreports:jasperreports-pdf:7.0.0' //Exportar PDF
+    implementation 'net.sf.jasperreports:jasperreports-charts:7.0.1' //Charts
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
+}
 
 sourceSets {
-  main {
-    resources {
-        srcDirs = ["src/main/java"]
-        includes = ["**/*.fxml"]  //Importante para poder abrir una extensión no reconocida
+    main {
+        resources {
+            srcDirs = ["src/main/java", "src/main/resources"]
+            includes = ["**/*.fxml", "**/*.properties", "**/*.jasper", "**/*.png", "**/*.gif", "**/*.jasper"]
+        }
     }
-  }
 }
 
 
