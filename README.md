@@ -1,5 +1,7 @@
 # ProyectoDeportes
 
+## opciones 
+
 ## 📌 Tabla de Contenidos
 1. [Introducción](#documentación-de-la-base-de-datos)
 2. [¿Por qué MongoDB y no SQL?](#¿por-qué-mongodb-y-no-una-base-de-datos-relacional)

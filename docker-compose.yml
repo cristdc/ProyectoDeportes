@@ -27,6 +27,7 @@ services:
       - ./Backend:/app
       - /app/node_modules
       - ./Backend/.env:/app/.env
+      - ./Backend/uploads:/app/uploads
 
   mongo-express:
     image: mongo-express
