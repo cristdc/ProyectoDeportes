@@ -70,6 +70,51 @@ export const fetchLastRace = async () => {
     }
 }
 
+
+export const fetchRacesUserNumber = async () => {
+    try {
+        // terminadas
+        const finish = await fetch(`${api}/registrations/user?status=finished`,  {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+        });
+
+        if(!finish.ok){
+            throw new Error("Error al obtener las carreras finalizadas del usuario")
+        }
+
+        const finishData = await finish.json(); //hacer finishData.registrations.lenght
+        const finishNum = finishData.registrations.length ;
+
+        // registradas
+        const registered = await fetch(`${api}/registrations/user?status=registered`,  {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+        });
+
+        if(!registered.ok){
+            throw new Error("Error al obtener las carreras finalizadas del usuario")
+        }
+
+        // "registered", "cancelled", "finished")
+        const registeredData = await registered.json(); //hacer finishData.registrations.lenght
+        const registeredNum = registeredData.registrations.length;
+
+        return { finish: finishNum, 
+            registered: registeredNum, 
+            all: finishNum+registeredNum
+        }
+
+    } catch(error){
+        throw new Error("Error al hacer la petición", error)
+    }
+}
 export const profile = async () => {
     try {
         const response = await fetch(`${api}/users/profile`, {
