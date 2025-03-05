@@ -10,7 +10,6 @@ import {
   deleteRace,
   registerRaceResults,
   getRaceResults,
-  uploadRunnersCSV,
   downloadRunnersCSV,
   uploadResultsCSV,
 } from "../controllers/raceController.js";

@@ -12,7 +12,14 @@ const Navbar = () => {
       <div className="flex justify-between items-center p-2 bg-background">
         {/* Logo */}
         <div>
-          <Link to="/" className="text-text hover:text-accent transition-all duration-300 text-2xl font-bold">Trail</Link>
+          <Link to="/" className="">
+          <img 
+          src="../img/logo.jpg" 
+          alt="Logo Trail" 
+          className="h-12 transition-all duration-300 hover:opacity-80"
+          />
+
+          </Link>
         </div>
 
         <div className="hidden sm:flex flex-1 justify-center">
@@ -34,7 +41,7 @@ const Navbar = () => {
           </Link>
           {isAuthenticated ? (
             <>
-            <Link to="" className="pr-3 text-text  hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+            <Link to="/races" className="pr-3 text-text  hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
             <button
               onClick={async () => logout()}
               className="text-text hover:text-accent transition-all duration-300"
@@ -59,7 +66,7 @@ const Navbar = () => {
           </Link>
           {isAuthenticated ? (
             <>
-            <Link to="" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+            <Link to="/races" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
             <button
               onClick={async () => logout()}
               className="text-text hover:text-accent transition-all duration-300"
