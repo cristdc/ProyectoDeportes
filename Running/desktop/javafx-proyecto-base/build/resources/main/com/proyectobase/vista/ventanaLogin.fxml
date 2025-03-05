@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<HBox alignment="CENTER" style="-fx-background-color: #fdf7ed;" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.proyectobase.controlador.controladorLogin">
+   <children>
+      <VBox alignment="CENTER" maxHeight="-Infinity" prefHeight="340.0" prefWidth="340.0" style="-fx-background-color: white; -fx-border-radius: 15px; -fx-background-radius: 15px;">
+         <children>
+            <Label text="Iniciar Sesión">
+               <font>
+                  <Font name="System Bold" size="24.0" />
+               </font>
+               <VBox.margin>
+                  <Insets bottom="25.0" />
+               </VBox.margin>
+            </Label>
+            <VBox>
+               <children>
+                  <Label style="-fx-text-fill: #1a1204;" text="Correo Electrónico">
+                     <VBox.margin>
+                        <Insets bottom="5.0" />
+                     </VBox.margin>
+                  </Label>
+                  <TextField fx:id="txtUsuario" prefHeight="30.0" prefWidth="230.0" promptText="tu@email.com" />
+               </children>
+            </VBox>
+            <VBox>
+               <children>
+                  <Label prefHeight="17.0" prefWidth="66.0" style="-fx-text-fill: #1a1204;" text="Contraseña">
+                     <VBox.margin>
+                        <Insets bottom="5.0" top="20.0" />
+                     </VBox.margin>
+                  </Label>
+                  <PasswordField fx:id="txtPassword" prefHeight="32.0" prefWidth="230.0" />
+               </children>
+            </VBox>
+            <Button fx:id="btnIniciarSesion" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="30.0" prefWidth="364.0" style="-fx-background-color: #9B9D79; -fx-text-fill: white;" text="Iniciar sesión">
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Button>
+            <HBox alignment="CENTER_RIGHT" />
+         </children>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" />
+         </padding>
+      </VBox>
+   </children>
+</HBox>
