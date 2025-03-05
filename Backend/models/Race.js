@@ -34,6 +34,18 @@ const raceSchema = mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    hasRunnersCSV: {
+        type: Boolean,
+        default: false
+    },
+    runnersCSVPath: {
+        type: String,
+        default: null
+    },
+    lastCSVUpdate: {
+        type: Date,
+        default: null
     }
 });
 
