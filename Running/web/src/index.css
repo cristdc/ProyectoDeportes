@@ -35,8 +35,20 @@
   }
 
   .logo {
-    @apply hidden text-xl font-bold text-[var(--primary)] hover:text-[var(--hover-primary)] transition-colors
+    @apply hidden text-xl font-bold text-[var(--primary)] 
+    transition-colors relative
     md:block md:text-2xl;
+  }
+
+  .logo::after {
+    content: '';
+    @apply absolute bottom-0 left-0 w-full h-0.5 
+    bg-[var(--primary)] opacity-0
+    transition-opacity duration-300;
+  }
+
+  .logo:hover::after {
+    @apply opacity-100;
   }
 
   .nav-links {
@@ -45,63 +57,77 @@
   }
 
   .nav-link {
-    @apply flex flex-col items-center text-sm p-2 text-[var(--text)] 
-    md:flex-row md:text-base md:px-4 md:py-2 md:rounded-lg md:hover:bg-[var(--primary)] md:hover:text-white md:transition-colors;
+    @apply flex flex-col items-center text-sm p-2 text-gray-600
+    relative transition-colors
+    md:flex-row md:text-base md:px-4 md:py-2 md:rounded-lg;
   }
 
+  /* Estilo para link activo en móvil */
+  .nav-link-active {
+    @apply text-[var(--primary)] font-medium;
+  }
+
+  /* Icono del nav */
   .nav-link-icon {
     @apply text-xl mb-1
     md:hidden;
   }
 
-  /* Stats Container Styles */
+  /* Ajuste del layout principal */
   .main-container {
-    @apply container mx-auto px-4 py-4 pb-20 
-    md:py-8 md:pb-8;
+    @apply container mx-auto px-4 
+    flex flex-col min-h-screen 
+    pb-16 /* Espacio para el navbar fijo en móvil */
+    md:pb-4; /* Menos espacio en desktop */
   }
 
+  /* Contenedor de contenido principal */
+  .content-wrapper {
+    @apply flex-1 flex flex-col gap-8 py-6 /* Aumentado el gap y padding */
+    md:py-8;
+  }
+
+  /* Stats container con más espacio y mejor diseño */
   .stats-container {
-    @apply w-full max-w-4xl mx-auto rounded-xl bg-white shadow-lg 
-    p-3 
-    sm:p-4 
-    md:p-6;
+    @apply w-full max-w-4xl mx-auto rounded-2xl bg-white shadow-lg 
+    p-6 /* Aumentado el padding */
+    border border-[var(--secondary)]/10;
   }
 
   .stats-header {
-    @apply flex flex-col gap-3 mb-4
-    sm:flex-row sm:justify-between sm:items-center sm:mb-6;
+    @apply flex flex-col gap-4 mb-8 /* Más espacio vertical */
+    sm:flex-row sm:justify-between sm:items-center;
   }
 
   .stats-title {
-    @apply text-base font-semibold px-3 py-2 rounded-lg bg-[var(--accent)] text-white text-center
-    sm:text-lg 
-    md:text-xl md:px-4;
+    @apply text-lg font-semibold px-6 py-2.5 rounded-xl 
+    bg-gradient-to-r from-[var(--accent)] to-[var(--secondary)]
+    text-white shadow-sm
+    transition-transform hover:scale-105;
   }
 
   .stats-table-container {
-    @apply overflow-x-auto -mx-3 
-    sm:-mx-4 
-    md:-mx-6;
+    @apply overflow-x-auto -mx-6 /* Ajustado para el nuevo padding */
+    rounded-xl;
   }
 
   .stats-table {
-    @apply w-full border-collapse min-w-[300px];
+    @apply w-full border-collapse;
   }
 
   .stats-table th {
-    @apply py-2 px-3 text-left border-b-2 border-[var(--secondary)] text-[var(--primary)] font-semibold text-sm
-    sm:py-3 sm:px-4 
-    md:text-base;
+    @apply py-4 px-6 text-left border-b-2 border-[var(--secondary)]/30 
+    text-[var(--primary)] font-semibold
+    text-lg; /* Texto más grande */
   }
 
   .stats-table td {
-    @apply py-2 px-3 border-b border-[var(--secondary)]/30 text-sm
-    sm:py-3 sm:px-4 
-    md:text-base;
+    @apply py-4 px-6 border-b border-[var(--secondary)]/10
+    text-gray-700; /* Color más suave */
   }
 
   .stats-table tr:hover {
-    @apply bg-[var(--secondary)]/10 transition-colors;
+    @apply bg-[var(--secondary)]/5 transition-colors;
   }
 
   /* Card Styles for Race Lists */
@@ -115,6 +141,118 @@
     grid-cols-1 
     sm:grid-cols-2 
     lg:grid-cols-3;
+  }
+
+  /* Footer mejorado */
+  .footer-container {
+    @apply bg-white shadow-[0_-1px_3px_rgba(0,0,0,0.1)] mt-auto
+    border-t border-[var(--secondary)]/10;
+  }
+
+  .footer-content {
+    @apply container mx-auto px-6;
+  }
+
+  .footer-simple {
+    @apply flex flex-wrap items-center justify-between 
+    py-4
+    gap-4
+    border-b border-[var(--secondary)]/10;
+  }
+
+  .footer-logo {
+    @apply text-xl font-bold 
+    bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] 
+    bg-clip-text text-transparent
+    hover:opacity-80 transition-opacity;
+  }
+
+  .footer-links {
+    @apply flex items-center gap-6 /* Más espacio entre links */
+    text-sm font-medium text-gray-600;
+  }
+
+  .footer-links a {
+    @apply hover:text-[var(--primary)] transition-colors
+    relative;
+  }
+
+  /* Efecto hover para los links del footer */
+  .footer-links a::after {
+    content: '';
+    @apply absolute left-0 bottom-0 w-0 h-0.5
+    bg-[var(--primary)] transition-all duration-300;
+  }
+
+  .footer-links a:hover::after {
+    @apply w-full;
+  }
+
+  .social-links {
+    @apply flex items-center gap-4 text-lg;
+  }
+
+  .social-links a {
+    @apply text-gray-500 hover:text-[var(--primary)] 
+    transition-all duration-300
+    hover:scale-110; /* Efecto hover */
+  }
+
+  /* Nuevo estilo para el copyright */
+  .footer-copyright {
+    @apply text-center text-sm text-gray-500 py-3
+    font-light;
+  }
+
+  /* Ajustes responsive */
+  @media (max-width: 640px) {
+    .footer-simple {
+      @apply flex-col gap-4 py-3;
+    }
+    
+    .footer-logo {
+      @apply text-center w-full;
+    }
+    
+    .footer-links {
+      @apply justify-center w-full;
+    }
+    
+    .social-links {
+      @apply justify-center w-full;
+    }
+
+    .footer-copyright {
+      @apply text-xs py-2;
+    }
+  }
+
+  /* Efectos hover y activo para desktop */
+  @media (min-width: 768px) {
+    .nav-link {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link::after {
+      content: '';
+      @apply absolute bottom-0 left-0 w-full h-0.5 
+      bg-[var(--primary)] 
+      transform translate-x-[-100%] transition-transform duration-300;
+    }
+
+    .nav-link:hover::after {
+      @apply transform translate-x-0;
+    }
+
+    /* Estilo activo en desktop */
+    .nav-link-active {
+      @apply text-[var(--primary)] bg-[var(--primary)]/10;
+    }
+
+    .nav-link-active::after {
+      @apply transform translate-x-0;
+    }
   }
 }
 
@@ -131,20 +269,5 @@
   .stats-table th,
   .stats-table td {
     @apply text-xs py-1 px-2;
-  }
-}
-
-@media (min-width: 768px) {
-  .nav-link {
-    position: relative;
-  }
-  
-  .nav-link::after {
-    content: '';
-    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all duration-300;
-  }
-  
-  .nav-link:hover::after {
-    @apply w-full;
   }
 }
