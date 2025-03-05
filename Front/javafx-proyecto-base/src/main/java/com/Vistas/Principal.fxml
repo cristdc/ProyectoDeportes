@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane fx:id="root" prefHeight="526.0" prefWidth="790.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox fx:id="header" spacing="10" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        
+        <!-- Header -->
+        <HBox fx:id="body" alignment="CENTER_LEFT" prefHeight="61.0" prefWidth="790.0" spacing="10">
+         <ImageView fx:id="imgLogo" fitHeight="85.0" fitWidth="127.0" pickOnBounds="true" preserveRatio="true" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Hyperlink fx:id="enlaceCarreras" text="Carreras disponibles" />
+            <Hyperlink fx:id="enlaceParticipar" text="Participar en carrera" />
+         <ImageView fx:id="imgUsuario" fitHeight="85.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true" />
+        </HBox>
+        
+        <!-- Body -->
+        <HBox fx:id="sections" spacing="10" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+           <StackPane fx:id="section1" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+                <ImageView fitHeight="417.0" fitWidth="414.0" pickOnBounds="true" preserveRatio="true" />
+                <Label text="Texto en posición 1" style="-fx-font-size: 16px; -fx-text-fill: white;" StackPane.alignment="TOP_LEFT" />
+                <Label text="Texto en posición 2" style="-fx-font-size: 16px; -fx-text-fill: white;" StackPane.alignment="CENTER" />
+                <Label text="Texto en posición 3" style="-fx-font-size: 16px; -fx-text-fill: white;" StackPane.alignment="BOTTOM_RIGHT" />
+            </StackPane>
+            <VBox fx:id="section2" spacing="5" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
+            <Pane prefHeight="96.0" prefWidth="366.0" />
+                <TableView VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn prefWidth="50" text="TOP" />
+                        <TableColumn prefWidth="200" text="Nombre" />
+                        <TableColumn prefWidth="100" text="Tiempo" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </HBox>
+    </VBox>
+</AnchorPane>
