@@ -17,17 +17,24 @@ const Navbar = ( { user } ) => {
 
   return (
     <>
-      <div className="flex justify-between items-center p-2 bg-background p-5">
+      <div className="flex justify-between items-center p-2 bg-white">
         {/* Logo */}
-        <div>
-          <Link to="/" className="text-text hover:text-accent transition-all duration-300"><h1>Trail</h1></Link>
+        <div className="flex">
+          
+          <img 
+          src="../../img/logo.png" 
+          alt="Logo Trail" 
+          className="h-12 transition-all duration-300 hover:opacity-80 mr-[-30px]"
+          />
+          <img 
+          src="../../img/nombre.png" 
+          alt="Logo Trail" 
+          className="h-12 transition-all duration-300 hover:opacity-80"
+          />
+          
         </div>
 
-        {/* Nombre de usuario centrado en pantallas grandes */}
         <div className="hidden sm:flex flex-1 justify-center">
-          <Link to="/" className="text-text hover:text-accent transition-all duration-300">
-            {user ? user.name : ""}
-          </Link>
         </div>
 
         {/* Botón Hamburguesa en pantallas menores a 480px */}
@@ -39,15 +46,21 @@ const Navbar = ( { user } ) => {
         </button>
 
         {/* Menú en pantallas grandes (480px en adelante) */}
-        <div className="hidden sm:flex space-x-3">
-        <Link to={ROUTES.RACES} className="block text-text text-center hover:bg-background transition-all duration-300">Carreras Disponibles</Link>
+        <div className="hidden sm:flex space-x-3 ">
+          <Link to="/user" className="text-text hover:text-accent transition-all duration-300">
+            {user ? user.name : ""}
+          </Link>
           {user ? (
+            <>
+            <Link to="/races" className="pr-3 text-text  hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+            <Link to="/racesuser" className="pr-3 text-text  hover:text-accent transition-all duration-300">Historial de Carreras</Link>
             <button
               onClick={handleLogout}
               className="text-text hover:text-accent transition-all duration-300"
             >
               Cerrar sesión
             </button>
+            </>
           ) : (
             <Link to="/" className="text-text hover:text-accent transition-all duration-300">
               Iniciar Sesion
@@ -60,13 +73,26 @@ const Navbar = ( { user } ) => {
         className={`sm:hidden flex flex-col bg-background text-white py-3 space-y-2 
         transition-all duration-300 ${isOpen ? "block" : "hidden"}`}
       >
-        <Link to={ROUTES.RACES} className="block text-text text-center hover:bg-background transition-all duration-300">Carreras Disponibles</Link>
-        <button
-              onClick={handleLogout}
+        <Link to="/user" className="text-text text-center hover:text-accent transition-all duration-300">
+            {user ? user.name : ""}
+          </Link>
+          {user ? (
+            <>
+            <Link to="/races" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+            <Link to="/racesuser" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Historial de Carreras</Link>
+
+            <button
+              onClick={async () => logout()}
               className="text-text hover:text-accent transition-all duration-300"
             >
               Cerrar sesión
-        </button>
+            </button>
+            </>
+          ) : (
+            <Link to="/" className="text-text text-center hover:text-accent transition-all duration-300">
+              Iniciar Sesion
+            </Link>
+          )}
       </div>
     </>
   );
