@@ -1,14 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useRace } from '../context/RaceContext';
 
 const CarrerasDetail = () => {
-  const { id } = useParams();
-  const { race, fetchRaceDetails } = useRace();
+  const { carreraId } = useParams();  // Cambiado de id a carreraId para coincidir con el router
+  const { race, loading, error, fetchRaceDetails } = useRace();
 
   useEffect(() => {
-    fetchRaceDetails(id);
-  }, [id]);
+    console.log('ID de carrera:', carreraId);
+    fetchRaceDetails(carreraId);
+  }, [carreraId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#fdf7ed] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9B9D79]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#fdf7ed] flex items-center justify-center">
+        <div className="bg-red-100 text-red-700 p-6 rounded-lg shadow-md max-w-md text-center">
+          <h2 className="text-xl font-semibold mb-2">Error</h2>
+          <p>{error}</p>
+          <Link 
+            to="/carreras-disponibles" 
+            className="mt-4 inline-block bg-[#9B9D79] text-white px-4 py-2 rounded-md hover:bg-opacity-90"
+          >
+            Volver a carreras
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!race) {
+    return (
+      <div className="min-h-screen bg-[#fdf7ed] flex items-center justify-center">
+        <div className="bg-yellow-100 text-yellow-700 p-6 rounded-lg shadow-md max-w-md text-center">
+          <h2 className="text-xl font-semibold mb-2">Carrera no encontrada</h2>
+          <p>No se pudo encontrar la información de esta carrera.</p>
+          <Link 
+            to="/carreras-disponibles" 
+            className="mt-4 inline-block bg-[#9B9D79] text-white px-4 py-2 rounded-md hover:bg-opacity-90"
+          >
+            Volver a carreras
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#fdf7ed] p-4 md:p-8">
@@ -171,7 +214,7 @@ const CarrerasDetail = () => {
             <div className="mt-8 pt-8 border-t border-[#B4C7B2]">
               <div className="flex items-center justify-between text-sm text-[#1a1204] opacity-75">
                 <span>Creada el {new Date(race.createdAt).toLocaleDateString()}</span>
-                <span>ID: {id}</span>
+                <span>ID: {carreraId}</span>
               </div>
             </div>
           </div>

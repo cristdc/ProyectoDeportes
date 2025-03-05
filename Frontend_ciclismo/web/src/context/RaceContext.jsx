@@ -4,14 +4,13 @@ const RaceContext = createContext();
 
 export const RaceProvider = ({ children }) => {
     const [races, setRaces] = useState([]);
+    const [race, setRace] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [pagination, setPagination] = useState(null);
-    const [race, setRace] = useState(null);
 
     const fetchRaces = async () => {
         try {
-            // Agregamos logs para debuggear
             console.log('Iniciando fetch de carreras...');
             
             const response = await fetch('http://localhost:3000/api/races', {
@@ -30,24 +29,18 @@ export const RaceProvider = ({ children }) => {
             const data = await response.json();
             console.log('Datos recibidos:', data);
             
-            // Verificamos la estructura de los datos y extraemos el array de races
             if (data && data.races && Array.isArray(data.races)) {
                 setRaces(data.races);
-                if (data.pagination) {
-                    setPagination(data.pagination);
-                }
-            } else if (Array.isArray(data)) {
-                // Si la respuesta es directamente un array
-                setRaces(data);
+                setPagination(data.pagination);
             } else {
-                // Si recibimos un mensaje del backend, establecemos un array vacío
+                console.error('Estructura de datos inesperada:', data);
                 setRaces([]);
-                setError(data.message || 'No se pudieron cargar las carreras');
+                setError('Formato de datos incorrecto');
             }
         } catch (error) {
             console.error('Error en fetchRaces:', error);
             setError(error.message);
-            setRaces([]); // Aseguramos que races siempre sea un array
+            setRaces([]);
         } finally {
             setLoading(false);
         }
@@ -55,38 +48,48 @@ export const RaceProvider = ({ children }) => {
 
     const fetchRaceDetails = async (id) => {
         try {
-          const response = await fetch(`http://localhost:3000/api/races/${id}`, {
-            credentials: 'include'
-          });
-  
-          if (!response.ok) {
-            throw new Error('No se pudo obtener la información de la carrera');
-          }
-  
-          const data = await response.json();
-          setRace(data);
+            setLoading(true);
+            setError(null);
+            console.log('Iniciando fetch de detalles de carrera:', id);
+            
+            const response = await fetch(`http://localhost:3000/api/races/${id}`, {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            console.log('Status de la respuesta:', response.status);
+            
+            if (!response.ok) {
+                throw new Error('No se pudo obtener la información de la carrera');
+            }
+            
+            const data = await response.json();
+            console.log('Datos de carrera recibidos:', data);
+            setRace(data);
         } catch (err) {
-          setError(err.message);
+            console.error('Error en fetchRaceDetails:', err);
+            setError(err.message);
+            setRace(null);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
     useEffect(() => {
         fetchRaces();
     }, []);
 
-    console.log('Estado actual de races:', races);
-
     return (
         <RaceContext.Provider value={{
             races,
+            race,
             loading,
             error,
             pagination,
-            race,
             fetchRaces,
-            fetchRaceDetails,
+            fetchRaceDetails
         }}>
             {children}
         </RaceContext.Provider>

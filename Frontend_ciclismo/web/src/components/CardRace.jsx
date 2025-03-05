@@ -63,8 +63,9 @@ const CardRace = ({ race }) => {
 
         {/* Botón de acción */}
         <button 
-        onClick={() => navigate(`/carrerasDetail/${race._id}`)}
-        className="w-full bg-[#9B9D79] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2">
+          onClick={() => navigate(`/carrerasDetail/${race._id}`)}
+          className="w-full bg-[#9B9D79] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2"
+        >
           Ver detalles
         </button>
       </div>
