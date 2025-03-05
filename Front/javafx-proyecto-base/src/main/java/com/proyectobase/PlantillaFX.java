@@ -1,13 +1,19 @@
 package com.proyectobase; //Modificar al package correcto
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 558d40d1165a7b2186e53e125f01175efd291f94
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+<<<<<<< HEAD
 import javafx.scene.layout.VBox;
+=======
+>>>>>>> 558d40d1165a7b2186e53e125f01175efd291f94
 import com.Controladores.Controlador;
 import java.io.IOException;
 import java.net.URL;
@@ -35,11 +41,14 @@ public class PlantillaFX extends Application {
         launch(args);
     }
 
+<<<<<<< HEAD
     @Override
 
+=======
+    @Override        
+>>>>>>> 558d40d1165a7b2186e53e125f01175efd291f94
     public void start(Stage primaryStage) throws IOException {
-        
-        
+              
         URL imageUrl = getClass().getClassLoader().getResource("img/AtletisticsLogo.jpg");
         if (imageUrl != null) {
             Image image = new Image(imageUrl.toString());
