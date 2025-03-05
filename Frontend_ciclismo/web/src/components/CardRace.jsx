@@ -1,11 +1,12 @@
 import React from 'react';
-
+import { useNavigate } from 'react-router-dom';
 const CardRace = ({ race }) => {
   // Si no hay datos de carrera, mostramos un mensaje o retornamos null
   if (!race) {
     console.log('No hay datos de carrera');
     return null; // o podrías retornar un componente de placeholder/loading
   }
+  const navigate = useNavigate();
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-[#B4C7B2]">
@@ -61,7 +62,9 @@ const CardRace = ({ race }) => {
         </div>
 
         {/* Botón de acción */}
-        <button className="w-full bg-[#9B9D79] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2">
+        <button 
+        onClick={() => navigate(`/carrerasDetail/${race._id}`)}
+        className="w-full bg-[#9B9D79] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2">
           Ver detalles
         </button>
       </div>
