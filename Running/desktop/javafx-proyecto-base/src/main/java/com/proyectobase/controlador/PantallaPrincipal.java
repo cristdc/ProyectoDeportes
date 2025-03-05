@@ -1,3 +1,4 @@
+import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -32,6 +33,10 @@ public class PantallaPrincipal implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
+    }
+    @FXML
+    void navegarVentanaCarreras(MouseEvent event) {
+
     }
 
 }
