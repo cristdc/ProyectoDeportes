@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Menu, X } from "lucide-react";
 import useAuth from "../hooks/useAuth";
+import { ROUTES } from "../routes/paths";
 
 
 const Navbar = ( { user } ) => {
@@ -11,7 +12,7 @@ const Navbar = ( { user } ) => {
 
   const handleLogout = async() =>{
     await logout();
-    navigate('/')
+    navigate("/")
   }
 
   return (
@@ -21,12 +22,12 @@ const Navbar = ( { user } ) => {
         <div className="flex">
           
           <img 
-          src="../../public/img/logo.png" 
+          src="../../img/logo.png" 
           alt="Logo Trail" 
           className="h-12 transition-all duration-300 hover:opacity-80 mr-[-30px]"
           />
           <img 
-          src="../../public/img/nombre.png" 
+          src="../../img/nombre.png" 
           alt="Logo Trail" 
           className="h-12 transition-all duration-300 hover:opacity-80"
           />
