@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FaEnvelope, FaLock, FaRunning } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
