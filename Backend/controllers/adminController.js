@@ -1,6 +1,6 @@
 import User from "../models/User.js";
 import Race from "../models/Race.js";
-import Registration from "../models/Registration.js";
+import Registration from "../models/Registrations.js";
 
 // Obtener todos los usuarios
 const getAllUsers = async (req, res) => {
