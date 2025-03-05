@@ -127,7 +127,7 @@ const Home = () => {
 
                                 <div className="flex justify-end space-x-4">
                                     <Link
-                                        to={`/carreras/${lastRace._id}`}
+                                        to={`/carrerasDetail/${lastRace._id}`}
                                         className="px-4 py-2 bg-[#9B9D79] text-white rounded-md hover:bg-[#8EAC93] transition-colors"
                                     >
                                         Ver detalles
