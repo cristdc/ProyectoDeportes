@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 const CardRace = ({ race }) => {
+  const navigate = useNavigate();
   // Si no hay datos de carrera, mostramos un mensaje o retornamos null
   if (!race) {
     console.log('No hay datos de carrera');
     return null; // o podrías retornar un componente de placeholder/loading
   }
-  const navigate = useNavigate();
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-[#B4C7B2]">

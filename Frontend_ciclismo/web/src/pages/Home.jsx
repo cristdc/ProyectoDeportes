@@ -22,19 +22,6 @@ const Home = () => {
   };
 
   // Datos de ejemplo para cuando no hay información
-  const placeholderRace = {
-    name: "Gran Fondo de Montaña",
-    status: "active",
-    date: "2024-12-31",
-    location: "Sierra Nevada",
-    distance: 120,
-    unevenness: 2500,
-    maxParticipants: 200,
-    qualifyingTime: 240
-  };
-
-  // Usar datos reales o datos de ejemplo
-  const displayRace = (races && races.length > 0) ? races[0] : placeholderRace;
 
   if (loading) {
     return (
@@ -44,15 +31,15 @@ const Home = () => {
     );
   }
 
-  // if (error) {
-  //   return (
-  //     <div className="flex justify-center items-center min-h-screen bg-[#fdf7ed]">
-  //       <div className="bg-red-100 text-red-700 p-4 rounded-md">
-  //         {error}
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-[#fdf7ed]">
+        <div className="bg-red-100 text-red-700 p-4 rounded-md">
+          {error}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#fdf7ed] p-4 md:p-8">

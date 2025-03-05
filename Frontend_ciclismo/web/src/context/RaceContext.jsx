@@ -6,10 +6,8 @@ export const RaceProvider = ({ children }) => {
     const [races, setRaces] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    useEffect(() => {
-        fetchRaces();
-    }, []);
+    const [pagination, setPagination] = useState(null);
+    const [race, setRace] = useState(null);
 
     const fetchRaces = async () => {
         try {
@@ -32,8 +30,14 @@ export const RaceProvider = ({ children }) => {
             const data = await response.json();
             console.log('Datos recibidos:', data);
             
-            // Verificamos si data es un array o si contiene un mensaje de error
-            if (Array.isArray(data)) {
+            // Verificamos la estructura de los datos y extraemos el array de races
+            if (data && data.races && Array.isArray(data.races)) {
+                setRaces(data.races);
+                if (data.pagination) {
+                    setPagination(data.pagination);
+                }
+            } else if (Array.isArray(data)) {
+                // Si la respuesta es directamente un array
                 setRaces(data);
             } else {
                 // Si recibimos un mensaje del backend, establecemos un array vacío
@@ -49,6 +53,25 @@ export const RaceProvider = ({ children }) => {
         }
     };
 
+    const fetchRaceDetails = async (id) => {
+        try {
+          const response = await fetch(`http://localhost:3000/api/races/${id}`, {
+            credentials: 'include'
+          });
+  
+          if (!response.ok) {
+            throw new Error('No se pudo obtener la información de la carrera');
+          }
+  
+          const data = await response.json();
+          setRace(data);
+        } catch (err) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+
     useEffect(() => {
         fetchRaces();
     }, []);
@@ -60,7 +83,10 @@ export const RaceProvider = ({ children }) => {
             races,
             loading,
             error,
-            fetchRaces
+            pagination,
+            race,
+            fetchRaces,
+            fetchRaceDetails,
         }}>
             {children}
         </RaceContext.Provider>
