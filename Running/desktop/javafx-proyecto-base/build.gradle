@@ -26,7 +26,7 @@ dependencies {
     //No es necesario incluir las dependencias porque ya lo hace el plugin por nosotros
 }
 
-mainClassName = 'com.proyectobase.Main'
+mainClassName = 'com.proyectobase.vista.Main'
 
 jar {
     duplicatesStrategy 'exclude'
