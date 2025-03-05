@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
     checkAuthStatus();
@@ -23,7 +24,13 @@ export const AuthProvider = ({ children }) => {
       
       if (response.ok) {
         const data = await response.json();
-            setUser(data);
+          setUser(data);
+          if(data.name){
+            return true;
+          }else{
+            return false;
+          }
+
       }
 
     } catch (err) {
@@ -74,6 +81,7 @@ export const AuthProvider = ({ children }) => {
       }
       
       setUser(null);
+      setIsAuth(false);
     } catch (err) {
       setError(err.message);
       throw err;
@@ -83,10 +91,12 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     loading,
+    isAuth,
     error,
     login,
     logout,
-    isAuthenticated: !!user, // lo convierte a booleano tusabe
+    checkAuthStatus,
+
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
