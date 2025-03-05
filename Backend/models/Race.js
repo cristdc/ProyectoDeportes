@@ -46,6 +46,22 @@ const raceSchema = mongoose.Schema({
     lastCSVUpdate: {
         type: Date,
         default: null
+    },
+    hasGPXFile: {
+        type: Boolean,
+        default: false
+    },
+    gpxFilePath: {
+        type: String,
+        default: null
+    },
+    gpxFileUploadedAt: {
+        type: Date,
+        default: null
+    },
+    gpxFileName: {
+        type: String,
+        default: null
     }
 });
 

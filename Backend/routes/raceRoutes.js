@@ -12,12 +12,15 @@ import {
   getRaceResults,
   downloadRunnersCSV,
   uploadResultsCSV,
+  uploadGPXFile,
+  downloadGPXFile,
+  deleteGPXFile,
 } from "../controllers/raceController.js";
 import {
   authMiddleware,
   adminMiddleware,
 } from "../middlewares/authmiddleware.js";
-import { csvUpload } from "../config/multer.js";
+import { csvUpload, gpxUpload } from "../config/multer.js";
 
 const router = express.Router();
 
@@ -50,6 +53,31 @@ router.post(
   adminMiddleware,
   csvUpload.single("file"),
   uploadResultsCSV
+);
+
+// NUEVAS RUTAS PARA ARCHIVOS GPX
+// Carga de archivo GPX (solo admin)
+router.post(
+  "/:id/gpx",
+  authMiddleware,
+  adminMiddleware,
+  gpxUpload.single("gpxFile"),
+  uploadGPXFile
+);
+
+// Descarga de archivo GPX (cualquier usuario autenticado)
+router.get(
+  "/:id/gpx",
+  authMiddleware, // Solo requiere estar autenticado
+  downloadGPXFile
+);
+
+// Eliminar archivo GPX (solo admin)
+router.delete(
+  "/:id/gpx",
+  authMiddleware,
+  adminMiddleware,
+  deleteGPXFile
 );
 
 export default router;
