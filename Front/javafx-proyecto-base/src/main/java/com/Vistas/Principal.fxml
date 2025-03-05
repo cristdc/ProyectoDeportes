@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="root" prefHeight="526.0" prefWidth="790.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="root" prefHeight="526.0" prefWidth="899.0" xmlns="http://javafx.com/javafx/23" xmlns:fx="http://javafx.com/fxml/1">
     <VBox fx:id="header" spacing="10" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
         
         <!-- Header -->
@@ -24,56 +24,82 @@
             <Hyperlink fx:id="enlaceParticipar" text="Participar en carrera" />
          <ImageView fx:id="imgUsuario" fitHeight="85.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true" />
         </HBox>
-        
-        <!-- Body -->
-        <HBox fx:id="sections" spacing="10" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-            <VBox fx:id="section1" alignment="CENTER" spacing="5" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-            <children>
-               <StackPane prefHeight="439.0" prefWidth="414.0">
-                  <children>
-                     <Pane prefHeight="200.0" prefWidth="200.0">
-                        <children>
-                           <ImageView fitHeight="431.0" fitWidth="421.0" pickOnBounds="true" preserveRatio="true" />
-                        </children>
-                     </Pane>
-                     <Pane prefHeight="200.0" prefWidth="200.0">
-                        <children>
-                           <Label layoutX="48.0" layoutY="29.0" text="Frase inspiracional" />
-                           <Label fx:id="labelCorredores" layoutX="34.0" layoutY="367.0" text="corredores" />
-                           <Label layoutX="289.0" layoutY="64.0" text="otra + corta" />
-                           <Label fx:id="labelCarreras" layoutX="142.0" layoutY="367.0" text="carreras" />
-                           <Label fx:id="labelKm" layoutX="265.0" layoutY="367.0" text="recorridos" />
-                           <Label fx:id="labelNumCorredores" layoutX="34.0" layoutY="350.0" text="3500" />
-                           <Label fx:id="labelNumCarreras" layoutX="142.0" layoutY="350.0" text="5" />
-                           <Label fx:id="labelNumKm" layoutX="265.0" layoutY="351.0" text="300 km" />
-                        </children>
-                     </Pane>
-                  </children>
-               </StackPane>
-            </children>
-            </VBox>
-            <VBox fx:id="section2" spacing="5" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS">
-            <Pane prefHeight="96.0" prefWidth="366.0">
+      <StackPane prefHeight="432.0" prefWidth="790.0">
+         <children>
+            <Pane fx:id="panePrincipal" prefHeight="200.0" prefWidth="200.0">
                <children>
-                  <Label layoutX="14.0" layoutY="13.0" text="Ultima carrera">
-                     <font>
-                        <Font size="29.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="261.0" layoutY="22.0" text="Mejores">
-                     <font>
-                        <Font size="23.0" />
-                     </font>
-                  </Label>
-               </children></Pane>
-                <TableView VBox.vgrow="ALWAYS">
-                    <columns>
-                        <TableColumn prefWidth="50" text="TOP" />
-                        <TableColumn prefWidth="200" text="Nombre" />
-                        <TableColumn prefWidth="100" text="Tiempo" />
-                    </columns>
-                </TableView>
-            </VBox>
-        </HBox>
+                  <HBox prefHeight="432.0" prefWidth="895.0">
+                     <children>
+                           <VBox fx:id="section1" alignment="CENTER" prefHeight="432.0" prefWidth="450.0" spacing="5">
+                           <children>
+                              <StackPane prefHeight="439.0" prefWidth="414.0">
+                                 <children>
+                                    <Pane prefHeight="200.0" prefWidth="200.0">
+                                       <children>
+                                          <ImageView fitHeight="431.0" fitWidth="421.0" pickOnBounds="true" preserveRatio="true" />
+                                       </children>
+                                    </Pane>
+                                    <Pane prefHeight="439.0" prefWidth="385.0">
+                                       <children>
+                                          <Label layoutX="48.0" layoutY="29.0" text="Frase inspiracional" />
+                                          <Label fx:id="labelCorredores" layoutX="34.0" layoutY="367.0" text="corredores" />
+                                          <Label layoutX="289.0" layoutY="64.0" text="otra + corta" />
+                                          <Label fx:id="labelCarreras" layoutX="142.0" layoutY="367.0" text="carreras" />
+                                          <Label fx:id="labelKm" layoutX="265.0" layoutY="367.0" text="recorridos" />
+                                          <Label fx:id="labelNumCorredores" layoutX="34.0" layoutY="350.0" text="3500" />
+                                          <Label fx:id="labelNumCarreras" layoutX="142.0" layoutY="350.0" text="5" />
+                                          <Label fx:id="labelNumKm" layoutX="265.0" layoutY="351.0" text="300 km" />
+                                       </children>
+                                    </Pane>
+                                 </children>
+                              </StackPane>
+                           </children>
+                           </VBox>
+                           <VBox fx:id="section2" prefHeight="432.0" prefWidth="438.0" spacing="5">
+                           <Pane prefHeight="96.0" prefWidth="366.0">
+                              <children>
+                                 <Label layoutX="14.0" layoutY="13.0" text="Ultima carrera">
+                                    <font>
+                                       <Font size="29.0" />
+                                    </font>
+                                 </Label>
+                                 <Label layoutX="261.0" layoutY="22.0" text="Mejores">
+                                    <font>
+                                       <Font size="23.0" />
+                                    </font>
+                                 </Label>
+                              </children>
+                           </Pane>
+                               <TableView prefHeight="409.0" prefWidth="366.0" VBox.vgrow="ALWAYS">
+                                   <columns>
+                                       <TableColumn prefWidth="50" text="TOP" />
+                                       <TableColumn prefWidth="200" text="Nombre" />
+                                       <TableColumn prefWidth="100" text="Tiempo" />
+                                   </columns>
+                               </TableView>
+                           </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </Pane>
+            <Pane fx:id="paneCarreras" prefHeight="200.0" prefWidth="200.0" visible="false">
+               <children>
+                  <TableView layoutX="6.0" prefHeight="424.0" prefWidth="885.0">
+                     <columns>
+                        <TableColumn prefWidth="95.33600282669067" text="Nombre" />
+                        <TableColumn prefWidth="81.66397857666016" text="Fecha" />
+                        <TableColumn prefWidth="93.65373229980469" text="Localizacion" />
+                        <TableColumn prefWidth="107.4298095703125" text="Distancia" />
+                        <TableColumn prefWidth="119.72384643554688" text="Max. participantes " />
+                        <TableColumn prefWidth="91.07492065429688" text="Desnivel" />
+                        <TableColumn prefWidth="97.0882568359375" text="Ruta" />
+                        <TableColumn prefWidth="97.0882568359375" text="Tiempo clasificación" />
+                        <TableColumn prefWidth="97.0882568359375" text="Participar" />
+                     </columns>
+                  </TableView>
+               </children>
+            </Pane>
+         </children>
+      </StackPane>
     </VBox>
 </AnchorPane>
