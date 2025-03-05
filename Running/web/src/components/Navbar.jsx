@@ -4,7 +4,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
-    const { user } =useAuth()
+    const { user } =useAuth();
 
   return (
     <nav className="nav-container">
