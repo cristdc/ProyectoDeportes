@@ -1,11 +1,18 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Menu, X } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 
-const Navbar = () => {
+
+const Navbar = ( { user } ) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAuthenticated, logout} = useAuth();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async() =>{
+    await logout();
+    navigate('/')
+  }
 
   return (
     <>
@@ -23,7 +30,6 @@ const Navbar = () => {
         </div>
 
         <div className="hidden sm:flex flex-1 justify-center">
-          
         </div>
 
         {/* Botón Hamburguesa en pantallas menores a 480px */}
@@ -43,7 +49,7 @@ const Navbar = () => {
             <>
             <Link to="/races" className="pr-3 text-text  hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
             <button
-              onClick={async () => logout()}
+              onClick={handleLogout}
               className="text-text hover:text-accent transition-all duration-300"
             >
               Cerrar sesión
