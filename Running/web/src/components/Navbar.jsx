@@ -1,18 +1,11 @@
 import { FaHistory, FaUser } from 'react-icons/fa';
 import { MdEmojiEvents } from 'react-icons/md';
 import { NavLink, Link } from 'react-router-dom';
-<<<<<<< HEAD
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const { user } =useAuth()
 
-=======
-import { useAuth } from '../context/AuthContext'
-
-const Navbar = () => {
-  const { user }=useAuth();
->>>>>>> a5ae6ba (Volviendo a commit pedro por css)
   return (
     <nav className="nav-container">
       <div className="nav-content">
