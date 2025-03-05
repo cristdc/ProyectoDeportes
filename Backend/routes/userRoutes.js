@@ -7,6 +7,7 @@ import {
   updateProfile,
   getUserById,
   searchUsersByName,
+  getAuthStatus,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../middlewares/authmiddleware.js";
 
@@ -23,15 +24,17 @@ router.put("/profile", authMiddleware, updateProfile);
 
 // Rutas adicionales para usuarios
 router.get("/search", authMiddleware, searchUsersByName); 
-router.get("/:id", authMiddleware, getUserById); 
 
 router.get("/check-auth", authMiddleware, (req, res) => {
-
+  
   res.status(200).json({
     authenticated: true,
     user: req.user,
     tokenExpiration: new Date(req.user.exp * 1000) 
   });
 });
+
+router.get("/auth-status", getAuthStatus);
+router.get("/:id", authMiddleware, getUserById); 
 
 export default router;

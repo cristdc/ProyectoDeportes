@@ -18,8 +18,18 @@ const app = express();
 // configuracion de express
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Middleware de debugging
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    console.log('Cookies:', req.cookies);
+    console.log('Headers:', req.headers);
+    next();
+  });
+}
 
 // Conexión con la base de datos
 connectDB();

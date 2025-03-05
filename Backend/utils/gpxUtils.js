@@ -1,6 +1,6 @@
 import fs from "fs";
 import xml2js from "xml2js";
-import { analyzeGPXFile, validateGPXFile } from "../utils/gpxUtils.js";
+
 /**
  * Calcula la distancia entre dos puntos usando la fórmula de Haversine
  * @param {number} lat1 - Latitud del punto 1 en grados

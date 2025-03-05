@@ -3,17 +3,48 @@ import jwt from "jsonwebtoken";
 // Middleware para verificar el token JWT
 const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    // Obtener token de cookies o headers
+    const token =
+      req.cookies.token ||
+      (req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+        ? req.headers.authorization.split(" ")[1]
+        : null);
+
     if (!token) {
-      return res.status(401).json({ message: "No hay token de autenticación" });
+      return res.status(401).json({
+        message: "No hay token de autenticación",
+        cookiesPresent: Object.keys(req.cookies).length > 0,
+        headersPresent: !!req.headers.authorization,
+      });
     }
 
-    // Verificamos y decodificamos el token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = { id: decoded.id, role: decoded.role };
-    next();
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      req.user = {
+        id: decoded.id,
+        role: decoded.role,
+        exp: decoded.exp,
+      };
+
+      next();
+    } catch (err) {
+      if (err.name === "TokenExpiredError") {
+        return res.status(401).json({
+          message: "El token ha expirado",
+          error: "token_expired",
+        });
+      } else {
+        return res.status(401).json({
+          message: "Token inválido",
+          error: "token_invalid",
+        });
+      }
+    }
   } catch (error) {
-    res.status(401).json({ message: "Token inválido" });
+    console.error("Error de autenticación:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
   }
 };
 

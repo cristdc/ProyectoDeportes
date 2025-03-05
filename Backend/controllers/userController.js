@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import { now } from "mongoose";
+import mongoose from "mongoose";
 
 // Validar formato de ID de MongoDB
 const isValidObjectId = (id) => {
@@ -29,15 +29,15 @@ const login = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "24h" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.COOKIE_SECURE,
-      sameSite: "strict",
-      maxAge: 10, // 1 hora
-      path: "/",
+      secure: process.env.COOKIE_SECURE === "true",
+      sameSite: "lax", // Cambiado de "strict" a "lax" para permitir solicitudes cross-origin
+      maxAge: 86400000, // 24 horas
+      path: "/", // Asegurar que la cookie esté disponible en todas las rutas
     });
 
     res.json({
@@ -120,9 +120,11 @@ const logout = (req, res) => {
   try {
     res.cookie("token", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(),
+      secure: process.env.COOKIE_SECURE === "true",
+      sameSite: "lax",
+      expires: new Date(0),
       maxAge: 0,
+      path: "/",
     });
 
     res.json({ message: "Cierre de sesión exitoso" });
@@ -201,16 +203,15 @@ const updateProfile = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    // Respuesta temporal
     const { id } = req.params;
-    if(!isValidObjectId(id)){
+    if (!mongoose.isValidObjectId(id)) {
       return res.status(402).json({ message: "El id no es válido" });
     }
-    const user = User.findById(id);
-    if(!user){
+    const user = await User.findById(id);
+    if (!user) {
       return res.status(404).json({ message: "No existe ese usuario" });
     }
-  
+
     return res.status(200).json({
       user: user,
     });
@@ -269,6 +270,45 @@ const searchUsersByName = async (req, res) => {
   }
 };
 
+
+const getAuthStatus = (req, res) => {
+  const token =
+    req.cookies.token ||
+    (req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+      ? req.headers.authorization.split(" ")[1]
+      : null);
+
+  if (!token) {
+    return res.status(200).json({
+      authenticated: false,
+      reason: "no_token",
+      cookies: Object.keys(req.cookies),
+      hasAuthorizationHeader: !!req.headers.authorization,
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return res.status(200).json({
+      authenticated: true,
+      user: {
+        id: decoded.id,
+        role: decoded.role,
+      },
+      tokenExpiresAt: new Date(decoded.exp * 1000).toISOString(),
+    });
+  } catch (err) {
+    return res.status(200).json({
+      authenticated: false,
+      reason:
+        err.name === "TokenExpiredError" ? "token_expired" : "token_invalid",
+      error: err.message,
+    });
+  }
+};
+
+
 export {
   login,
   register,
@@ -277,5 +317,6 @@ export {
   updateProfile,
   getUserById,
   searchUsersByName,
+  getAuthStatus,
 };
 
