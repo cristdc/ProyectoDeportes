@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Menu, X } from "lucide-react";
 import useAuth from "../hooks/useAuth";
+import { ROUTES } from "../routes/paths";
 
 
 const Navbar = ( { user } ) => {
@@ -59,8 +60,8 @@ const Navbar = ( { user } ) => {
         className={`sm:hidden flex flex-col bg-background text-white py-3 space-y-2 
         transition-all duration-300 ${isOpen ? "block" : "hidden"}`}
       >
-        <Link to="" className="block text-text text-center hover:bg-background transition-all duration-300">Carreras Disponibles</Link>
-        <Link to="/" className="block text-text text-center hover:bg-background transition-all duration-300">Cerrar sesión</Link>
+        <Link to={ROUTES.RACES} className="block text-text text-center hover:bg-background transition-all duration-300">Carreras Disponibles</Link>
+        <Link to={ROUTES.HOME} className="block text-text text-center hover:bg-background transition-all duration-300">Cerrar sesión</Link>
       </div>
     </>
   );
