@@ -47,7 +47,7 @@ public class PlantillaFX extends Application {
         }
 
         // Cargar el archivo FXML correctamente
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/proyectobase/Ventanas/Login.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/Login.fxml"));
         Parent root = loader.load(); // Ahora podemos obtener el controlador
 
         // Obtener el controlador y configurar el eve/nto de teclado
