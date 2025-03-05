@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+const VITE_API_CICLISMO_URL = import.meta.env.VITE_API_CICLISMO_URL; 
 const RaceContext = createContext();
 
 export const RaceProvider = ({ children }) => {
@@ -9,12 +10,16 @@ export const RaceProvider = ({ children }) => {
     const [pagination, setPagination] = useState(null);
     const [race, setRace] = useState(null);
 
+    useEffect(() => {
+        fetchRaces();
+    }, []);
+
     const fetchRaces = async () => {
         try {
             // Agregamos logs para debuggear
             console.log('Iniciando fetch de carreras...');
             
-            const response = await fetch('http://localhost:3000/api/races', {
+            const response = await fetch(`${VITE_API_CICLISMO_URL}/races?sport=cycling`, {
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
@@ -55,9 +60,7 @@ export const RaceProvider = ({ children }) => {
 
     const fetchRaceDetails = async (id) => {
         try {
-          const response = await fetch(`http://localhost:3000/api/races/${id}`, {
-            credentials: 'include'
-          });
+          const response = await fetch(`http://localhost:3000/api/races/${id}`);
   
           if (!response.ok) {
             throw new Error('No se pudo obtener la información de la carrera');
@@ -65,16 +68,14 @@ export const RaceProvider = ({ children }) => {
   
           const data = await response.json();
           setRace(data);
+          setLoading(false);
+          console.log(data)
         } catch (err) {
           setError(err.message);
         } finally {
           setLoading(false);
         }
       };
-
-    useEffect(() => {
-        fetchRaces();
-    }, []);
 
     console.log('Estado actual de races:', races);
 
