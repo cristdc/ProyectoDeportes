@@ -1,11 +1,18 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Menu, X } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 
-const Navbar = () => {
+
+const Navbar = ( { user } ) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAuthenticated, logout} = useAuth();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async() =>{
+    await logout();
+    navigate('/')
+  }
 
   return (
     <>
@@ -18,7 +25,7 @@ const Navbar = () => {
         {/* Nombre de usuario centrado en pantallas grandes */}
         <div className="hidden sm:flex flex-1 justify-center">
           <Link to="/" className="text-text hover:text-accent transition-all duration-300">
-            {isAuthenticated ? user.name : ""}
+            {user ? user.name : ""}
           </Link>
         </div>
 
@@ -33,9 +40,9 @@ const Navbar = () => {
         {/* Menú en pantallas grandes (480px en adelante) */}
         <div className="hidden sm:flex space-x-3">
           <Link to="" className="pr-3 text-text hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
-          {isAuthenticated ? (
+          {user ? (
             <button
-              onClick={async () => logout()}
+              onClick={handleLogout}
               className="text-text hover:text-accent transition-all duration-300"
             >
               Cerrar sesión
