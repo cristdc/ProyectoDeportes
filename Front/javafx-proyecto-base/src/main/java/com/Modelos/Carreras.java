@@ -10,8 +10,8 @@ public class Carreras {
     private LocalDateTime date;
     private String location;
     private double distance;
-    private int maxParticipants;
-    private int unevenness;
+    private Integer maxParticipants;
+    private Integer unevenness;
     private String tour;
     private String qualifyingTime;
     private List<Classification> classification;
