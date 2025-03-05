@@ -43,6 +43,6 @@ export const fetchLastRace = async () => {
         return data.registrations.length > 0 ? data.registrations[0] : null;
 
     } catch(error){
-        throw new Error("Error al hacer la petición")
+        throw new Error("Error al hacer la petición", error);
     }
 }
