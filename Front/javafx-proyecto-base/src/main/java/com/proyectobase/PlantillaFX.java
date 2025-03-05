@@ -1,5 +1,11 @@
 package com.proyectobase; //Modificar al package correcto
 
+import javafx.application.Application;
+import static javafx.application.Application.launch;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import com.Controladores.Controlador;
 import java.io.IOException;
 import java.net.URL;
@@ -27,10 +33,9 @@ public class PlantillaFX extends Application {
         launch(args);
     }
 
-    @Override
+    @Override        
     public void start(Stage primaryStage) throws IOException {
-        
-        
+              
         URL imageUrl = getClass().getClassLoader().getResource("img/AtletisticsLogo.jpg");
         if (imageUrl != null) {
             Image image = new Image(imageUrl.toString());
