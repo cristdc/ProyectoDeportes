@@ -23,15 +23,18 @@ javafx {
 }
 
 dependencies {
-    //No es necesario incluir las dependencias porque ya lo hace el plugin por nosotros
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+
 }
+
 
 mainClassName = 'crud.Main'
 
 sourceSets {
   main {
     resources {
-        srcDirs = ["src/main/java"]
+        srcDirs = ["src/main/java","src/main/resources"]
         includes = ["**/*.fxml"]  //Importante para poder abrir una extensión no reconocida
     }
   }
