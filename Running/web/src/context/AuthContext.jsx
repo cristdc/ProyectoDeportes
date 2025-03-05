@@ -1,13 +1,16 @@
 import { createContext, useContext, useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL + '/api';
-const AuthContext = createContext();
+const API_URL = import.meta.env.VITE_API_URL;
 
+
+const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
+
     const [user, setUser] = useState(() => {
         const savedUser = localStorage.getItem('user');
         return savedUser ? JSON.parse(savedUser) : null;
     });
+    
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -61,6 +64,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         logout,
+        
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

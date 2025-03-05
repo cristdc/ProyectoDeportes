@@ -172,6 +172,22 @@ const Home = () => {
           </Link>
         </div>
       </div>
+
+      {/* Call to Action modificado */}
+      <div className="bg-[var(--primary)] text-white rounded-lg shadow-md p-8 text-center">
+        <h2 className="text-2xl font-bold mb-4">
+          Descubre las Próximas Carreras
+        </h2>
+        <p className="mb-6 text-lg">
+          Explora todas las carreras disponibles y encuentra la que mejor se adapte a ti
+        </p>
+        <Link
+          to="/carreras-disponibles"
+          className="inline-block bg-white text-[var(--primary)] px-8 py-3 rounded-md font-semibold hover:bg-gray-100 transition-colors"
+        >
+          Ver carreras disponibles
+        </Link>
+      </div>
     </div>
   );
 };
