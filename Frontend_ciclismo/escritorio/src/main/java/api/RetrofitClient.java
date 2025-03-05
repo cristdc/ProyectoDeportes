@@ -5,12 +5,12 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static RetrofitClient retrofit = null;
+    private static Retrofit retrofit = null;
 
-    public static RetrofitClient getClient() {
+    public static Retrofit getClient() {
         if (retrofit == null) {
 
-            retrofit = new RetrofitClient.Builder()
+            retrofit = new Retrofit.Builder()
                     .baseUrl("http://localhost:3000/api/users")
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
