@@ -23,7 +23,7 @@ public class Main extends Application{
     @Override
     public void start(Stage primeraEscena) throws Exception {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/proyectobase/vista/scene.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/proyectobase/vista/PantallaPrincipal.fxml"));
             Parent root = loader.load();
             Scene scene = new Scene(root);
             primeraEscena.setScene(scene);
