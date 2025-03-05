@@ -28,13 +28,13 @@ const Navbar = () => {
         </button>
 
         {/* Menú en pantallas grandes (480px en adelante) */}
-        <div className="hidden sm:flex space-x-3">
+        <div className="hidden sm:flex space-x-3 ">
           <Link to="/" className="text-text hover:text-accent transition-all duration-300">
             {isAuthenticated ? user.name : ""}
           </Link>
           {isAuthenticated ? (
             <>
-            <Link to="" className="pr-3 text-text hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+            <Link to="" className="pr-3 text-text  hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
             <button
               onClick={async () => logout()}
               className="text-text hover:text-accent transition-all duration-300"
@@ -54,8 +54,24 @@ const Navbar = () => {
         className={`sm:hidden flex flex-col bg-background text-white py-3 space-y-2 
         transition-all duration-300 ${isOpen ? "block" : "hidden"}`}
       >
-        <Link to="" className="block text-text text-center hover:bg-background transition-all duration-300">Carreras Disponibles</Link>
-        <Link to="/" className="block text-text text-center hover:bg-background transition-all duration-300">Cerrar sesión</Link>
+        <Link to="/" className="text-text text-center hover:text-accent transition-all duration-300">
+            {isAuthenticated ? user.name : ""}
+          </Link>
+          {isAuthenticated ? (
+            <>
+            <Link to="" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+            <button
+              onClick={async () => logout()}
+              className="text-text hover:text-accent transition-all duration-300"
+            >
+              Cerrar sesión
+            </button>
+            </>
+          ) : (
+            <Link to="/" className="text-text text-center hover:text-accent transition-all duration-300">
+              Iniciar Sesion
+            </Link>
+          )}
       </div>
     </>
   );
