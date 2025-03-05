@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
-import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaClock } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaMapMarkerAlt, FaCalendarAlt } from 'react-icons/fa';
 
 const AvailableRaces = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [locationFilter, setLocationFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('Todas las ubicaciones');
+  const [statusFilter, setStatusFilter] = useState('Todos los estados');
 
   // Datos de ejemplo
   const races = [
@@ -16,8 +18,35 @@ const AvailableRaces = () => {
       distance: 120,
       elevation: 2500,
       participants: 200,
+      maxParticipants: 300,
       time: 180,
-      status: "Activa"
+      status: "Activa",
+      description: "Una emocionante carrera de montaña que te llevará por los paisajes más espectaculares de Sierra Nevada.",
+      requirements: [
+        "Ser mayor de 18 años",
+        "Certificado médico vigente",
+        "Equipo de seguridad obligatorio",
+        "Experiencia previa en carreras de montaña"
+      ],
+      checkpoints: [
+        {
+          name: "Salida",
+          distance: 0,
+          elevation: 1200,
+          services: ["Agua", "Baños", "Asistencia médica"]
+        },
+        {
+          name: "Meta",
+          distance: 120,
+          elevation: 2500,
+          services: ["Agua", "Comida", "Asistencia médica", "Masajes"]
+        }
+      ],
+      route: {
+        difficulty: "Alta",
+        surface: "Montaña",
+        terrain: "Técnico"
+      }
     },
     {
       id: 2,
@@ -27,8 +56,33 @@ const AvailableRaces = () => {
       distance: 80,
       elevation: 1200,
       participants: 150,
+      maxParticipants: 250,
       time: 180,
-      status: "Activa"
+      status: "Activa",
+      description: "Recorre los paisajes más hermosos del Valle Central en esta carrera única.",
+      requirements: [
+        "Ser mayor de 18 años",
+        "Certificado médico vigente"
+      ],
+      checkpoints: [
+        {
+          name: "Salida",
+          distance: 0,
+          elevation: 800,
+          services: ["Agua", "Baños"]
+        },
+        {
+          name: "Meta",
+          distance: 80,
+          elevation: 1200,
+          services: ["Agua", "Comida", "Asistencia médica"]
+        }
+      ],
+      route: {
+        difficulty: "Media",
+        surface: "Mixto",
+        terrain: "Variado"
+      }
     },
     {
       id: 3,
@@ -38,8 +92,33 @@ const AvailableRaces = () => {
       distance: 100,
       elevation: 800,
       participants: 300,
+      maxParticipants: 400,
       time: 200,
-      status: "Activa"
+      status: "Activa",
+      description: "Una carrera costera con vistas impresionantes al mar.",
+      requirements: [
+        "Ser mayor de 18 años",
+        "Certificado médico vigente"
+      ],
+      checkpoints: [
+        {
+          name: "Salida",
+          distance: 0,
+          elevation: 0,
+          services: ["Agua", "Baños"]
+        },
+        {
+          name: "Meta",
+          distance: 100,
+          elevation: 800,
+          services: ["Agua", "Comida", "Asistencia médica"]
+        }
+      ],
+      route: {
+        difficulty: "Media",
+        surface: "Asfalto",
+        terrain: "Costero"
+      }
     }
   ];
 
@@ -53,11 +132,16 @@ const AvailableRaces = () => {
   const filteredRaces = useMemo(() => {
     return races.filter(race => {
       const matchesSearch = race.name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesLocation = locationFilter === 'all' || locationFilter === 'Todas las ubicaciones' || race.location === locationFilter;
-      const matchesStatus = statusFilter === 'all' || statusFilter === 'Todos los estados' || race.status === statusFilter;
+      const matchesLocation = locationFilter === 'Todas las ubicaciones' || race.location === locationFilter;
+      const matchesStatus = statusFilter === 'Todos los estados' || race.status === statusFilter;
       return matchesSearch && matchesLocation && matchesStatus;
     });
   }, [races, searchTerm, locationFilter, statusFilter]);
+
+  // Función para manejar el clic en "Ver detalles"
+  const handleViewDetails = (raceId) => {
+    navigate(`/carrera/${raceId}`);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -92,7 +176,7 @@ const AvailableRaces = () => {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
-            <option value="all">Todos los estados</option>
+            <option value="Todos los estados">Todos los estados</option>
             <option value="Activa">Activa</option>
             <option value="Inactiva">Inactiva</option>
           </select>
@@ -145,7 +229,10 @@ const AvailableRaces = () => {
                 </div>
               </div>
 
-              <button className="w-full bg-[var(--primary)] text-white py-2 px-4 rounded-md hover:bg-[var(--accent)] transition-colors">
+              <button
+                onClick={() => handleViewDetails(race.id)}
+                className="w-full bg-[#8D9B6A] text-white py-2 px-4 rounded-md hover:bg-[#738055] transition-colors"
+              >
                 Ver detalles
               </button>
             </div>

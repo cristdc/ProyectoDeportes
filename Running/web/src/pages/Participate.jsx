@@ -1,11 +1,13 @@
 import { useState, useMemo } from 'react';
-import { FaMapMarkerAlt, FaRunning, FaCalendarAlt, FaMountain } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaMapMarkerAlt, FaRunning, FaCalendarAlt, FaMountain, FaUsers, FaClock } from 'react-icons/fa';
 
 const Participate = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
 
-  // Datos de ejemplo (después los conectaremos con una API/backend)
+  // Datos de ejemplo de carreras completadas
   const races = [
     {
       id: 1,
@@ -15,9 +17,44 @@ const Participate = () => {
       distance: 150,
       elevation: 3000,
       participants: 250,
+      maxParticipants: 300,
       time: 300,
-      status: "Inactiva",
-      type: "Carretera"
+      status: "Completada",
+      position: 45,
+      finalTime: "3h 15min",
+      description: "Una carrera clásica de primavera con un recorrido exigente por la Ruta del Sol.",
+      requirements: [
+        "Ser mayor de 18 años",
+        "Certificado médico vigente",
+        "Equipo de seguridad obligatorio"
+      ],
+      checkpoints: [
+        {
+          name: "Salida",
+          distance: 0,
+          elevation: 800,
+          services: ["Agua", "Baños", "Asistencia médica"]
+        },
+        {
+          name: "Meta",
+          distance: 150,
+          elevation: 800,
+          services: ["Agua", "Comida", "Asistencia médica", "Masajes"]
+        }
+      ],
+      route: {
+        difficulty: "Alta",
+        surface: "Asfalto",
+        terrain: "Montañoso"
+      },
+      personalStats: {
+        position: 45,
+        totalParticipants: 250,
+        finalTime: "3h 15min",
+        averageSpeed: "28.5 km/h",
+        maxSpeed: "45 km/h",
+        calories: "2500 kcal"
+      }
     },
     {
       id: 2,
@@ -27,9 +64,44 @@ const Participate = () => {
       distance: 50,
       elevation: 2200,
       participants: 180,
+      maxParticipants: 200,
       time: 240,
-      status: "Inactiva",
-      type: "Montaña"
+      status: "Completada",
+      position: 23,
+      finalTime: "2h 45min",
+      description: "Un desafiante reto de montaña con vistas espectaculares.",
+      requirements: [
+        "Ser mayor de 18 años",
+        "Certificado médico vigente",
+        "Equipo de montaña obligatorio"
+      ],
+      checkpoints: [
+        {
+          name: "Salida",
+          distance: 0,
+          elevation: 1200,
+          services: ["Agua", "Baños"]
+        },
+        {
+          name: "Meta",
+          distance: 50,
+          elevation: 2200,
+          services: ["Agua", "Comida", "Asistencia médica"]
+        }
+      ],
+      route: {
+        difficulty: "Muy Alta",
+        surface: "Montaña",
+        terrain: "Técnico"
+      },
+      personalStats: {
+        position: 23,
+        totalParticipants: 180,
+        finalTime: "2h 45min",
+        averageSpeed: "18.2 km/h",
+        maxSpeed: "35 km/h",
+        calories: "3200 kcal"
+      }
     },
     {
       id: 3,
@@ -88,6 +160,11 @@ const Participate = () => {
     });
   };
 
+  // Función para manejar el clic en "Ver detalles"
+  const handleViewDetails = (raceId) => {
+    navigate(`/carrera/${raceId}`);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-8">
@@ -138,9 +215,14 @@ const Participate = () => {
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-lg font-semibold">{race.name}</h3>
-                    <span className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-sm">
-                      {race.status}
-                    </span>
+                    <div className="flex flex-col items-end">
+                      <span className="px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm mb-2">
+                        {race.status}
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        Posición: {race.position}º
+                      </span>
+                    </div>
                   </div>
                   
                   <div className="space-y-2 text-sm text-gray-600">
@@ -177,7 +259,10 @@ const Participate = () => {
                     </div>
                   </div>
 
-                  <button className="w-full mt-6 bg-[var(--primary)] text-white py-2 px-4 rounded-lg hover:bg-[var(--accent)] transition-colors">
+                  <button
+                    onClick={() => handleViewDetails(race.id)}
+                    className="w-full mt-6 bg-[#8D9B6A] text-white py-2 px-4 rounded-lg hover:bg-[#738055] transition-colors"
+                  >
                     Ver detalles
                   </button>
                 </div>
