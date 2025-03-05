@@ -4,6 +4,7 @@ import useAuth from "../hooks/useAuth.js"; // Asegúrate de tener el hook de aut
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
 
+
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 
 const Navbar = () => {
@@ -9,7 +9,7 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center p-2 bg-background">
+      <div className="flex justify-between items-center p-2 bg-background p-5">
         {/* Logo */}
         <div>
           <Link to="/" className="text-text hover:text-accent transition-all duration-300"><h1>Trail</h1></Link>
