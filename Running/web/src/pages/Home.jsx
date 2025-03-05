@@ -1,6 +1,6 @@
 import { FaRunning, FaMapMarkedAlt, FaMedal } from 'react-icons/fa';
-
 const Home = () => {
+
   return (
     <div className="content-wrapper">
       {/* Hero Section */}
