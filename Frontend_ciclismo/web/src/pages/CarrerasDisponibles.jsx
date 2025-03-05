@@ -1,9 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRace } from '../context/RaceContext';
 import CardRace from '../components/CardRace';
 
 const CarrerasDisponibles = () => {
-  const { races, loading, error, pagination } = useRace();
+  const { races, loading, error } = useRace();
+  const [filteredRaces, setFilteredRaces] = useState([]);
+  const [filters, setFilters] = useState({
+    search: '',
+    location: '',
+    status: ''
+  });
+
+  // Efecto para filtrar las carreras
+  useEffect(() => {
+    if (!races) return;
+
+    // Filtramos solo las carreras activas
+    let filtered = races.filter(race => race.status === 'active');
+
+    // Aplicar filtro de búsqueda por nombre
+    if (filters.search) {
+      filtered = filtered.filter(race =>
+        race.name.toLowerCase().includes(filters.search.toLowerCase())
+      );
+    }
+
+    // Aplicar filtro de ubicación
+    if (filters.location) {
+      filtered = filtered.filter(race =>
+        race.location.toLowerCase() === filters.location.toLowerCase()
+      );
+    }
+
+    setFilteredRaces(filtered);
+  }, [races, filters]);
+
+  // Manejador de cambios en los filtros
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   if (loading) {
     return (
@@ -31,48 +70,47 @@ const CarrerasDisponibles = () => {
             Carreras Disponibles
           </h1>
           <p className="text-lg text-[#1a1204] opacity-80">
-            Explora todas las carreras disponibles
+            Explora todas las carreras activas
           </p>
-          {pagination && (
-            <p className="text-sm text-[#1a1204] opacity-60 mt-2">
-              Página {pagination.currentPage} de {pagination.totalPages} 
-              ({pagination.totalRaces} carreras en total)
-            </p>
-          )}
         </div>
 
         {/* Filtros */}
         <div className="mb-8 bg-white p-4 rounded-lg shadow-md">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               type="text"
+              name="search"
+              value={filters.search}
+              onChange={handleFilterChange}
               placeholder="Buscar por nombre..."
               className="p-2 border border-[#B4C7B2] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8EAC93]"
             />
-            <select className="p-2 border border-[#B4C7B2] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8EAC93]">
+            <select
+              name="location"
+              value={filters.location}
+              onChange={handleFilterChange}
+              className="p-2 border border-[#B4C7B2] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8EAC93]"
+            >
               <option value="">Todas las ubicaciones</option>
               <option value="sierra">Sierra</option>
               <option value="costa">Costa</option>
               <option value="valle">Valle</option>
             </select>
-            <select className="p-2 border border-[#B4C7B2] rounded-md focus:outline-none focus:ring-2 focus:ring-[#8EAC93]">
-              <option value="">Todos los estados</option>
-              <option value="active">Activas</option>
-              <option value="completed">Completadas</option>
-            </select>
           </div>
         </div>
 
         {/* Grid de carreras */}
-        {races.length > 0 ? (
+        {filteredRaces.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {races.map((race) => (
+            {filteredRaces.map((race) => (
               <CardRace key={race._id} race={race} />
             ))}
           </div>
         ) : (
           <div className="text-center py-8">
-            <p className="text-[#1a1204] opacity-75">No hay carreras disponibles</p>
+            <p className="text-[#1a1204] opacity-75">
+              No se encontraron carreras que coincidan con los filtros
+            </p>
           </div>
         )}
       </div>

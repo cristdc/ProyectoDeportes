@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
+const VITE_API_CICLISMO_URL = import.meta.env.VITE_API_CICLISMO_URL; 
 const RaceContext = createContext();
 
 export const RaceProvider = ({ children }) => {
@@ -13,7 +14,7 @@ export const RaceProvider = ({ children }) => {
         try {
             console.log('Iniciando fetch de carreras...');
             
-            const response = await fetch('http://localhost:3000/api/races', {
+            const response = await fetch(`${VITE_API_CICLISMO_URL}/races?sport=cycling`, {
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
