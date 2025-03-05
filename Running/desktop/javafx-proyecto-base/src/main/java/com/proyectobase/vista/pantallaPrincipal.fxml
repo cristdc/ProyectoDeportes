@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.proyectobase.controlador.PantallaPrincipal">
    <children>
       <HBox prefHeight="46.0" prefWidth="600.0" style="-fx-background-color: #9B9D79;">
          <children>
@@ -20,7 +20,7 @@
             </ImageView>
             <HBox alignment="CENTER_RIGHT" prefHeight="55.0" prefWidth="542.0">
                <children>
-                  <Label fx:id="txt" onMouseClicked="#navegarVentanaCarreras" text="Participar en una carrera" textFill="WHITE">
+                  <Label fx:id="txtParticipar" text="Participar en una carrera" textFill="WHITE">
                      <font>
                         <Font name="System Bold" size="18.0" />
                      </font>
@@ -122,11 +122,11 @@
                         </Label>
                      </children>
                   </HBox>
-                  <TableView fx:id="tableViewPuestos" prefHeight="200.0" prefWidth="200.0">
+                  <TableView fx:id="tableViewPuestos" prefHeight="200.0" prefWidth="258.0">
                     <columns>
-                      <TableColumn prefWidth="53.60003662109375" text="Puesto" />
-                      <TableColumn prefWidth="152.79998779296875" text="Nombre" />
-                        <TableColumn prefWidth="82.39999999999998" text="Tiempo" />
+                      <TableColumn fx:id="columnPuesto" prefWidth="53.60003662109375" text="Puesto" />
+                      <TableColumn fx:id="columnNombre" prefWidth="152.79998779296875" text="Nombre" />
+                        <TableColumn fx:id="columnTiempo" prefWidth="82.39999999999998" text="Tiempo" />
                     </columns>
                   </TableView>
                </children>
