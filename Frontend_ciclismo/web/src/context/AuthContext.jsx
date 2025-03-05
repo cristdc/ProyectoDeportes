@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (userData) => {
         try {
-            const response = await fetch("http://localhost:3000/api/users/login", {
+            const response = await fetch("http://192.168.50.143:3000/api/users/login", {
                 method: "POST",
                 body: JSON.stringify(userData),
                 credentials: "include",
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/users/logout", {
+            const response = await fetch("http://192.168.50.143:3000/api/users/logout", {
                 method: "POST",
                 credentials: "include",
             });

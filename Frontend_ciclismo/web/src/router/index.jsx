@@ -40,7 +40,8 @@ export const router = createBrowserRouter([
                 element: <ProtectedRoute><CarrerasDetail /></ProtectedRoute>
             },
             {
-                
+                path: "profile",
+                element: <ProtectedRoute><Profile /></ProtectedRoute>
             }
         ]
     }
