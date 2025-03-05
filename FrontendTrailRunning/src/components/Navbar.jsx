@@ -16,17 +16,21 @@ const Navbar = ( { user } ) => {
 
   return (
     <>
-      <div className="flex justify-between items-center p-2 bg-background">
+      <div className="flex justify-between items-center p-2 bg-white">
         {/* Logo */}
-        <div>
-          <Link to="/" className="">
+        <div className="flex">
+          
           <img 
-          src="../img/logo.jpg" 
+          src="../../public/img/logo.png" 
+          alt="Logo Trail" 
+          className="h-12 transition-all duration-300 hover:opacity-80 mr-[-30px]"
+          />
+          <img 
+          src="../../public/img/nombre.png" 
           alt="Logo Trail" 
           className="h-12 transition-all duration-300 hover:opacity-80"
           />
-
-          </Link>
+          
         </div>
 
         <div className="hidden sm:flex flex-1 justify-center">
@@ -43,9 +47,9 @@ const Navbar = ( { user } ) => {
         {/* Menú en pantallas grandes (480px en adelante) */}
         <div className="hidden sm:flex space-x-3 ">
           <Link to="/" className="text-text hover:text-accent transition-all duration-300">
-            {isAuthenticated ? user.name : ""}
+            {user ? user.name : ""}
           </Link>
-          {isAuthenticated ? (
+          {user ? (
             <>
             <Link to="/races" className="pr-3 text-text  hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
             <button
@@ -68,9 +72,9 @@ const Navbar = ( { user } ) => {
         transition-all duration-300 ${isOpen ? "block" : "hidden"}`}
       >
         <Link to="/" className="text-text text-center hover:text-accent transition-all duration-300">
-            {isAuthenticated ? user.name : ""}
+            {user ? user.name : ""}
           </Link>
-          {isAuthenticated ? (
+          {user ? (
             <>
             <Link to="/races" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
             <button

@@ -3,7 +3,7 @@ import { faTwitter, faGithub, faLinkedin } from '@fortawesome/free-brands-svg-ic
 
 const Footer = () => {
   return (
-    <footer className="bg-background shadow-lg text-text px-13 py-5">
+    <footer className="shadow-lg text-text px-13 py-5 bg-white">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <h2 className="text-2xl font-bold text-primary">TRAILRUNNING</h2>
 
