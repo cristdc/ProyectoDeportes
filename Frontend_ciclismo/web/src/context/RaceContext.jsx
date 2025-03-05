@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const VITE_API_CICLISMO_URL = import.meta.env.VITE_API_CICLISMO_URL;
 
@@ -8,6 +8,10 @@ export const RaceProvider = ({ children }) => {
     const [race, setRace] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    useEffect(() => {
+        fetchRaces();
+    }, []);
 
     const fetchRaces = async () => {
         try {
