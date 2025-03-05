@@ -35,7 +35,7 @@ mainClassName = 'com.proyectobase.PlantillaFX'
 sourceSets {
   main {
     resources {
-        srcDirs = ["src/main/java"]
+        srcDirs = ["src/main/java","src/main/resources"]
         includes = ["*/.fxml","*/.properties", "*/.jpg", "*/.png", "*/.jpeg","*/.css","*/.ttf", "*/.jasper", "*/.html"]
     }
   }

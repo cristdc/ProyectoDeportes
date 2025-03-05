@@ -38,6 +38,13 @@ public class PlantillaFX extends Application {
     @Override        
     public void start(Stage primaryStage) throws IOException {
               
+        
+
+        // Cargar el archivo FXML correctamente
+        Parent root = new FXMLLoader(getClass().getResource("/Vistas/Login.fxml")).load();
+        //FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/Vistas/Login.fxml"));
+        //Parent root = loader.load(); // Ahora podemos obtener el controlador
+        
         URL imageUrl = getClass().getClassLoader().getResource("img/AtletisticsLogo.jpg");
         if (imageUrl != null) {
             Image image = new Image(imageUrl.toString());
@@ -46,12 +53,8 @@ public class PlantillaFX extends Application {
             System.out.println("No se encontró la imagen en el ClassLoader.");
         }
 
-        // Cargar el archivo FXML correctamente
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/proyectobase/Ventanas/Login.fxml"));
-        Parent root = loader.load(); // Ahora podemos obtener el controlador
-
         // Obtener el controlador y configurar el eve/nto de teclado
-        Controlador controller = loader.getController();
+        //Controlador controller = loader.getController();
 
         // Crear la escena correctamente
         Scene scene = new Scene(root);
