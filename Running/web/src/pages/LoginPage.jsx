@@ -10,8 +10,7 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí iría la lógica de login
-    console.log('Login:', formData);
+    
   };
 
   return (

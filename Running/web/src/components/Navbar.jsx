@@ -16,14 +16,14 @@ const Navbar = () => {
           
           <div className="nav-links">
             <NavLink 
-              to="/carreras-disponibles" 
+              to="carreras-disponibles" 
               className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
             >
               <span className="nav-link-icon"><MdEmojiEvents /></span>
               <span>Carreras</span>
             </NavLink>
             <NavLink 
-              to="/historial" 
+              to="historial" 
               className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
             >
               <span className="nav-link-icon"><FaHistory /></span>
@@ -31,7 +31,7 @@ const Navbar = () => {
             </NavLink>
          {user ? 
          (   <NavLink 
-          to="/profile" 
+          to="profile" 
           className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
         >
           <span className="nav-link-icon"><FaUser /></span>
