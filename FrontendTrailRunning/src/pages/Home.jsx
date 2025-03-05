@@ -41,53 +41,27 @@ const Home = () => {
           <p className="text-red-500">Error: {error}</p>
         ) : lastRace ? (
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-300">
-              <thead className="bg-gray-100">
+            <table className="w-full text-left text-gray-700">
+              <thead className="bg-gray-200">
                 <tr>
-                  <th colSpan="2" className="border p-2 text-left">Detalles de la Carrera</th>
+                  <th colSpan="2" className="p-3 text-lg font-semibold">Detalles de la Carrera</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td className="border p-2 font-semibold">Nombre</td>
-                  <td className="border p-2">{lastRace.race.name}</td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold">Fecha</td>
-                  <td className="border p-2">
-                    {new Date(lastRace.race.date).toLocaleDateString('es-ES', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold">Deporte</td>
-                  <td className="border p-2 capitalize">{lastRace.race.sport}</td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold">Ubicación</td>
-                  <td className="border p-2">{lastRace.race.location}</td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold">Distancia</td>
-                  <td className="border p-2">{lastRace.race.distance} km</td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold">Fecha de Inscripción</td>
-                  <td className="border p-2">
-                    {new Date(lastRace.registeredAt).toLocaleDateString('es-ES', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="border p-2 font-semibold">Estado</td>
-                  <td className="border p-2 capitalize">{lastRace.status}</td>
-                </tr>
+                {[
+                  { label: "Nombre", value: lastRace.race.name },
+                  { label: "Fecha", value: new Date(lastRace.race.date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) },
+                  { label: "Deporte", value: lastRace.race.sport },
+                  { label: "Ubicación", value: lastRace.race.location },
+                  { label: "Distancia", value: `${lastRace.race.distance} km` },
+                  { label: "Fecha de Inscripción", value: new Date(lastRace.registeredAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) },
+                  { label: "Estado", value: lastRace.status },
+                ].map((row, index) => (
+                  <tr key={index} className="border-t border-gray-300">
+                    <td className="p-3 font-semibold bg-gray-100">{row.label}</td>
+                    <td className="p-3 capitalize">{row.value}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
