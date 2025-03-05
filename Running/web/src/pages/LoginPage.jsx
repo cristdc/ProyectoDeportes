@@ -1,72 +1,97 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { toast } from 'sonner';
+import { FaEnvelope, FaLock, FaRunning } from 'react-icons/fa';
 
 const LoginPage = () => {
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const { login } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    remember: false
+  });
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-
-        try {
-            const formData = new FormData(e.target);
-            const credentials = {
-                email: formData.get('email'),
-                password: formData.get('password')
-            };
-
-            await login(credentials);
-            toast.success('Inicio de sesión exitoso');
-            navigate('/');
-        } catch (error) {
-            toast.error(error.message || 'Error al iniciar sesión');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Aquí iría la lógica de login
+    console.log('Login:', formData);
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
-      <div className="w-full max-w-sm space-y-6 p-6 bg-gray-800 rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center text-white">Iniciar Sesión</h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-3">
-            <div>
-              <label htmlFor="email" className="text-sm text-gray-300">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="w-full p-3 mt-1 rounded bg-gray-700 text-white text-sm"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="text-sm text-gray-300">Contraseña</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="w-full p-3 mt-1 rounded bg-gray-700 text-white text-sm"
-              />
+    <div className="min-h-[calc(100vh-160px)] flex items-center justify-center bg-[var(--background)] py-12 px-4">
+      <div className="max-w-md w-full space-y-8">
+        {/* Header */}
+        <div className="text-center">
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 bg-[#8D9B6A] rounded-full flex items-center justify-center">
+              <FaRunning className="text-white text-3xl" />
             </div>
           </div>
+          <h2 className="text-3xl font-bold text-gray-800">Iniciar Sesión</h2>
+          <p className="mt-2 text-gray-600">
+            Bienvenido de nuevo a Running App
+          </p>
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 px-4 bg-sky-600 text-white rounded hover:bg-sky-700 disabled:opacity-50 text-sm font-medium"
-          >
-            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-          </button>
-        </form>
+        {/* Form */}
+        <div className="bg-white p-8 rounded-lg shadow-sm">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email:
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaEnvelope className="text-gray-400" />
+                </div>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8D9B6A] focus:border-transparent"
+                  placeholder="tu@email.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contraseña:
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaLock className="text-gray-400" />
+                </div>
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8D9B6A] focus:border-transparent"
+                  placeholder="********"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="remember"
+                type="checkbox"
+                checked={formData.remember}
+                onChange={(e) => setFormData({...formData, remember: e.target.checked})}
+                className="h-4 w-4 text-[#8D9B6A] focus:ring-[#8D9B6A] border-gray-300 rounded"
+              />
+              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+                Recordarme
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-[#8D9B6A] hover:bg-[#738055] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8D9B6A] transition-colors"
+            >
+              Iniciar Sesión
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

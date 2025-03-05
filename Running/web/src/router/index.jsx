@@ -7,6 +7,7 @@ import ErrorPage from '../pages/ErrorPage.jsx';
 import LoginPage from '../pages/LoginPage.jsx';
 import ProfilePage from '../pages/ProfilePage.jsx';
 import HistoryPage from '../pages/HistoryPage.jsx';
+import DetailPage from '../pages/DetailPage.jsx';
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
       {
         path: 'historial',
         element: <Participate />
+      },
+      {
+        path: 'carrera/:id',
+        element: <DetailPage />
       }
     ]
   }

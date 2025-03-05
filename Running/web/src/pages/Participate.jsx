@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { FaMapMarkerAlt, FaRunning, FaCalendarAlt, FaMountain } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const Participate = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -177,9 +178,13 @@ const Participate = () => {
                     </div>
                   </div>
 
-                  <button className="w-full mt-6 bg-[var(--primary)] text-white py-2 px-4 rounded-lg hover:bg-[var(--accent)] transition-colors">
+                  <Link 
+                    to={`/carrera/${race.id}`}
+                    state={{ isHistory: true }}
+                    className="block w-full text-center py-2 bg-[#8D9B6A] text-white rounded-md hover:bg-[#738055] transition-colors"
+                  >
                     Ver detalles
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}
