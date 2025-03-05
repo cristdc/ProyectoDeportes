@@ -12,12 +12,12 @@ const Navbar = ( { user } ) => {
 
   const handleLogout = async() =>{
     await logout();
-    navigate('/')
+    navigate("/")
   }
 
   return (
     <>
-      <div className="flex justify-between items-center p-2 bg-background">
+      <div className="flex justify-between items-center p-2 bg-background p-5">
         {/* Logo */}
         <div>
           <Link to="/" className="text-text hover:text-accent transition-all duration-300"><h1>Trail</h1></Link>
@@ -40,7 +40,7 @@ const Navbar = ( { user } ) => {
 
         {/* Menú en pantallas grandes (480px en adelante) */}
         <div className="hidden sm:flex space-x-3">
-          <Link to="" className="pr-3 text-text hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
+        <Link to={ROUTES.RACES} className="block text-text text-center hover:bg-background transition-all duration-300">Carreras Disponibles</Link>
           {user ? (
             <button
               onClick={handleLogout}
@@ -61,7 +61,12 @@ const Navbar = ( { user } ) => {
         transition-all duration-300 ${isOpen ? "block" : "hidden"}`}
       >
         <Link to={ROUTES.RACES} className="block text-text text-center hover:bg-background transition-all duration-300">Carreras Disponibles</Link>
-        <Link to={ROUTES.HOME} className="block text-text text-center hover:bg-background transition-all duration-300">Cerrar sesión</Link>
+        <button
+              onClick={handleLogout}
+              className="text-text hover:text-accent transition-all duration-300"
+            >
+              Cerrar sesión
+        </button>
       </div>
     </>
   );
