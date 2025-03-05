@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { FaMapMarkerAlt, FaRunning, FaCalendarAlt, FaMountain } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Participate = () => {
   const navigate = useNavigate();
