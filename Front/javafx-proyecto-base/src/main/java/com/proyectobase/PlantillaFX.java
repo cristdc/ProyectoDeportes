@@ -1,13 +1,11 @@
 package com.proyectobase; //Modificar al package correcto
 
-<<<<<<< HEAD
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-=======
 import com.Controladores.Controlador;
 import java.io.IOException;
 import java.net.URL;
@@ -20,7 +18,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
->>>>>>> 11af53a5459483328ff60b37d93429b07b23a07b
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -36,20 +33,9 @@ public class PlantillaFX extends Application {
         launch(args);
     }
 
-    @Override
-<<<<<<< HEAD
-    public void start(Stage primaryStage) {
-        
-        Label l1=new Label("hola");
-        VBox vbox=new VBox(10, l1); //Layout padre (contenedor de nodos). 10 px separación
-        vbox.setPadding(new Insets(20));//Borde interno 20px
-        Scene scene=new Scene(vbox, 500,400);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-=======
+    @Override        
     public void start(Stage primaryStage) throws IOException {
-        
-        
+              
         URL imageUrl = getClass().getClassLoader().getResource("img/AtletisticsLogo.jpg");
         if (imageUrl != null) {
             Image image = new Image(imageUrl.toString());
@@ -73,7 +59,6 @@ public class PlantillaFX extends Application {
         primaryStage.setTitle("Atletistics");
         primaryStage.show();
         
->>>>>>> 11af53a5459483328ff60b37d93429b07b23a07b
     }
 
 }
