@@ -25,4 +25,13 @@ router.put("/profile", authMiddleware, updateProfile);
 router.get("/search", authMiddleware, searchUsersByName); 
 router.get("/:id", authMiddleware, getUserById); 
 
+router.get("/check-auth", authMiddleware, (req, res) => {
+
+  res.status(200).json({
+    authenticated: true,
+    user: req.user,
+    tokenExpiration: new Date(req.user.exp * 1000) 
+  });
+});
+
 export default router;

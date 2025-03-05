@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { now } from "mongoose";
 
 // Validar formato de ID de MongoDB
 const isValidObjectId = (id) => {
@@ -35,7 +36,7 @@ const login = async (req, res) => {
       httpOnly: true,
       secure: process.env.COOKIE_SECURE,
       sameSite: "strict",
-      maxAge: 3600000, // 1 hora
+      maxAge: 10, // 1 hora
       path: "/",
     });
 
@@ -120,7 +121,7 @@ const logout = (req, res) => {
     res.cookie("token", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      expires: new Date(0),
+      expires: new Date(),
       maxAge: 0,
     });
 
