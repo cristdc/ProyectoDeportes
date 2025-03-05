@@ -8,6 +8,7 @@ import {
   getUserById,
   searchUsersByName,
   getAuthStatus,
+  userDownloadGPXFile,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../middlewares/authmiddleware.js";
 
@@ -37,4 +38,6 @@ router.get("/check-auth", authMiddleware, (req, res) => {
 router.get("/auth-status", getAuthStatus);
 router.get("/:id", authMiddleware, getUserById); 
 
+// Ruta para que un usuario descargue un GPX de una carrera
+router.get("/:id/gpx", authMiddleware, userDownloadGPXFile);
 export default router;

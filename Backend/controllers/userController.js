@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import mongoose from "mongoose";
+import fs from "fs";
+import Race from "../models/Race.js";
 
 // Validar formato de ID de MongoDB
 const isValidObjectId = (id) => {
@@ -308,6 +310,53 @@ const getAuthStatus = (req, res) => {
   }
 };
 
+/**
+ * Permite a un usuario descargar un archivo GPX de una carrera
+ * @route GET /api/users/races/:id/gpx
+ */
+const userDownloadGPXFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validar ID de carrera
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "ID de carrera inválido" });
+    }
+
+    // Verificar que la carrera existe
+    const race = await Race.findById(id);
+    if (!race) {
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    // Verificar si la carrera tiene un archivo GPX
+    if (!race.hasGPXFile || !race.gpxFilePath) {
+      return res.status(404).json({ message: "Esta carrera no tiene archivo GPX disponible" });
+    }
+
+    // Verificar que el archivo existe en el sistema de archivos
+    if (!fs.existsSync(race.gpxFilePath)) {
+      return res.status(404).json({ message: "El archivo GPX no se encuentra disponible" });
+    }
+
+    // Nombre del archivo para la descarga (usar el nombre original si está disponible)
+    const fileName = race.gpxFileName || `route-${race.name.replace(/\s+/g, '_')}.gpx`;
+
+    // Configurar los encabezados para la descarga
+    res.setHeader('Content-Type', 'application/gpx+xml');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+    // Crear un stream de lectura y enviarlo como respuesta
+    const fileStream = fs.createReadStream(race.gpxFilePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error("Error en userDownloadGPXFile:", error);
+    return res.status(500).json({
+      message: "Error al descargar el archivo GPX",
+      error: error.message
+    });
+  }
+};
 
 export {
   login,
@@ -318,5 +367,6 @@ export {
   getUserById,
   searchUsersByName,
   getAuthStatus,
+  userDownloadGPXFile,
 };
 
