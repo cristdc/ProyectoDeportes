@@ -33,7 +33,7 @@ const Home = () => {
       </div>
 
       <div className="w-1/2 p-6">
-        <h3 className="ml-5 text-2xl font-semibold mb-4">Última carrera de {user.name}</h3>
+        <h3 className="ml-5 text-2xl font-semibold mb-4">Última carrera de {user?.name}</h3>
         
         {loading ? (
           <p>Cargando última carrera...</p>
