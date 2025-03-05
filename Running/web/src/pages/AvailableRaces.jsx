@@ -1,9 +1,8 @@
 import { useState, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaClock } from 'react-icons/fa';
 
 const AvailableRaces = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('Todas las ubicaciones');
   const [statusFilter, setStatusFilter] = useState('Todos los estados');

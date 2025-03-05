@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { FaEnvelope, FaLock, FaRunning } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -11,7 +13,7 @@ const LoginPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Aquí iría la lógica de login
-    console.log('Login:', formData);
+    login(formData);
   };
 
   return (

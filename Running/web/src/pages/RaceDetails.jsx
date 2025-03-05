@@ -1,10 +1,9 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaClock, FaMountain, FaArrowLeft } from 'react-icons/fa';
 
 const RaceDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [race, setRace] = useState(null);
 
   useEffect(() => {
