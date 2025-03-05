@@ -23,6 +23,7 @@ http://localhost:3000/api/users/register
   "email": "usuario@example.com",
   "password": "123456",
   "name": "Juan Pérez",
+  "gender": "male",
   "age": 30
 }
 ```
