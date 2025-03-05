@@ -4,7 +4,6 @@ import Registration from "../models/Registrations.js";
 
 // Importaciones para archivos CSV
 import fs from "fs";
-import path from "path";
 import Papa from "papaparse";
 const { parse, unparse } = Papa;
 import User from "../models/User.js";

@@ -1,6 +1,11 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
+// Validar formato de ID de MongoDB
+const isValidObjectId = (id) => {
+  return mongoose.Types.ObjectId.isValid(id);
+};
+
 // Iniciar sesión
 const login = async (req, res) => {
   try {
@@ -52,9 +57,9 @@ const login = async (req, res) => {
 // Registrar usuarios
 const register = async (req, res) => {
   try {
-    const { email, password, name, age, avatar } = req.body;
+    const { email, password, name, age, avatar, gender } = req.body;
 
-    if (!email || !password || !name) {
+    if (!email || !password || !name || !gender) {
       return res
         .status(400)
         .json({ message: "Se requiere email, contraseña y nombre" });
@@ -82,7 +87,8 @@ const register = async (req, res) => {
       name,
       role: "user",
       age: age || null,
-      avatar: avatar || "default.jpg"
+      avatar: avatar || "default.jpg",
+      gender
     });
 
     await user.save();
@@ -97,6 +103,7 @@ const register = async (req, res) => {
         age: user.age,
         registrationDate: user.registrationDate,
         avatar: user.avatar,
+        gender: user.gender
       },
     });
   } catch (error) {
@@ -191,20 +198,19 @@ const updateProfile = async (req, res) => {
 };
 
 const getUserById = async (req, res) => {
- 
-  // TODO:
-  // - Extraer ID del usuario de req.params.id
-  // - Validar formato del ID
-  // - Validar permisos (usuarios regulares solo deberían ver información limitada de otros usuarios)
-  // - Buscar el usuario por ID
-  // - Si no existe, devolver 404
-  // - Si existe, devolver información pública del usuario (sin contraseña)
-  // - Manejar errores con try/catch
   try {
     // Respuesta temporal
+    const { id } = req.params;
+    if(!isValidObjectId(id)){
+      return res.status(402).json({ message: "El id no es válido" });
+    }
+    const user = User.findById(id);
+    if(!user){
+      return res.status(404).json({ message: "No existe ese usuario" });
+    }
+  
     return res.status(200).json({
-      message:
-        "Endpoint conectado correctamente, metodo pendiente de programar",
+      user: user,
     });
   } catch (error) {
     return res.status(500).json({
@@ -216,19 +222,42 @@ const getUserById = async (req, res) => {
 
 // Buscar usuarios por nombre
 const searchUsersByName = async (req, res) => {
-
-  // TODO:
-  // - Extraer término de búsqueda de req.query.name
-  // - Validar que el término no esté vacío
-  // - Buscar usuarios que coincidan con el término (usando RegExp para búsqueda parcial)
-  // - Devolver lista de usuarios con información pública (sin contraseñas)
-  // - Implementar paginación de resultados
-  // - Manejar errores con try/catch
   try {
-    // Respuesta temporal
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const { name } = req.query;
+    if (!name) {
+      return res.status(400).json({ message: "Debe pasar un nombre" });
+    }
+
+    if (page < 1 || limit < 1) {
+      return res.status(400).json({
+        message: "Los parámetros de paginación deben ser números positivos",
+      });
+    }
+
+    const skip = (page - 1) * limit;
+
+    // Obtener el total de usuarios que coinciden con la búsqueda
+    const totalUsers = await User.countDocuments({ name: new RegExp(name, "i") });
+
+    // Calcular el número total de páginas
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    // Obtener los usuarios paginados
+    const users = await User.find({ name: new RegExp(name, "i") })
+      .skip(skip)
+      .limit(limit);
+
     return res.status(200).json({
-      message:
-        "Endpoint conectado correctamente, metodo pendiente de programar",
+      users,
+      pagination: {
+        totalUsers,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
     });
   } catch (error) {
     return res.status(500).json({
