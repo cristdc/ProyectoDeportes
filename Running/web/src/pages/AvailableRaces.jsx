@@ -60,10 +60,6 @@ const AvailableRaces = () => {
     });
   }, [races, searchTerm, locationFilter, statusFilter]);
 
-  // Función para manejar el clic en "Ver detalles"
-  const handleViewDetails = (raceId) => {
-    navigate(`/carrera/${raceId}`);
-  };
 
   return (
     <div className="bg-[var(--background)] min-h-screen py-8">
