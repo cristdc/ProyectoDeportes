@@ -21,7 +21,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-
 // Conexión con la base de datos
 connectDB();
 
