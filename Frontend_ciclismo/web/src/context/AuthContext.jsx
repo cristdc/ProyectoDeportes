@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
+const VITE_API_CICLISMO_URL = import.meta.env.VITE_API_CICLISMO_URL; 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -29,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (userData) => {
         try {
-            const response = await fetch("http://localhost:3000/api/users/login", {
+            const response = await fetch(`${VITE_API_CICLISMO_URL}/users/login`, {
                 method: "POST",
                 body: JSON.stringify(userData),
                 credentials: "include",
@@ -57,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const response = await fetch("http://localhost:3000/api/users/logout", {
+            const response = await fetch(`${VITE_API_CICLISMO_URL}/users/logout`, {
                 method: "POST",
                 credentials: "include",
             });
