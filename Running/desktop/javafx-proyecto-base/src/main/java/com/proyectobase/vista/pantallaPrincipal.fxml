@@ -22,10 +22,13 @@
                <children>
                   <HBox prefHeight="46.0" prefWidth="600.0" style="-fx-background-color: #9B9D79;">
                      <children>
-                        <ImageView fx:id="imgLogo" fitHeight="39.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fx:id="imgLogo" fitHeight="32.0" fitWidth="37.0" pickOnBounds="true" preserveRatio="true">
                            <HBox.margin>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </HBox.margin>
+                           <image>
+                              <Image url="@/logo.png" />
+                           </image>
                         </ImageView>
                         <HBox alignment="CENTER_RIGHT" prefHeight="55.0" prefWidth="542.0">
                            <children>
@@ -41,21 +44,24 @@
                         </HBox>
                         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                            <children>
-                              <ImageView fx:id="imgUsuario" fitHeight="50.0" fitWidth="46.0" pickOnBounds="true" preserveRatio="true" />
+                              <ImageView fx:id="imgUsuario" fitHeight="34.0" fitWidth="39.0" onMouseClicked="#navegarLogin" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@/user.png" />
+                                 </image></ImageView>
                            </children>
                         </VBox>
                      </children>
                   </HBox>
                   <HBox alignment="CENTER" prefHeight="371.0" prefWidth="600.0">
                      <children>
-                        <VBox prefHeight="346.0" prefWidth="306.0">
+                        <VBox fx:id="vboxImagen" prefHeight="350.0" prefWidth="314.0">
                            <children>
                               <HBox prefHeight="24.0" prefWidth="300.0">
                                  <VBox.margin>
                                     <Insets bottom="5.0" top="20.0" />
                                  </VBox.margin>
                                  <children>
-                                    <Label text="Corre con el corazón, llega con el alma.">
+                                    <Label style="-fx-text-fill: white;" text="Corre con el corazón, llega con el alma.">
                                        <font>
                                           <Font name="System Bold" size="15.0" />
                                        </font>
@@ -70,7 +76,7 @@
                                     <Insets bottom="10.0" />
                                  </VBox.margin>
                                  <children>
-                                    <Label text="Haz historia.">
+                                    <Label style="-fx-text-fill: white;" text="Haz historia.">
                                        <HBox.margin>
                                           <Insets right="10.0" />
                                        </HBox.margin>
@@ -79,42 +85,46 @@
                               </HBox>
                               <VBox alignment="BOTTOM_CENTER" prefHeight="278.0" prefWidth="290.0">
                                  <children>
-                                    <ImageView fitHeight="186.0" fitWidth="289.0" pickOnBounds="true" preserveRatio="true">
-                                       <image>
-                                          <Image url="@/imagenRunning.jpg" />
-                                       </image>
-                                    </ImageView>
                                     <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                                        <children>
-                                          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                          <VBox fx:id="vboxCorredores" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                                              <children>
-                                                <Label text="Corredores">
+                                                <Label style="-fx-text-fill: black;" text="Corredores">
                                                    <font>
                                                       <Font name="System Bold" size="14.0" />
                                                    </font>
                                                 </Label>
-                                                <Label fx:id="txtCorredores" text="Label" />
+                                                <Label fx:id="txtCorredores" style="-fx-text-fill: black;" text="Label" />
                                              </children>
+                                             <HBox.margin>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                             </HBox.margin>
                                           </VBox>
-                                          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                          <VBox fx:id="vboxCarreras" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                                              <children>
-                                                <Label text="Carreras">
+                                                <Label style="-fx-text-fill: black;" text="Carreras">
                                                    <font>
                                                       <Font name="System Bold" size="14.0" />
                                                    </font>
                                                 </Label>
-                                                <Label fx:id="txtCarreras" text="Label" />
+                                                <Label fx:id="txtCarreras" style="-fx-text-fill: black;" text="Label" />
                                              </children>
+                                             <HBox.margin>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                             </HBox.margin>
                                           </VBox>
-                                          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+                                          <VBox fx:id="vboxRecorridos" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                                              <children>
-                                                <Label text="Recorridos">
+                                                <Label style="-fx-text-fill: black;" text="Recorridos">
                                                    <font>
                                                       <Font name="System Bold" size="14.0" />
                                                    </font>
                                                 </Label>
-                                                <Label fx:id="txtKMRecorridos" text="Label" />
+                                                <Label fx:id="txtKMRecorridos" style="-fx-text-fill: black;" text="Label" />
                                              </children>
+                                             <HBox.margin>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                             </HBox.margin>
                                           </VBox>
                                        </children>
                                     </HBox>
@@ -122,7 +132,7 @@
                               </VBox>
                            </children>
                            <HBox.margin>
-                              <Insets left="10.0" />
+                              <Insets />
                            </HBox.margin>
                         </VBox>
                         <VBox alignment="CENTER" prefHeight="346.0" prefWidth="307.0">
@@ -163,14 +173,18 @@
                <children>
                   <VBox prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #FDF7ED;">
                      <children>
-                        <Label text="Carreras disponibles">
-                           <font>
-                              <Font name="System Bold" size="36.0" />
-                           </font>
-                           <VBox.margin>
-                              <Insets bottom="15.0" />
-                           </VBox.margin>
-                        </Label>
+                        <VBox alignment="CENTER" prefHeight="55.0" prefWidth="600.0" style="-fx-background-color: #9B9D79;">
+                           <children>
+                              <Label style="-fx-text-fill: white;" text="Carreras disponibles">
+                                 <font>
+                                    <Font name="System Bold" size="36.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin>
+                              </Label>
+                           </children>
+                        </VBox>
                         <TableView fx:id="tvCarreras" prefHeight="285.0" prefWidth="560.0">
                            <columns>
                               <TableColumn fx:id="columnId" prefWidth="56.0" text="Id" />
@@ -183,7 +197,7 @@
                               <TableColumn fx:id="columnEstado" prefWidth="77.0" text="Estado" />
                            </columns>
                            <VBox.margin>
-                              <Insets bottom="15.0" />
+                              <Insets bottom="5.0" left="20.0" right="20.0" top="20.0" />
                            </VBox.margin>
                         </TableView>
                         <HBox alignment="CENTER_RIGHT" prefHeight="32.0" prefWidth="560.0" spacing="10.0">
@@ -200,13 +214,10 @@
                               </Button>
                            </children>
                            <VBox.margin>
-                              <Insets />
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </VBox.margin>
                         </HBox>
                      </children>
-                     <padding>
-                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-                     </padding>
                   </VBox>
                </children>
             </AnchorPane>
