@@ -158,6 +158,28 @@ export const fetchUserRegistrations = async () => {
     
 }
 
+export const fetchRaceById =  async (raceId) =>{
+    try {
+        const response = await fetch(`${api}/races/${raceId}`,  {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+        });
+
+        if(!response.ok){
+            throw new Error("Error al obtener la carrera")
+        }
+         
+        const race = await response.json();
+        return race;
+
+    } catch(error){
+        throw new Error("Error al hacer la petición", error)
+    }
+}
+
 
 //fetch para desapuntarte de una carrera 
 export const unRegister = async (registrationId) => {
