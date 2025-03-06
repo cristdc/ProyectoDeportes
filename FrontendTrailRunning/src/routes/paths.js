@@ -3,5 +3,6 @@ export const ROUTES = {
     HOME: '/home',
     RACES: '/races',
     RACESUSER: '/racesuser',
-    USER: '/user'
+    USER: '/user',
+    EDITUSER: '/edituser'
 }
