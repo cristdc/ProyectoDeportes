@@ -16,7 +16,12 @@ const registrationSchema = mongoose.Schema({
 
   // Nuevos campos para GPX de usuario
   hasUserGpx: { type: Boolean, default: false },
-  userGpxPath: { type: String, default: null },
+  userGpxPath: { 
+    type: String,
+    get: function(v) {
+      return v ? `${process.env.BACKEND_URL}/uploads/gpx/${v}` : null;
+    }
+  },
   userGpxUploadedAt: { type: Date, default: null },
   userGpxFileName: { type: String, default: null },
 

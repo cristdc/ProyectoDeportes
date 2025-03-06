@@ -1,4 +1,5 @@
 import express from "express";
+import { gpxUpload } from '../middlewares/uploadMiddleware.js';
 import {
   createRegistration,
   getUserRegistrations,
@@ -14,6 +15,9 @@ import {
 } from "../middlewares/authmiddleware.js";
 
 const router = express.Router();
+
+// Add upload middleware to the route that handles GPX files
+router.post('/upload-gpx/:id', authMiddleware, gpxUpload.single('gpxFile'), uploadGpxFile);
 
 // Rutas básicas (requieren autenticación)
 router.use(authMiddleware);
