@@ -7,27 +7,30 @@ import { useAuth } from '../context/AuthContext';
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [credentials, setCredentials] = useState({
     email: '',
     password: '',
     remember: false
   });
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
+    setError('');
     setLoading(true);
+    console.log('Intentando login con:', credentials); // Debug
 
-    login(formData)
-      .then(() => {
-        navigate('/dashboard'); // Redirigir después de iniciar sesión
-      })
-      .catch((err) => {
-        setError(err.message || 'Error en el inicio de sesión');
-      })
-      .finally(() => setLoading(false));
+    try {
+      const response = await login(credentials);
+      console.log('Login exitoso:', response); // Debug
+      navigate('/profile');
+    } catch (err) {
+      console.error('Error en el formulario de login:', err);
+      setError('Error al iniciar sesión. Verifica tus credenciales.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,8 +58,8 @@ const LoginPage = () => {
                 </div>
                 <input
                   type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  value={credentials.email}
+                  onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8D9B6A] focus:border-transparent"
                   placeholder="tu@email.com"
                   required
@@ -72,8 +75,8 @@ const LoginPage = () => {
                 </div>
                 <input
                   type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  value={credentials.password}
+                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8D9B6A] focus:border-transparent"
                   placeholder="********"
                   required
@@ -85,8 +88,8 @@ const LoginPage = () => {
               <input
                 id="remember"
                 type="checkbox"
-                checked={formData.remember}
-                onChange={(e) => setFormData({ ...formData, remember: e.target.checked })}
+                checked={credentials.remember}
+                onChange={(e) => setCredentials({ ...credentials, remember: e.target.checked })}
                 className="h-4 w-4 text-[#8D9B6A] focus:ring-[#8D9B6A] border-gray-300 rounded"
               />
               <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
