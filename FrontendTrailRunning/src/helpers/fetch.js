@@ -39,7 +39,6 @@ export const createRegistration = async (raceId) =>{
         }
     
         const data = await response.json();
-        console.log(data);
         return data;
     } catch (error) {
         console.log("Error: ", error);
@@ -129,6 +128,7 @@ export const profile = async () => {
             throw new Error("Error al conectar a la api")
         }
         const data = await response.json();
+        console.log(data);
         return data;
     } catch (error) {
         console.log("Error: ", error);

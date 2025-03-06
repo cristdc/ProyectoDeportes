@@ -18,7 +18,7 @@ const RacesUser = () => {
 
   return (
     <>
-    <div>Races</div>
+    <div className="mt-5 text-xl text-text font-semibold text-center">Historial carreras</div>
     { registrations ? (
       <RacesUserList registrations={registrations} />
     ):(
