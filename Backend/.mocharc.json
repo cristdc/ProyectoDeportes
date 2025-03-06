@@ -1,0 +1,8 @@
+{
+  "extension": [".js"],
+  "package": "./package.json",
+  "recursive": true,
+  "timeout": 200000,
+  "exit": true,
+  "require": ["./test/setup.js"]
+}
