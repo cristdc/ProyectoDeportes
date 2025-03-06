@@ -5,9 +5,11 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(localStorage.getItem("user") || null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [token, setToken] = useState(localStorage.getItem("token") || null);
+
 
     // Función para obtener el usuario autenticado manualmente
     const fetchUser = () => {
@@ -40,7 +42,8 @@ export const AuthProvider = ({ children }) => {
         .then(text => {
             try {
                 const data = JSON.parse(text);
-                setUser(data.user);
+                setUser(localStorage.setItem("user", JSON.stringify(data)));
+                setToken(localStorage.setItem("token", data.token));
                 return data;
             } catch {
                 throw new Error("Respuesta no válida del servidor");
