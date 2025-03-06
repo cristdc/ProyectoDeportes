@@ -5,21 +5,24 @@ import { useNavigate } from 'react-router-dom';
 const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
 
 const Profile = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, updateUserData } = useAuth();
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
     const [formData, setFormData] = useState({
-        name: '',
-        age: ''
+        name: user?.name || '',
+        age: user?.age || '',
+        avatar: user?.avatar || ''
     });
 
+    console.log("Datos del usuario en Profile:", user);
     useEffect(() => {
         if (user) {
             setFormData({
-                name: user.username || '',
-                age: user.age || ''
+                name: user.name || '',
+                age: user.age || '',
+                avatar: user.avatar || ''
             });
         }
     }, [user]);
@@ -32,42 +35,36 @@ const Profile = () => {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleUpdate = async (e) => {
         e.preventDefault();
-        setError(null);
-        setSuccess(null);
-
         try {
             const response = await fetch(`${API_URL}/users/profile`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
                 credentials: 'include',
-                body: JSON.stringify({
-                    username: formData.name,
-                    age: parseInt(formData.age) || undefined
-                })
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
             });
 
             const data = await response.json();
-            
+            console.log("Respuesta del servidor:", data);
+
             if (response.ok) {
+                await updateUserData(data.user);
+                setFormData({
+                    name: data.user.name || '',
+                    age: data.user.age || '',
+                    avatar: data.user.avatar || ''
+                });
                 setSuccess('Perfil actualizado correctamente');
                 setIsEditing(false);
-                setFormData({
-                    name: data.user.username || '',
-                    age: data.user.age || ''
-                });
-            } else {
-                setError(data.message || 'Error al actualizar el perfil');
             }
-        } catch (err) {
+        } catch (error) {
+            console.error("Error actualizando perfil:", error);
             setError('Error al actualizar el perfil');
         }
     };
-
-
 
     return (
         <div className="min-h-screen bg-[#fdf7ed] p-4 md:p-8">
@@ -86,7 +83,7 @@ const Profile = () => {
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="bg-[#9B9D79] text-white p-6">
                         <div className="flex items-center space-x-4">
-                            {user.avatar ? (
+                            {user?.avatar ? (
                                 <img 
                                     src={user.avatar} 
                                     alt="Avatar" 
@@ -94,19 +91,20 @@ const Profile = () => {
                                 />
                             ) : (
                                 <div className="w-20 h-20 rounded-full bg-white text-[#9B9D79] flex items-center justify-center text-2xl font-bold">
-                                    {user.username ? user.username.charAt(0).toUpperCase() : '?'}
+                                    {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
                                 </div>
                             )}
                             <div>
-                                <h1 className="text-2xl font-bold">{user.username}</h1>
-                                <p className="text-white/80">{user.age ? `${user.age} años` : 'Edad no especificada'}</p>
+                                <h1 className="text-2xl font-bold">{user?.name || 'Nombre no especificado'}</h1>
+                                <p className="text-white/80">{user?.email || 'Email no especificado'}</p>
+                                <p className="text-white/80">{user?.age ? `${user.age} años` : 'Edad no especificada'}</p>
                             </div>
                         </div>
                     </div>
 
                     <div className="p-6">
                         {isEditing ? (
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                            <form onSubmit={handleUpdate} className="space-y-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Nombre de usuario
@@ -135,6 +133,19 @@ const Profile = () => {
                                     />
                                 </div>
 
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Avatar URL
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="avatar"
+                                        value={formData.avatar}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#9B9D79]"
+                                    />
+                                </div>
+
                                 <div className="flex justify-end space-x-4">
                                     <button
                                         type="button"
@@ -147,7 +158,7 @@ const Profile = () => {
                                         type="submit"
                                         className="px-4 py-2 bg-[#9B9D79] text-white rounded-md hover:bg-[#8EAC93] transition-colors"
                                     >
-                                        Guardar cambios
+                                        Actualizar perfil
                                     </button>
                                 </div>
                             </form>
@@ -158,11 +169,15 @@ const Profile = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <p className="text-sm text-gray-600">Nombre de usuario</p>
-                                            <p className="font-medium">{user.username}</p>
+                                            <p className="font-medium">{user?.name || 'No especificado'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-gray-600">Email</p>
+                                            <p className="font-medium">{user?.email || 'No especificado'}</p>
                                         </div>
                                         <div>
                                             <p className="text-sm text-gray-600">Edad</p>
-                                            <p className="font-medium">{user.age || 'No especificada'}</p>
+                                            <p className="font-medium">{user?.age || 'No especificada'}</p>
                                         </div>
                                     </div>
                                 </div>
