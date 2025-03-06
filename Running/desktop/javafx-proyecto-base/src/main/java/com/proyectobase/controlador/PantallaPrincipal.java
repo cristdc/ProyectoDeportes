@@ -32,8 +32,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import modelo.Carrera;
-import modelo.Usuario;
+import com.proyectobase.modelo.Carrera;
+import com.proyectobase.modelo.Usuario;
 
 public class PantallaPrincipal implements Initializable {
 
