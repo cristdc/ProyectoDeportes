@@ -24,7 +24,7 @@ public class controladorCarreras implements Initializable{
     private Button btnDesapuntarse;
 
     @FXML 
-    private Button btnPar ticipar;
+    private Button btnPar;
 
     @FXML
     private TableColumn<Carrera, Double> columnDistancia;
