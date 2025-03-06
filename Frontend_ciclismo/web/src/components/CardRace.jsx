@@ -1,19 +1,3 @@
-<<<<<<< HEAD
-import React, { useContext } from 'react'
-import { RacesContext } from '../context/RacesContext';
-export const CardRace = ( {data} ) => {
-
-  return (
-    <>
-    
-        <div>
-            
-        </div>
-    
-    </>
-  )
-}
-=======
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -127,4 +111,3 @@ const CardRace = ({ race }) => {
 };
 
 export default CardRace;
->>>>>>> 1206b59232267f1b08b7b1acb8d899a68a9a693a
