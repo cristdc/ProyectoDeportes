@@ -1,4 +1,4 @@
-const BASE_URL = 'http://44.203.132.49:3000/api';
+const BASE_URL = 'http://192.168.50.143:3000/api';
 
 // Función auxiliar para manejar las peticiones
 const fetchWithAuth = async (endpoint, options = {}) => {
