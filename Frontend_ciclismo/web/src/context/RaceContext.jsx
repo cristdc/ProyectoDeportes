@@ -53,7 +53,7 @@ export const RaceProvider = ({ children }) => {
             setError(null);
             console.log('Iniciando fetch de detalles de carrera:', id);
             
-            const response = await fetch(`http://192.168.50.143:3000/api/races/${id}`, {
+            const response = await fetch(`${VITE_API_CICLISMO_URL}/races/${id}`, {
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'

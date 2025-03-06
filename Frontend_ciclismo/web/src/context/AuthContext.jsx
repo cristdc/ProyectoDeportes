@@ -3,39 +3,50 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return localStorage.getItem('isAuthenticated') === 'true'
-    });
-    const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem('user');
-        return savedUser ? JSON.parse(savedUser) : null;
-    });
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState(null);
     const [error, setError] = useState(null);
+    const [userRegistrations, setUserRegistrations] = useState([]);
+
+    // Verificar autenticación al cargar o cuando cambie el estado
+    const checkAuth = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_CICLISMO_URL}/users/check-auth`, {
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+
+            if (!response.ok) {
+                await logout();
+                return;
+            }
+
+            const data = await response.json();
+            setIsAuthenticated(true);
+            setUser(data.user);
+            setError(null);
+        } catch (error) {
+            console.error("Error durante la verificación de autenticación:", error);
+            await logout();
+        }
+    };
 
     useEffect(() => {
-        if (isAuthenticated) {
-            localStorage.setItem('isAuthenticated', 'true');
-        } else {
-            localStorage.removeItem('isAuthenticated');
-        }
-        
-        if (user) {
-            localStorage.setItem('user', JSON.stringify(user));
-        } else {
-            localStorage.removeItem('user');
-        }
-    }, [isAuthenticated, user]);
-
+        checkAuth();
+        fetchRegistrations();
+    }, []);
 
     const login = async (userData) => {
         try {
-            const response = await fetch("http://192.168.50.143:3000/api/users/login", {
+            const response = await fetch(`${import.meta.env.VITE_API_CICLISMO_URL}/users/login`, {
                 method: "POST",
-                body: JSON.stringify(userData),
                 credentials: "include",
                 headers: { 
-                    "Content-Type": "application/json"
-                }
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData)
             });
             
             if (response.ok) {
@@ -44,11 +55,11 @@ export const AuthProvider = ({ children }) => {
                 setUser(data.user);
                 setError(null);
                 return true;
-            } else {
-                const errorData = await response.json();
-                setError(errorData.message || 'Error en el inicio de sesión');
-                return false;
             }
+            
+            const errorData = await response.json();
+            setError(errorData.message || 'Error en el inicio de sesión');
+            return false;
         } catch (error) {
             setError(error.message);
             return false;
@@ -57,20 +68,85 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const response = await fetch("http://192.168.50.143:3000/api/users/logout", {
+            await fetch(`${import.meta.env.VITE_API_CICLISMO_URL}/users/logout`, {
                 method: "POST",
                 credentials: "include",
             });
-
-            if (response.ok) {
-                // Limpiamos el estado y el localStorage
-                setIsAuthenticated(false);
-                setUser(null);
-                localStorage.removeItem('isAuthenticated');
-                localStorage.removeItem('user');
-                setError(null);            }
         } catch (error) {
+            console.error("Error durante el logout:", error);
+        } finally {
+            setIsAuthenticated(false);
+            setUser(null);
+            setError(null);
+        }
+    };
+
+    const fetchRegistrations = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_CICLISMO_URL}/registrations/user`, {
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Error al obtener las inscripciones');
+            }
+            
+            const data = await response.json();
+            setUserRegistrations(data);
+        } catch (error) {
+            console.error("Error en fetchRegistrations:", error);
             setError(error.message);
+            return false;
+        }
+    }
+
+    const registerToRace = async (raceId) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_CICLISMO_URL}/registrations`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ raceId })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error al inscribirse');
+            }
+
+            const data = await response.json();
+            setUserRegistrations([...userRegistrations, raceId]);
+            return { success: true, message: data.message };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    };
+
+    const unregisterFromRace = async (raceId) => {
+        try {
+            const response = await fetch(`/api/races/${raceId}/unregister`, {
+                method: "DELETE",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error al desinscribirse');
+            }
+
+            const data = await response.json();
+            setUserRegistrations(userRegistrations.filter(id => id !== raceId));
+            return { success: true, message: data.message };
+        } catch (error) {
+            return { success: false, message: error.message };
         }
     };
 
@@ -81,7 +157,11 @@ export const AuthProvider = ({ children }) => {
             login, 
             logout, 
             error, 
-            setError 
+            setError,
+            checkAuth,
+            registerToRace,
+            unregisterFromRace,
+            userRegistrations
         }}>
             {children}
         </AuthContext.Provider>
