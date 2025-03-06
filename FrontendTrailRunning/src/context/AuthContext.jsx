@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState } from 'react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 // OJO: el .env ya tiene el /api para que sea más cómodo 
@@ -11,17 +11,13 @@ export const AuthProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [isAuth, setIsAuth] = useState(false);
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
   const checkAuthStatus = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/users/profile`, {
         method: 'GET',
         credentials: 'include' // Armando recuerda pa enviar cookies
       });
-      
+      console.log(response);
       if (response.ok) {
         const data = await response.json();
 
@@ -59,6 +55,7 @@ export const AuthProvider = ({ children }) => {
       }
       
       const data = await response.json();
+      console.log(data);
       setUser(data.user);
       return data;
     } catch (err) {

@@ -39,7 +39,6 @@ export const createRegistration = async (raceId) =>{
         }
     
         const data = await response.json();
-        console.log(data);
         return data;
     } catch (error) {
         console.log("Error: ", error);
@@ -129,6 +128,7 @@ export const profile = async () => {
             throw new Error("Error al conectar a la api")
         }
         const data = await response.json();
+        console.log(data);
         return data;
     } catch (error) {
         console.log("Error: ", error);
@@ -162,3 +162,26 @@ export const fetchUserRegistrations = async () => {
 
 
 //fetch para desapuntarte de una carrera 
+export const unRegister = async (registrationId) => {
+    try {
+        const response = await fetch(`${api}/registrations/${registrationId}/cancel`, {
+            method: 'PUT',
+            credentials: 'include',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            }
+          })
+
+        if(!response.ok){
+            throw new Error("Error al cancelar inscripción")
+        }
+    
+        const data = await response.json();
+        return data.message;
+
+    } catch (error) {
+        console.log("Error: ", error);
+    }
+    
+}
