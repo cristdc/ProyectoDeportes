@@ -5,7 +5,7 @@
 package apirest;
 
 import java.util.List;
-import modelo.Carrera;
+import com.proyectobase.modelo.Carrera;
 import retrofit2.Call;
 import retrofit2.http.GET;
 

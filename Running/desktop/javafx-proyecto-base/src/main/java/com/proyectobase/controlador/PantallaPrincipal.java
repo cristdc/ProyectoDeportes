@@ -1,39 +1,30 @@
 package com.proyectobase.controlador;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.net.URI;
+import javafx.scene.input.MouseEvent;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.ResourceBundle;
-import javafx.application.Platform;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import modelo.Carrera;
-import modelo.Usuario;
+import com.proyectobase.modelo.Carrera;
+import javafx.geometry.Insets;
+import javafx.scene.control.TableRow;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 public class PantallaPrincipal implements Initializable {
 
@@ -89,16 +80,19 @@ public class PantallaPrincipal implements Initializable {
     private TableView<Carrera> tvCarreras;
 
     @FXML
-    private Label txtCarreras;
+    private Label txtCarreras, txtCorredores, txtKMRecorridos, txtParticipar;
 
     @FXML
-    private Label txtCorredores;
+    private VBox vboxCarreras;
 
     @FXML
-    private Label txtKMRecorridos;
+    private VBox vboxCorredores;
 
     @FXML
-    private Label txtParticipar;
+    private VBox vboxImagen;
+
+    @FXML
+    private VBox vboxRecorridos;
 
     @FXML
     void btnAccionDesapuntarse(ActionEvent event) {
@@ -110,8 +104,75 @@ public class PantallaPrincipal implements Initializable {
 
     }
 
+    @FXML
+    void navegarLogin(MouseEvent event) {
+
+    }
+
+    private void aplicarEfectoHover(ImageView imagenVista) {
+        imagenVista.setOnMouseEntered(event -> {
+            imagenVista.setScaleX(1.2);
+            imagenVista.setScaleY(1.2);
+        });
+
+        imagenVista.setOnMouseExited(event -> {
+            imagenVista.setScaleX(1.0);
+            imagenVista.setScaleY(1.0);
+        });
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+
+        aplicarEfectoHover(imgUsuario);
+
+        Image imagen = new Image(getClass().getResource("/imagenRunning.png").toExternalForm());
+
+        BackgroundImage fondoImagen = new BackgroundImage(
+                imagen,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(100, 100, true, true, true, true)
+        );
+
+        vboxImagen.setBackground(new Background(fondoImagen));
+
+        BackgroundFill fondoLleno = new BackgroundFill(
+                Color.rgb(255, 255, 255, 0.5),
+                new CornerRadii(10),
+                Insets.EMPTY.EMPTY
+        );
+
+        Background fondoBlancoOpaco = new Background(fondoLleno);
+
+        vboxCorredores.setBackground(fondoBlancoOpaco);
+        vboxCarreras.setBackground(fondoBlancoOpaco);
+        vboxRecorridos.setBackground(fondoBlancoOpaco);
+
+        aplicarEstiloTabla(tvCarreras);
+        aplicarEstiloTabla(tableViewPuestos);
+
     }
+
+    private void aplicarEstiloTabla(TableView<Carrera> tabla) {
+        tabla.setStyle("-fx-background-color: #B4C7B2; ");
+
+        tabla.getColumns().forEach(columna -> {
+            columna.setStyle("-fx-background-color: #9B9D79; ");
+        });
+
+        tabla.setRowFactory(tv -> {
+            return new TableRow<>() {
+                @Override
+                protected void updateItem(Carrera item, boolean vacio) {
+                    super.updateItem(item, vacio);
+                    if (item != null) {
+                        setStyle("-fx-background-color: " + (isSelected() ? "#8EAC93" : "#B4C7B2") + ";");
+                    }
+                }
+            };
+        });
+    }
+
 }
