@@ -1,8 +1,8 @@
-import jwt from "jsonwebtoken";
-import User from "../models/User.js";
-import mongoose from "mongoose";
 import fs from "fs";
+import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import Race from "../models/Race.js";
+import User from "../models/User.js";
 
 // Validar formato de ID de MongoDB
 const isValidObjectId = (id) => {
@@ -34,12 +34,15 @@ const login = async (req, res) => {
       { expiresIn: "24h" }
     );
 
+    // Configuración optimizada de cookies
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.COOKIE_SECURE === "true",
-      sameSite: "lax", // Cambiado de "strict" a "lax" para permitir solicitudes cross-origin
+      secure: process.env.NODE_ENV === "production", // Solo usa secure en producción
+      sameSite: "lax", // Permite solicitudes cross-origin en navegadores modernos
       maxAge: 86400000, // 24 horas
       path: "/", // Asegurar que la cookie esté disponible en todas las rutas
+      domain:
+        process.env.NODE_ENV === "production" ? process.env.DOMAIN : undefined, // Dominio en producción
     });
 
     res.json({
@@ -50,6 +53,8 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
       },
+      // Incluye el token en la respuesta para que el frontend pueda guardarlo si es necesario
+      token: token,
     });
   } catch (error) {
     res
@@ -92,7 +97,7 @@ const register = async (req, res) => {
       role: "user",
       age: age || null,
       avatar: avatar || "default.jpg",
-      gender
+      gender,
     });
 
     await user.save();
@@ -107,7 +112,7 @@ const register = async (req, res) => {
         age: user.age,
         registrationDate: user.registrationDate,
         avatar: user.avatar,
-        gender: user.gender
+        gender: user.gender,
       },
     });
   } catch (error) {
@@ -122,11 +127,13 @@ const logout = (req, res) => {
   try {
     res.cookie("token", "", {
       httpOnly: true,
-      secure: process.env.COOKIE_SECURE === "true",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       expires: new Date(0),
       maxAge: 0,
       path: "/",
+      domain:
+        process.env.NODE_ENV === "production" ? process.env.DOMAIN : undefined,
     });
 
     res.json({ message: "Cierre de sesión exitoso" });
@@ -148,12 +155,10 @@ const getUserProfile = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error al obtener el perfil del usuario",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error al obtener el perfil del usuario",
+      error: error.message,
+    });
   }
 };
 
@@ -245,7 +250,9 @@ const searchUsersByName = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Obtener el total de usuarios que coinciden con la búsqueda
-    const totalUsers = await User.countDocuments({ name: new RegExp(name, "i") });
+    const totalUsers = await User.countDocuments({
+      name: new RegExp(name, "i"),
+    });
 
     // Calcular el número total de páginas
     const totalPages = Math.ceil(totalUsers / limit);
@@ -272,12 +279,11 @@ const searchUsersByName = async (req, res) => {
   }
 };
 
-
 const getAuthStatus = (req, res) => {
   const token =
     req.cookies.token ||
     (req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer ")
+    req.headers.authorization.startsWith("Bearer ")
       ? req.headers.authorization.split(" ")[1]
       : null);
 
@@ -317,7 +323,7 @@ const getAuthStatus = (req, res) => {
 const userDownloadGPXFile = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Validar ID de carrera
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "ID de carrera inválido" });
@@ -331,20 +337,25 @@ const userDownloadGPXFile = async (req, res) => {
 
     // Verificar si la carrera tiene un archivo GPX
     if (!race.hasGPXFile || !race.gpxFilePath) {
-      return res.status(404).json({ message: "Esta carrera no tiene archivo GPX disponible" });
+      return res
+        .status(404)
+        .json({ message: "Esta carrera no tiene archivo GPX disponible" });
     }
 
     // Verificar que el archivo existe en el sistema de archivos
     if (!fs.existsSync(race.gpxFilePath)) {
-      return res.status(404).json({ message: "El archivo GPX no se encuentra disponible" });
+      return res
+        .status(404)
+        .json({ message: "El archivo GPX no se encuentra disponible" });
     }
 
     // Nombre del archivo para la descarga (usar el nombre original si está disponible)
-    const fileName = race.gpxFileName || `route-${race.name.replace(/\s+/g, '_')}.gpx`;
+    const fileName =
+      race.gpxFileName || `route-${race.name.replace(/\s+/g, "_")}.gpx`;
 
     // Configurar los encabezados para la descarga
-    res.setHeader('Content-Type', 'application/gpx+xml');
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader("Content-Type", "application/gpx+xml");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
 
     // Crear un stream de lectura y enviarlo como respuesta
     const fileStream = fs.createReadStream(race.gpxFilePath);
@@ -353,20 +364,19 @@ const userDownloadGPXFile = async (req, res) => {
     console.error("Error en userDownloadGPXFile:", error);
     return res.status(500).json({
       message: "Error al descargar el archivo GPX",
-      error: error.message
+      error: error.message,
     });
   }
 };
 
 export {
-  login,
-  register,
-  logout,
-  getUserProfile,
-  updateProfile,
-  getUserById,
-  searchUsersByName,
   getAuthStatus,
+  getUserById,
+  getUserProfile,
+  login,
+  logout,
+  register,
+  searchUsersByName,
+  updateProfile,
   userDownloadGPXFile,
 };
-
