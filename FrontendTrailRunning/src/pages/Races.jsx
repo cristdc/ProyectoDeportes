@@ -4,7 +4,6 @@ import RacesList from "../components/RacesList";
 import RaceCard from "../components/RaceCard";
 
 const Races = () => {
-
   const [races, setRaces] = useState([]);
   const [loading, setLoading] = useState(true);
 
