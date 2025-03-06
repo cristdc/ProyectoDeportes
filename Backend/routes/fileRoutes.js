@@ -19,6 +19,7 @@ router.get("/list/:type", authMiddleware, (req, res) =>
   getAvailableFiles(req, res)
 );
 
+// Comentario de control
 // Ruta para descargar archivos (requiere autenticación)
 router.get("/download/:type/:filename", authMiddleware, downloadFile);
 
