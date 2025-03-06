@@ -42,3 +42,39 @@ export const csvUpload = multer({
   },
   limits: { fileSize: 1024 * 1024 * 10 }, // 10MB
 });
+
+// Configuración para archivos GPX
+const gpxStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(process.cwd(), "uploads", "gpx");
+    createDir(uploadDir);
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    const extension = path.extname(file.originalname);
+    cb(null, `route-${req.params.id}-${uniqueSuffix}${extension}`);
+  },
+});
+
+export const gpxUpload = multer({
+  storage: gpxStorage,
+  fileFilter: (req, file, cb) => {
+    const filetypes = /gpx/;
+    const extname = filetypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+    // GPX es un formato XML, por lo que podría ser application/xml o text/xml
+    const mimetype =
+      file.mimetype === "application/gpx+xml" ||
+      file.mimetype === "application/xml" ||
+      file.mimetype === "text/xml";
+
+    if (extname && mimetype) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Solo se permiten archivos GPX"));
+    }
+  },
+  limits: { fileSize: 1024 * 1024 * 20 }, // 20MB para rutas GPX más complejas
+});

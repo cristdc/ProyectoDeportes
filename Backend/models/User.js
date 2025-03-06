@@ -7,7 +7,13 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   name: { type: String, required: true },
   role: { type: String, enum: ["admin", "user"], default: "user" },
-  avatar: { type: String, default: "default.jpg" },
+  avatar: { 
+    type: String, 
+    default: "default.jpg",
+    get: function(v) {
+      return v ? `${process.env.BACKEND_URL}/uploads/img/${v}` : null;
+    }
+  },
   age: { type: Number },
   registrationDate: { type: Date, default: Date.now },
   gender: { type: String, enum: ["male", "female"], require:true },
