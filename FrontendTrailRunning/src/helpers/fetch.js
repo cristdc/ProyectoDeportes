@@ -6,7 +6,6 @@ export const fetchAllRaces = async () =>{
             method: 'GET',
             credentials: 'include',
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
               'Content-Type': 'application/json'
             }
           })
@@ -28,7 +27,6 @@ export const createRegistration = async (raceId) =>{
             method: 'POST',
             credentials: 'include',
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify ({ raceId })
