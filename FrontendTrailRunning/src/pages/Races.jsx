@@ -3,7 +3,6 @@ import { fetchAllRaces } from "../helpers/fetch";
 import RacesList from "../components/RacesList";
 
 const Races = () => {
-
   const [races, setRaces] = useState([]);
 
   useEffect(() => {

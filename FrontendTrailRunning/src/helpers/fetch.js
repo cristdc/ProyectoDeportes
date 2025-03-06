@@ -159,3 +159,6 @@ export const fetchUserRegistrations = async () => {
     }
     
 }
+
+
+//fetch para desapuntarte de una carrera 
