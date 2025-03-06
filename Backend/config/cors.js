@@ -5,6 +5,7 @@ const allowedOrigins = [
   "http://localhost:3000", // Frontend
   "http://localhost:8080", // Posible puerto para aplicaciones móviles/escritorio
   "http://localhost:8081", // Otro puerto alternativo (por si acaso)
+  "http://127.0.0.1:5500", // Frontend
 ];
 
 export const corsOptions = {
