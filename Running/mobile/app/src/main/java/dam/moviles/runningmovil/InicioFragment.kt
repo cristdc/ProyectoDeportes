@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebViewClient
+import androidx.navigation.fragment.findNavController
 import dam.moviles.runningmovil.databinding.FragmentInicioBinding
 
 class InicioFragment : Fragment() {
@@ -32,9 +33,21 @@ class InicioFragment : Fragment() {
         super.onDestroyView()
         _binding=null
     }
-    private fun inicializarWebView(){
-        binding.web.webViewClient = WebViewClient()
+    private fun inicializarWebView() {
+        binding.web.webViewClient = object : WebViewClient() {
+            override fun onReceivedError(
+                view: android.webkit.WebView?,
+                request: android.webkit.WebResourceRequest?,
+                error: android.webkit.WebResourceError?
+            ) {
+                // Usa findNavController() para ir al ErrorFragment
+                requireActivity().runOnUiThread {
+                    findNavController().navigate(R.id.action_inicioFragment_to_errorFragment)
+                }
+            }
+        }
         binding.web.loadUrl("https://www.ieshlanz.es/")
     }
+
 
 }

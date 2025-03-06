@@ -9,5 +9,14 @@
         android:id="@+id/inicioFragment"
         android:name="dam.moviles.runningmovil.InicioFragment"
         android:label="fragment_inicio"
-        tools:layout="@layout/fragment_inicio" />
+        tools:layout="@layout/fragment_inicio" >
+        <action
+            android:id="@+id/action_inicioFragment_to_errorFragment"
+            app:destination="@id/errorFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/errorFragment"
+        android:name="dam.moviles.runningmovil.ErrorFragment"
+        android:label="fragment_error"
+        tools:layout="@layout/fragment_error" />
 </navigation>
