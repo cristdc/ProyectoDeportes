@@ -1,7 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
 const CardRace = ({ race }) => {
+  const { userRegistrations, registerToRace, unregisterFromRace } = useAuth();
   const navigate = useNavigate();
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  useEffect(() => {
+    const checkRegistration = () => {
+      const registered = userRegistrations.some(reg => reg.race._id === race._id);
+      setIsRegistered(registered);
+    };
+    checkRegistration();
+  }, [userRegistrations, race._id]);
+
+  const handleRegistration = async () => {
+    if (isRegistered) {
+      const result = await unregisterFromRace(userRegistrations.find(reg => reg.race._id === race._id));
+      if (result.success) {
+        setIsRegistered(false);
+      }
+    } else {
+      const result = await registerToRace(race._id);
+      if (result.success) {
+        setIsRegistered(true);
+      }
+    }
+  };
+
   // Si no hay datos de carrera, mostramos un mensaje o retornamos null
   if (!race) {
     console.log('No hay datos de carrera');
@@ -62,6 +89,16 @@ const CardRace = ({ race }) => {
         </div>
 
         {/* Botón de acción */}
+        <button 
+          onClick={handleRegistration}
+          className={`w-full mb-2 ${
+            isRegistered 
+              ? 'bg-red-500 hover:bg-red-600' 
+              : 'bg-[#9B9D79] hover:bg-opacity-90'
+          } text-white py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2`}
+        >
+          {isRegistered ? 'Desapuntarse' : 'Inscribirme'}
+        </button>
         <button 
           onClick={() => navigate(`/carrerasDetail/${race._id}`)}
           className="w-full bg-[#9B9D79] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2"
