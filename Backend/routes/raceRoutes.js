@@ -10,11 +10,14 @@ import {
   deleteRace,
   registerRaceResults,
   getRaceResults,
+  downloadRunnersCSV,
+  uploadResultsCSV,
 } from "../controllers/raceController.js";
 import {
   authMiddleware,
   adminMiddleware,
 } from "../middlewares/authmiddleware.js";
+import { csvUpload } from "../config/multer.js";
 
 const router = express.Router();
 
@@ -32,6 +35,21 @@ router.delete("/:id", authMiddleware, adminMiddleware, deleteRace);
 
 // Rutas para resultados
 router.post("/:id/results", authMiddleware, adminMiddleware, registerRaceResults); 
-router.get("/:id/results", getRaceResults);                      
+router.get("/:id/results", getRaceResults);      
+
+// Rutas para carga de archivos CSV
+router.get(
+  "/:id/runners-csv",
+  authMiddleware,
+  adminMiddleware,
+  downloadRunnersCSV
+);
+router.post(
+  "/:id/results-csv",
+  authMiddleware,
+  adminMiddleware,
+  csvUpload.single("file"),
+  uploadResultsCSV
+);
 
 export default router;
