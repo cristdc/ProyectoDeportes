@@ -89,6 +89,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const editUser = async (name, age) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, age }),
+        credentials: 'include' // Importante para recibir las cookies
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al editar el usuario');
+      }
+
+      return await response.json();
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    }
+  }
   const value = {
     user,
     loading,
@@ -97,7 +118,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     checkAuthStatus,
-
+    editUser
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

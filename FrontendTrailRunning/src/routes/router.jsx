@@ -9,6 +9,7 @@ import RacesUser from "../pages/RacesUser.jsx";
 import Login from "../pages/Login.jsx";
 import PrivateRoute from "../components/PrivateRoute.jsx";
 import User from "../pages/User.jsx";
+import EditProfile from "../pages/editProfile.jsx";
 
 export const router = createBrowserRouter([
     {
@@ -51,6 +52,14 @@ export const router = createBrowserRouter([
                 element: (          
                     <PrivateRoute>
                         <User />
+                    </PrivateRoute>
+                )
+            },
+            {
+                path: ROUTES.EDITUSER,
+                element: (          
+                    <PrivateRoute>
+                        <EditProfile />
                     </PrivateRoute>
                 )
             },

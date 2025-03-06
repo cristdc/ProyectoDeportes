@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import { fetchRacesUserNumber, profile } from "../helpers/fetch";
+import { ROUTES } from "../routes/paths";
+import { Link } from "react-router-dom";
 
 const User = () => {
     const [user, setUser] = useState({});
@@ -56,9 +58,9 @@ const User = () => {
                     </div>
 
                     {/* Botón de editar perfil */}
-                    <button className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-accent transition-colors duration-300">
+                    <Link to={ROUTES.EDITUSER}className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-accent transition-colors duration-300">
                         Editar perfil
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>
