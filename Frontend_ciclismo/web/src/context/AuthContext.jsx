@@ -3,15 +3,25 @@ import { createContext, useContext, useState, useEffect } from "react";
 const AuthContext = createContext();
 const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
 export const AuthProvider = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [user, setUser] = useState(null);
+    // Inicializar estados con valores del localStorage
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return localStorage.getItem('isAuthenticated') === 'true';
+    });
+    const [user, setUser] = useState(() => {
+        const savedUser = localStorage.getItem('user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
     const [error, setError] = useState(null);
-    const [userRegistrations, setUserRegistrations] = useState([]);
+    const [userRegistrations, setUserRegistrations] = useState(() => {
+        const savedRegistrations = localStorage.getItem('userRegistrations');
+        return savedRegistrations ? JSON.parse(savedRegistrations) : [];
+    });
 
     // Verificar autenticación al cargar o cuando cambie el estado
     const checkAuth = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_CICLISMO_URL}/users/check-auth`, {
+            console.log("Verificando autenticación...");
+            const response = await fetch(`${API_URL}/users/check-auth`, {
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
@@ -19,24 +29,34 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (!response.ok) {
-                await logout();
-                return;
+                throw new Error('No autenticado');
             }
 
             const data = await response.json();
             setIsAuthenticated(true);
-            setUser(data.user);
+            localStorage.setItem('isAuthenticated', 'true');
+            if (data.user) {
+                setUser(data.user);
+                localStorage.setItem('user', JSON.stringify(data.user));
+            }
             setError(null);
+            await fetchRegistrations(); // Cargar inscripciones después de verificar autenticación
         } catch (error) {
             console.error("Error durante la verificación de autenticación:", error);
-            await logout();
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userRegistrations');
+            setIsAuthenticated(false);
+            setUser(null);
+            setUserRegistrations([]);
         }
     };
 
     useEffect(() => {
-        checkAuth();
-        fetchRegistrations();
-    }, []);
+        if (isAuthenticated) {
+            fetchRegistrations();
+        }
+    }, [isAuthenticated]);
 
     const login = async (userData) => {
         try {
@@ -52,7 +72,11 @@ export const AuthProvider = ({ children }) => {
                 const data = await response.json();
                 setIsAuthenticated(true);   
                 setUser(data.user);
+                // Guardar en localStorage
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('user', JSON.stringify(data.user));
                 setError(null);
+                await fetchRegistrations();
                 return true;
             }
             
@@ -74,15 +98,19 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error("Error durante el logout:", error);
         } finally {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userRegistrations');
             setIsAuthenticated(false);
             setUser(null);
             setError(null);
+            setUserRegistrations([]);
         }
     };
 
     const fetchRegistrations = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_CICLISMO_URL}/registrations/user`, {
+            const response = await fetch(`${API_URL}/registrations/user`, {
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
@@ -94,7 +122,10 @@ export const AuthProvider = ({ children }) => {
             }
             
             const data = await response.json();
-            setUserRegistrations(data);
+            const registrations = data.registrations || [];
+            setUserRegistrations(registrations);
+            // Guardar en localStorage
+            localStorage.setItem('userRegistrations', JSON.stringify(registrations));
         } catch (error) {
             console.error("Error en fetchRegistrations:", error);
             setError(error.message);
@@ -104,47 +135,69 @@ export const AuthProvider = ({ children }) => {
 
     const registerToRace = async (raceId) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_CICLISMO_URL}/registrations`, {
+            // Asegurarnos de que la URL es correcta
+            const response = await fetch(`${API_URL}/registrations`, {
                 method: "POST",
                 credentials: "include",
-                headers: {
+                headers: { 
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ raceId })
             });
 
+            // Primero obtenemos la respuesta en JSON
+            const data = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Error al inscribirse');
+                // Si la respuesta no es ok, lanzamos el error con el mensaje del servidor
+                throw new Error(data.message || 'Error al inscribirse');
             }
 
-            const data = await response.json();
-            setUserRegistrations([...userRegistrations, raceId]);
+            // Si todo va bien, actualizamos las inscripciones
+            await fetchRegistrations(); // Actualizamos la lista completa de inscripciones
             return { success: true, message: data.message };
         } catch (error) {
+            console.error("Error al registrarse:", error);
             return { success: false, message: error.message };
         }
     };
 
-    const unregisterFromRace = async (raceId) => {
+    const unregisterFromRace = async (registrationId) => {
         try {
-            const response = await fetch(`/api/races/${raceId}/unregister`, {
-                method: "DELETE",
+            // Verificar si la inscripción existe y está activa
+            const registration = userRegistrations.find(reg => reg._id === registrationId);
+            
+            if (!registration) {
+                throw new Error('Inscripción no encontrada');
+            }
+
+            if (registration.status === 'cancelled') {
+                throw new Error('Esta inscripción ya está cancelada');
+            }
+
+            if (registration.status === 'finished') {
+                throw new Error('No se puede cancelar una inscripción finalizada');
+            }
+
+            const response = await fetch(`${API_URL}/registrations/${registrationId}/cancel`, {
+                method: "PUT",
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
                 }
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Error al desinscribirse');
+                throw new Error(data.message || 'Error al desinscribirse');
             }
 
-            const data = await response.json();
-            setUserRegistrations(userRegistrations.filter(id => id !== raceId));
-            return { success: true, message: data.message };
+            // Actualizamos la lista de inscripciones
+            await fetchRegistrations();
+            return { success: true, message: 'Inscripción cancelada correctamente' };
         } catch (error) {
+            console.error("Error al desinscribirse:", error);
             return { success: false, message: error.message };
         }
     };

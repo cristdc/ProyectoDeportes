@@ -34,6 +34,8 @@ const Profile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null);
+        setSuccess(null);
 
         try {
             const response = await fetch(`${API_URL}/users/profile`, {
@@ -52,7 +54,11 @@ const Profile = () => {
             
             if (response.ok) {
                 setSuccess('Perfil actualizado correctamente');
-                window.location.reload();
+                setIsEditing(false);
+                setFormData({
+                    name: data.user.username || '',
+                    age: data.user.age || ''
+                });
             } else {
                 setError(data.message || 'Error al actualizar el perfil');
             }
@@ -61,10 +67,7 @@ const Profile = () => {
         }
     };
 
-    if (!user) {
-        navigate('/login');
-        return null;
-    }
+
 
     return (
         <div className="min-h-screen bg-[#fdf7ed] p-4 md:p-8">

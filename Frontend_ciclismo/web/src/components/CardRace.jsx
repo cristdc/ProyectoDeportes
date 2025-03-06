@@ -9,22 +9,39 @@ const CardRace = ({ race }) => {
 
   useEffect(() => {
     const checkRegistration = () => {
-      const registered = userRegistrations.some(reg => reg.race._id === race._id);
-      setIsRegistered(registered);
+      if (Array.isArray(userRegistrations)) {
+        const registered = userRegistrations.some(
+          reg => reg.race._id === race._id && reg.status === 'registered'
+        );
+        setIsRegistered(registered);
+      }
     };
     checkRegistration();
   }, [userRegistrations, race._id]);
 
   const handleRegistration = async () => {
     if (isRegistered) {
-      const result = await unregisterFromRace(userRegistrations.find(reg => reg.race._id === race._id));
+      const registration = userRegistrations.find(
+        reg => reg.race._id === race._id && reg.status === 'registered'
+      );
+      
+      if (!registration) {
+        console.error('No se encontró una inscripción activa para esta carrera');
+        return;
+      }
+
+      const result = await unregisterFromRace(registration._id);
       if (result.success) {
         setIsRegistered(false);
+      } else {
+        console.error(result.message);
       }
     } else {
       const result = await registerToRace(race._id);
       if (result.success) {
         setIsRegistered(true);
+      } else {
+        console.error(result.message);
       }
     }
   };
