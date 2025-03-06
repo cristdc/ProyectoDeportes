@@ -8,6 +8,7 @@ import {
   updateRegistration,
   updateRegistrationTime,
   cancelRegistration,
+  uploadGpxFile
 } from "../controllers/registrationController.js";
 import {
   authMiddleware,

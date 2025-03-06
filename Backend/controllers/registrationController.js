@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 import Registration from "../models/Registrations.js";
 import Race from "../models/Race.js";
 import User from "../models/User.js";
-
+import fs from "fs";
+import path from "path";
+import { analyzeGPXFile } from '../utils/gpxUtils.js';
 /**
  * Crea una nueva inscripción para un usuario en una carrera
  * @route POST /api/registrations
@@ -463,6 +465,104 @@ const getAllRegistrations = async (req, res) => {
   }
 };
 
+/**
+ * Sube un archivo GPX para una inscripción específica
+ * @param {Object} req - Objeto de solicitud con el archivo
+ * @param {Object} res - Objeto de respuesta
+ */
+const uploadGpxFile = async (req, res) => {
+  try {
+    const { id } = req.params; // ID de la inscripción
+    const userId = req.user.id;
+
+    // Verificar si hay un archivo
+    if (!req.file) {
+      return res.status(400).json({ message: "No se ha subido ningún archivo GPX" });
+    }
+
+    // Validar ID de inscripción
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      // Eliminar el archivo si existe
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(400).json({ message: "ID de inscripción inválido" });
+    }
+
+    // Verificar que la inscripción existe y pertenece al usuario
+    const registration = await Registration.findById(id);
+    if (!registration) {
+      // Eliminar el archivo si existe
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(404).json({ message: "Inscripción no encontrada" });
+    }
+
+    // Verificar permisos (debe ser el usuario propietario o un admin)
+    if (registration.user.toString() !== userId && req.user.role !== "admin") {
+      // Eliminar el archivo si existe
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(403).json({ 
+        message: "No tienes permisos para subir archivos GPX a esta inscripción"
+      });
+    }
+
+    // Si ya existía un archivo GPX previo, eliminarlo
+    if (registration.hasUserGpx && registration.userGpxPath && fs.existsSync(registration.userGpxPath)) {
+      fs.unlinkSync(registration.userGpxPath);
+    }
+
+    // Analizar el archivo GPX para extraer información
+    let gpxInfo = null;
+    try {
+      gpxInfo = await analyzeGPXFile(req.file.path);
+    } catch (gpxError) {
+      // Si hay un error al analizar el GPX, eliminar el archivo
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({
+        message: "El archivo GPX no es válido o está corrupto",
+        error: gpxError.message
+      });
+    }
+
+    // Actualizar la inscripción con la información del GPX
+    registration.hasUserGpx = true;
+    registration.userGpxPath = req.file.path;
+    registration.userGpxFileName = req.file.originalname;
+    registration.userGpxUploadedAt = new Date();
+    registration.userGpxData = {
+      totalDistance: gpxInfo.totalDistance,
+      elevationGain: gpxInfo.elevationGain,
+      elevationLoss: gpxInfo.elevationLoss,
+      movingTime: gpxInfo.movingTime,
+      totalTime: gpxInfo.totalTime,
+      avgSpeed: gpxInfo.avgSpeed,
+      maxSpeed: gpxInfo.maxSpeed
+    };
+
+    await registration.save();
+
+    return res.status(200).json({
+      message: "Archivo GPX subido y procesado correctamente",
+      gpxInfo: registration.userGpxData
+    });
+
+  } catch (error) {
+    console.error("Error en uploadGpxFile:", error);
+    // Eliminar el archivo si existe en caso de error
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    return res.status(500).json({
+      message: "Error al procesar el archivo GPX",
+      error: error.message
+    });
+  }
+};
+
 export {
   createRegistration,
   getUserRegistrations,
@@ -471,4 +571,5 @@ export {
   getAllRegistrations,
   updateRegistrationTime,
   cancelRegistration,
+  uploadGpxFile
 };
