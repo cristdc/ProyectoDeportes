@@ -44,7 +44,7 @@ const Home = () => {
             <table className="w-full text-left text-gray-700">
               <thead className="bg-gray-200">
                 <tr>
-                  <th colSpan="2" className="p-3 text-lg font-semibold">Detalles de la Carrera</th>
+                  <th colSpan="2" className="p-3 text-lg font-semibold bg-secondary">Detalles de la Carrera</th>
                 </tr>
               </thead>
               <tbody>
