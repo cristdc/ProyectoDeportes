@@ -1,8 +1,15 @@
-
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package modelo;
 
 import java.util.Date;
 
+/**
+ *
+ * @author Marcos
+ */
 public class User {
     private String _id;        // Identificador único (ObjectId en la base de datos)
     private String name;       // Nombre del usuario
