@@ -48,6 +48,7 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin-codegen:1.15.1") // Correct for codegen
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation(libs.androidx.navigation.ui.ktx)
 
     kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.1") // Ensure kapt processes the code
 
