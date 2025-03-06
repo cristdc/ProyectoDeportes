@@ -1,23 +1,38 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FaMapMarkedAlt, FaRunning, FaTrophy, FaUsers, FaRoute, FaMedal, FaCalendarAlt } from 'react-icons/fa';
+import { apiService } from '../services/api';
 
 const Home = () => {
-  const nextRaces = [
-    {
-      id: 1,
-      title: "Gran Fondo de Mont...",
-      date: "31/12/2024",
-      location: "Sierra Nevada",
-      participants: 200,
-    },
-    {
-      id: 2,
-      title: "Vuelta al Valle",
-      date: "15/11/2024",
-      location: "Valle Central",
-      participants: 150,
-    }
-  ];
+  const [races, setRaces] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchRaces = async () => {
+      try {
+        const data = await apiService.getAvailableRaces();
+        setRaces(data.races || []);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error al cargar las carreras:', err);
+        setError('Error al cargar las carreras');
+        setLoading(false);
+      }
+    };
+
+    fetchRaces();
+  }, []);
+
+  if (loading) {
+    return <div className="text-center py-8">Cargando carreras...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-600">{error}</div>;
+  }
+
+  const racesToRender = Array.isArray(races) ? races : [];
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -59,13 +74,13 @@ const Home = () => {
                 Próximas Carreras Destacadas
               </h2>
               <div className="grid grid-cols-2 gap-4">
-                {nextRaces.map(race => (
-                  <div key={race.id} className="border rounded-lg p-4">
-                    <h3 className="font-semibold mb-2">{race.title}</h3>
+                {racesToRender.map((race) => (
+                  <div key={race._id} className="border rounded-lg p-4">
+                    <h3 className="font-semibold mb-2">{race.name}</h3>
                     <div className="text-sm text-gray-600 space-y-1">
                       <div className="flex items-center gap-2">
                         <FaCalendarAlt />
-                        <span>{race.date}</span>
+                        <span>{new Date(race.date).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <FaMapMarkedAlt />
@@ -73,7 +88,7 @@ const Home = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <FaUsers />
-                        <span>{race.participants} participantes</span>
+                        <span>{race.maxParticipants} participantes</span>
                       </div>
                     </div>
                   </div>

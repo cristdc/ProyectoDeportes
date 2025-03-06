@@ -1,291 +1,193 @@
-import { useState, useMemo } from 'react';
-import { FaMapMarkerAlt, FaRunning, FaCalendarAlt, FaMountain } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { apiService } from '../services/api';
+import { FaMedal, FaRunning, FaClock, FaSearch, FaFilter } from 'react-icons/fa';
 
-const Participate = () => {
+export default function Participate() {
+  const [registrations, setRegistrations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // Mantenemos los estados para filtros y búsqueda
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
   const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
 
-  // Datos de ejemplo de carreras completadas
-  const races = [
-    {
-      id: 1,
-      name: "Clásica de Primavera",
-      date: "2024-03-15",
-      location: "Ruta del Sol",
-      distance: 150,
-      elevation: 3000,
-      participants: 250,
-      maxParticipants: 300,
-      time: 300,
-      status: "Completada",
-      position: 45,
-      finalTime: "3h 15min",
-      description: "Una carrera clásica de primavera con un recorrido exigente por la Ruta del Sol.",
-      requirements: [
-        "Ser mayor de 18 años",
-        "Certificado médico vigente",
-        "Equipo de seguridad obligatorio"
-      ],
-      checkpoints: [
-        {
-          name: "Salida",
-          distance: 0,
-          elevation: 800,
-          services: ["Agua", "Baños", "Asistencia médica"]
-        },
-        {
-          name: "Meta",
-          distance: 150,
-          elevation: 800,
-          services: ["Agua", "Comida", "Asistencia médica", "Masajes"]
-        }
-      ],
-      route: {
-        difficulty: "Alta",
-        surface: "Asfalto",
-        terrain: "Montañoso"
-      },
-      personalStats: {
-        position: 45,
-        totalParticipants: 250,
-        finalTime: "3h 15min",
-        averageSpeed: "28.5 km/h",
-        maxSpeed: "45 km/h",
-        calories: "2500 kcal"
+  useEffect(() => {
+    const fetchRegistrations = async () => {
+      try {
+        const data = await apiService.getParticipations();
+        console.log('Datos recibidos:', data);
+        setRegistrations(data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error al cargar el historial:', err);
+        setError('Error al cargar el historial de carreras');
+        setLoading(false);
       }
-    },
-    {
-      id: 2,
-      name: "Reto de Montaña",
-      date: "2024-02-28",
-      location: "Alpes Locales",
-      distance: 50,
-      elevation: 2200,
-      participants: 180,
-      maxParticipants: 200,
-      time: 240,
-      status: "Completada",
-      position: 23,
-      finalTime: "2h 45min",
-      description: "Un desafiante reto de montaña con vistas espectaculares.",
-      requirements: [
-        "Ser mayor de 18 años",
-        "Certificado médico vigente",
-        "Equipo de montaña obligatorio"
-      ],
-      checkpoints: [
-        {
-          name: "Salida",
-          distance: 0,
-          elevation: 1200,
-          services: ["Agua", "Baños"]
-        },
-        {
-          name: "Meta",
-          distance: 50,
-          elevation: 2200,
-          services: ["Agua", "Comida", "Asistencia médica"]
-        }
-      ],
-      route: {
-        difficulty: "Muy Alta",
-        surface: "Montaña",
-        terrain: "Técnico"
-      },
-      personalStats: {
-        position: 23,
-        totalParticipants: 180,
-        finalTime: "2h 45min",
-        averageSpeed: "18.2 km/h",
-        maxSpeed: "35 km/h",
-        calories: "3200 kcal"
-      }
-    },
-    {
-      id: 3,
-      name: "Maratón Urbana",
-      date: "2024-04-10",
-      location: "Centro Ciudad",
-      distance: 42,
-      elevation: 100,
-      participants: 500,
-      time: 180,
-      status: "Inactiva",
-      type: "Urbana"
-    }
-  ];
-
-  // Función para calcular estadísticas
-  const stats = useMemo(() => {
-    return {
-      totalRaces: races.length,
-      totalKm: races.reduce((acc, race) => acc + race.distance, 0)
     };
-  }, [races]);
 
-  // Función para filtrar y ordenar carreras
-  const filteredAndSortedRaces = useMemo(() => {
-    return races
-      .filter(race => 
-        race.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        race.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        race.type.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .sort((a, b) => {
-        switch (sortBy) {
-          case 'date':
-            return new Date(b.date) - new Date(a.date);
-          case 'name':
-            return a.name.localeCompare(b.name);
-          case 'distance':
-            return b.distance - a.distance;
-          case 'participants':
-            return b.participants - a.participants;
-          case 'type':
-            return a.type.localeCompare(b.type);
-          default:
-            return 0;
-        }
-      });
-  }, [races, searchTerm, sortBy]);
+    fetchRegistrations();
+  }, []);
 
-  // Función para formatear la fecha
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  // Función de filtrado
+  const filteredRegistrations = registrations.filter(registration => {
+    const matchesSearch = registration.raceId?.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || registration.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
 
+  // Función de ordenamiento
+  const sortedRegistrations = [...filteredRegistrations].sort((a, b) => {
+    switch (sortBy) {
+      case 'date':
+        return sortOrder === 'asc' 
+          ? new Date(a.registeredAt) - new Date(b.registeredAt)
+          : new Date(b.registeredAt) - new Date(a.registeredAt);
+      case 'name':
+        return sortOrder === 'asc'
+          ? a.raceId?.name.localeCompare(b.raceId?.name)
+          : b.raceId?.name.localeCompare(a.raceId?.name);
+      default:
+        return 0;
+    }
+  });
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-xl">Cargando historial...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-red-600 text-xl">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Historial de Carreras</h1>
-        <p className="text-gray-600 mt-2">Revisa todas las carreras completadas</p>
-      </div>
+      <h2 className="text-2xl font-bold mb-6">Historial de Carreras</h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Panel de Filtros */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Filtros</h2>
-            <div className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Buscar por nombre, ubicación o tipo..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[var(--primary)] focus:border-[var(--primary)]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <div>
-                <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[var(--primary)] focus:border-[var(--primary)]"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                >
-                  <option value="date">Ordenar por fecha</option>
-                  <option value="name">Ordenar por nombre</option>
-                  <option value="distance">Ordenar por distancia</option>
-                  <option value="participants">Ordenar por participantes</option>
-                  <option value="type">Ordenar por tipo</option>
-                </select>
-              </div>
+      {/* Controles de búsqueda y filtrado */}
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-wrap gap-4">
+          <div className="flex-1 min-w-[200px]">
+            <div className="relative">
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Buscar por nombre de carrera..."
+                className="w-full pl-10 pr-4 py-2 border rounded-lg"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
+          
+          <select
+            className="px-4 py-2 border rounded-lg"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="all">Todos los estados</option>
+            <option value="registered">Inscritos</option>
+            <option value="finished">Completadas</option>
+            <option value="cancelled">Canceladas</option>
+          </select>
 
-          {/* Resultados de búsqueda */}
-          <div className="mb-4 text-gray-600">
-            {filteredAndSortedRaces.length} carreras encontradas
-          </div>
+          <select
+            className="px-4 py-2 border rounded-lg"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="date">Ordenar por fecha</option>
+            <option value="name">Ordenar por nombre</option>
+          </select>
 
-          {/* Tarjetas de Carreras */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredAndSortedRaces.map((race) => (
-              <div key={race.id} className="bg-white rounded-xl shadow-md overflow-hidden">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-lg font-semibold">{race.name}</h3>
-                    <div className="flex flex-col items-end">
-                      <span className="px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm mb-2">
-                        {race.status}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        Posición: {race.position}º
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <FaCalendarAlt />
-                      <span>{formatDate(race.date)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaMapMarkerAlt />
-                      <span>{race.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FaMountain />
-                      <span>{race.type}</span>
-                    </div>
-                  </div>
+          <button
+            className="px-4 py-2 border rounded-lg"
+            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+          >
+            {sortOrder === 'asc' ? '↑' : '↓'}
+          </button>
+        </div>
+      </div>
 
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <div className="text-sm text-gray-600">Distancia</div>
-                      <div className="font-semibold">{race.distance} km</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <div className="text-sm text-gray-600">Desnivel</div>
-                      <div className="font-semibold">{race.elevation} m</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <div className="text-sm text-gray-600">Participantes</div>
-                      <div className="font-semibold">{race.participants}</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <div className="text-sm text-gray-600">Tiempo</div>
-                      <div className="font-semibold">{race.time} min</div>
-                    </div>
-                  </div>
-
-                  <Link 
-                    to={`/carrera/${race.id}`}
-                    state={{ isHistory: true }}
-                    className="block w-full text-center py-2 bg-[#8D9B6A] text-white rounded-md hover:bg-[#738055] transition-colors"
-                  >
-                    Ver detalles
-                  </Link>
+      {/* Lista de registros */}
+      {sortedRegistrations.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-gray-600 mb-4">No se encontraron registros que coincidan con los filtros</p>
+          {registrations.length === 0 && (
+            <Link
+              to="/races"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Ver carreras disponibles
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {sortedRegistrations.map((registration) => (
+            <div 
+              key={registration._id} 
+              className="bg-white rounded-lg shadow-lg overflow-hidden"
+            >
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-2">
+                  {registration.raceId?.name || 'Carrera no disponible'}
+                </h3>
+                <div className="space-y-2 text-gray-600">
+                  <p className="flex items-center">
+                    <FaRunning className="mr-2" />
+                    Estado: {registration.status === 'finished' ? 'Completada' : 
+                            registration.status === 'registered' ? 'Inscrito' : 
+                            registration.status === 'cancelled' ? 'Cancelada' : 
+                            registration.status}
+                  </p>
+                  {registration.dorsal && (
+                    <p className="flex items-center">
+                      <span className="mr-2">#</span>
+                      Dorsal: {registration.dorsal}
+                    </p>
+                  )}
+                  {registration.time && (
+                    <p className="flex items-center">
+                      <FaClock className="mr-2" />
+                      Tiempo: {registration.time}
+                    </p>
+                  )}
+                  {registration.position && (
+                    <p className="flex items-center">
+                      <FaMedal className="mr-2" />
+                      Posición: {registration.position}º
+                    </p>
+                  )}
+                  <p className="text-sm text-gray-500">
+                    Fecha de inscripción: {new Date(registration.registeredAt).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Panel de Estadísticas */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4">Estadísticas</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 p-4 rounded-lg text-center">
-                <div className="text-3xl font-bold text-[var(--primary)]">{stats.totalRaces}</div>
-                <div className="text-sm text-gray-600">Total Carreras</div>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-lg text-center">
-                <div className="text-3xl font-bold text-[var(--primary)]">{stats.totalKm}</div>
-                <div className="text-sm text-gray-600">Km Totales</div>
-              </div>
+              {registration.raceId && (
+                <div className="px-6 py-4 bg-gray-50 border-t">
+                  <Link
+                    to={`/races/${registration.raceId._id}`}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    Ver detalles de la carrera →
+                  </Link>
+                </div>
+              )}
             </div>
-          </div>
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
-};
-
-export default Participate;
+}
