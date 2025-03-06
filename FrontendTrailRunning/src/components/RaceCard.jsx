@@ -1,11 +1,25 @@
 import React from "react";
 import { createRegistration } from "../helpers/fetch";
+import { unRegister } from "../helpers/fetch";
+import { Navigate } from "react-router-dom";
 
-const RaceCard = ({ race, status = null }) => {
+const RaceCard = ({ race, status = null, registrationId = null}) => {       //le pasamos el id de registration
   const handleClick = async () => {
     const data = await createRegistration(race._id);
     console.log(data);
   };
+
+  const handleUnRegister = async (registration_id) => {
+    try {
+        const message = await unRegister(registration_id);
+        console.log("mensaje : ", message);
+
+        return <Navigate to="/racesuser"/>
+    } catch(error){
+        throw new error("Error al tratar de desapuntarse", error);
+    }
+   
+  }
 
   return (
 
@@ -25,7 +39,7 @@ const RaceCard = ({ race, status = null }) => {
             status.toLowerCase() === "registered" ? ( // Según el estado del registro aparece el botón bloqueado o no
                 <button 
                 className="mt-4 bg-primary hover:bg-accent text-white px-4 py-2 rounded disabled:bg-gray-400 w-full"
-                onClick={() => alert("Has pulsado para desapuntarte")}
+                onClick={() => handleUnRegister(registrationId)}
                 >
                 Desapuntarse
                 </button>

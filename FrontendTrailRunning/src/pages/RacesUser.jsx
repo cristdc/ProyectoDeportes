@@ -65,6 +65,7 @@ const RacesUser = () => {
               key={registration.race._id}
               race={registration.race}
               status={registration.status}
+              registrationId={registration._id}
             />
           ))
         ) : (
