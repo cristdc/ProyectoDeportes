@@ -3,7 +3,6 @@ import { FaMapMarkerAlt, FaRunning, FaCalendarAlt, FaMountain } from 'react-icon
 import { Link, useNavigate } from 'react-router-dom';
 
 const Participate = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date');
 
@@ -160,10 +159,6 @@ const Participate = () => {
     });
   };
 
-  // Función para manejar el clic en "Ver detalles"
-  const handleViewDetails = (raceId) => {
-    navigate(`/carrera/${raceId}`);
-  };
 
   return (
     <div className="container mx-auto px-4 py-8">

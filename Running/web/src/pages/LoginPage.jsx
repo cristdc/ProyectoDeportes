@@ -1,18 +1,33 @@
 import { useState } from 'react';
 import { FaEnvelope, FaLock, FaRunning } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; 
+
 
 const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     remember: false
   });
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí iría la lógica de login
-    console.log('Login:', formData);
+    setError(null);
+    setLoading(true);
+
+    login(formData)
+      .then(() => {
+        navigate('/dashboard'); // Redirigir después de iniciar sesión
+      })
+      .catch((err) => {
+        setError(err.message || 'Error en el inicio de sesión');
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -26,18 +41,14 @@ const LoginPage = () => {
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-800">Iniciar Sesión</h2>
-          <p className="mt-2 text-gray-600">
-            Bienvenido de nuevo a Running App
-          </p>
+          <p className="mt-2 text-gray-600">Bienvenido de nuevo a Running App</p>
         </div>
 
         {/* Form */}
         <div className="bg-white p-8 rounded-lg shadow-sm">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email:
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email:</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FaEnvelope className="text-gray-400" />
@@ -45,7 +56,7 @@ const LoginPage = () => {
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8D9B6A] focus:border-transparent"
                   placeholder="tu@email.com"
                   required
@@ -54,9 +65,7 @@ const LoginPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña:
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña:</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FaLock className="text-gray-400" />
@@ -64,7 +73,7 @@ const LoginPage = () => {
                 <input
                   type="password"
                   value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8D9B6A] focus:border-transparent"
                   placeholder="********"
                   required
@@ -77,7 +86,7 @@ const LoginPage = () => {
                 id="remember"
                 type="checkbox"
                 checked={formData.remember}
-                onChange={(e) => setFormData({...formData, remember: e.target.checked})}
+                onChange={(e) => setFormData({ ...formData, remember: e.target.checked })}
                 className="h-4 w-4 text-[#8D9B6A] focus:ring-[#8D9B6A] border-gray-300 rounded"
               />
               <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
@@ -85,11 +94,16 @@ const LoginPage = () => {
               </label>
             </div>
 
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
             <button
               type="submit"
-              className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-[#8D9B6A] hover:bg-[#738055] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8D9B6A] transition-colors"
+              disabled={loading}
+              className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-[#8D9B6A] hover:bg-[#738055] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8D9B6A] transition-colors ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Iniciar Sesión
+              {loading ? 'Cargando...' : 'Iniciar Sesión'}
             </button>
           </form>
         </div>

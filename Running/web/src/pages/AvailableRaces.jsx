@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaClock } from 'react-icons/fa';
 
 const AvailableRaces = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('Todas las ubicaciones');
   const [statusFilter, setStatusFilter] = useState('Todos los estados');
@@ -61,10 +60,6 @@ const AvailableRaces = () => {
     });
   }, [races, searchTerm, locationFilter, statusFilter]);
 
-  // Función para manejar el clic en "Ver detalles"
-  const handleViewDetails = (raceId) => {
-    navigate(`/carrera/${raceId}`);
-  };
 
   return (
     <div className="bg-[var(--background)] min-h-screen py-8">
