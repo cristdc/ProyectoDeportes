@@ -1,5 +1,8 @@
 package com.proyectobase.controlador;
 
+import apirest.ServicioLeerCarreras;
+import com.google.gson.GsonBuilder;
+import com.proyectobase.modelo.ApiResponse;
 import javafx.scene.input.MouseEvent;
 import java.net.URL;
 import java.time.LocalDateTime;
@@ -13,8 +16,14 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 import com.proyectobase.modelo.Carrera;
+import com.proyectobase.modelo.LocalDateTimeAdapter;
+import java.util.List;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.TableRow;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -25,6 +34,11 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PantallaPrincipal implements Initializable {
 
@@ -108,6 +122,8 @@ public class PantallaPrincipal implements Initializable {
     void navegarLogin(MouseEvent event) {
 
     }
+    
+    private ServicioLeerCarreras servicioLeer;
 
     private void aplicarEfectoHover(ImageView imagenVista) {
         imagenVista.setOnMouseEntered(event -> {
@@ -120,10 +136,72 @@ public class PantallaPrincipal implements Initializable {
             imagenVista.setScaleY(1.0);
         });
     }
+    
+
+    
+    ObservableList<Carrera> listaCarreras;
+    public void obtenerListaCarreras() {
+        String baseUrl = "http://44.203.132.49:3000/api/races/";
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
+                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()) 
+                        .create()))
+                .build();
+
+        servicioLeer = retrofit.create(ServicioLeerCarreras.class);
+
+        Call<ApiResponse> nuevaCallLect = servicioLeer.getCarrera();
+        
+        nuevaCallLect.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                System.out.println("Network Error :: " + t.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                Platform.runLater(() -> {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<Carrera> carreras = response.body().getRaces();
+                        System.out.println("Carreras obtenidas: " + carreras.size());
+                        if (carreras != null && !carreras.isEmpty()) {
+                            tvCarreras.setItems(FXCollections.observableArrayList(carreras));
+                            
+                            System.out.println(FXCollections.observableArrayList(carreras).get(0).getId());
+                        } else {
+                            System.out.println("No hay carreras disponibles.");
+                        }
+                    } else {
+                        System.out.println("Error al obtener carreras: " + response.code() + " - " + response.message());
+                    }
+                });
+            }
+
+        });
+    }
+    
+    public void inicializarTablaCarreras() {
+        try {
+            columnId.setCellValueFactory(new PropertyValueFactory<>("id"));
+            columnNombre.setCellValueFactory(new PropertyValueFactory<>("name"));
+            columnLocalizacion.setCellValueFactory(new PropertyValueFactory<>("location"));
+            columnDistancia.setCellValueFactory(new PropertyValueFactory<>("distance"));
+            columnTiempo.setCellValueFactory(new PropertyValueFactory<>("qualifyingTime"));
+            columnFecha.setCellValueFactory(new PropertyValueFactory<>("date"));
+            columnEstado.setCellValueFactory(new PropertyValueFactory<>("status"));
+            columnTour.setCellValueFactory(new PropertyValueFactory<>("tour"));
+            obtenerListaCarreras();
+
+        } catch (Exception ex) {
+            System.out.println("Error en inicializarTablaCarreras: " + ex.getMessage());
+        }
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        inicializarTablaCarreras();
         aplicarEfectoHover(imgUsuario);
 
         Image imagen = new Image(getClass().getResource("/imagenRunning.png").toExternalForm());
@@ -152,7 +230,6 @@ public class PantallaPrincipal implements Initializable {
 
         aplicarEstiloTabla(tvCarreras);
         aplicarEstiloTabla(tableViewPuestos);
-
     }
 
     private void aplicarEstiloTabla(TableView<Carrera> tabla) {

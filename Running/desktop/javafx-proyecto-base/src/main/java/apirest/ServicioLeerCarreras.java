@@ -1,9 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package apirest;
 
+import com.proyectobase.modelo.ApiResponse;
 import java.util.List;
 import com.proyectobase.modelo.Carrera;
 import retrofit2.Call;
@@ -15,5 +12,5 @@ import retrofit2.http.GET;
  */
 public interface ServicioLeerCarreras {
     @GET(".")
-    Call<List<Carrera>> getCarrera();
+    Call<ApiResponse> getCarrera();
 }
