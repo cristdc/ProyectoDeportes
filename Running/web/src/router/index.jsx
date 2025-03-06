@@ -2,11 +2,13 @@ import { createBrowserRouter } from 'react-router-dom';
 import RootLayout from '../layout/RootLayout.jsx';
 import Home from '../pages/Home.jsx';
 import AvailableRaces from '../pages/AvailableRaces.jsx';
+import RaceDetails from '../pages/RaceDetails.jsx';
 import Participate from '../pages/Participate.jsx';
 import ErrorPage from '../pages/ErrorPage.jsx';
 import LoginPage from '../pages/LoginPage.jsx';
 import ProfilePage from '../pages/ProfilePage.jsx';
 import HistoryPage from '../pages/HistoryPage.jsx';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 export const router = createBrowserRouter([
   {
@@ -19,24 +21,40 @@ export const router = createBrowserRouter([
         element: <Home />
       },
       {
-        path:"login",
-        element:<LoginPage/>
-      },
-      {
-        path:"profile",
-        element:<ProfilePage/>
-      },
-      {
-        path:"history",
-        element:<HistoryPage/>
-      },
-      {
-        path: 'carreras-disponibles',
+        path: 'available-races',
         element: <AvailableRaces />
       },
       {
+        path: 'races/:id',
+        element: <RaceDetails />
+      },
+      {
         path: 'historial',
-        element: <Participate />
+        element: (
+          <ProtectedRoute>
+            <Participate />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'profile',
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: 'login',
+        element: <LoginPage />
+      },
+      {
+        path: 'history',
+        element:(
+          <ProtectedRoute>
+            <HistoryPage />
+          </ProtectedRoute>
+        )
       }
     ]
   }

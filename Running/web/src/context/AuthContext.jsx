@@ -1,76 +1,54 @@
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { apiService } from '../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL + '/api';
 const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem('user');
-        return savedUser ? JSON.parse(savedUser) : null;
-    });
-    const [error, setError] = useState(null);
+export function AuthProvider({ children }) {
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-
-    const handleSetUser = (userData) => {
-        if (userData) {
-            localStorage.setItem('user', JSON.stringify(userData));
-        } else {
-            localStorage.removeItem('user');
-        }
-        setUser(userData);
-    };
-
-    const login = async (formData) => {
-        const { email, password } = formData;
-        try {
-            const response = await fetch(`${API_URL}/users/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password }),
-                credentials: 'include',
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Error en login");
+    useEffect(() => {
+        const token = localStorage.getItem('user');
+        const checkAuth = async () => {
+            if (token) {
+                try {
+                    const userData = await apiService.getUserProfile();
+                    setUser(userData);
+                } catch (error) {
+                    console.error('Error verificando autenticación:', error);
+                    localStorage.removeItem('user');
+                    setUser(null);
+                }
             }
-            
-            const data = await response.json();
-            handleSetUser(data.user);
-            return { success: true };
-        } catch (error) {
-            setError(error);
-            console.error("Error en login:", error);
-            throw error;
-        } finally {
             setLoading(false);
+        };
+
+        checkAuth();
+    }, []);
+
+    const login = async (credentials) => {
+        try {
+            const response = await apiService.login(credentials);
+            if (response.user) {
+                setUser(response.user);
+            }
+            return response;
+        } catch (error) {
+            console.error('Error en login:', error);
+            throw error;
         }
     };
 
     const logout = () => {
+        localStorage.removeItem('user');
         setUser(null);
-        localStorage.removeItem("user");
     };
 
-    const value = {
-        user,
-        error,
-        loading,
-        login,
-        logout,
-        
-    };
+    return (
+        <AuthContext.Provider value={{ user, login, logout, loading }}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth debe estar dentro del proveedor AuthProvider");
-    }
-    return context;
-};
+export const useAuth = () => useContext(AuthContext);

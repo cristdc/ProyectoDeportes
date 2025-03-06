@@ -11,8 +11,6 @@ const Footer = () => {
           </Link>
           <div className="footer-links">
             <Link to="/carreras-disponibles">Carreras</Link>
-            <Link to="/historial">Historial</Link>
-            <Link to="/profile">Perfil</Link>
           </div>
           <div className="social-links">
             <a href="#" aria-label="Twitter" target="_blank" rel="noopener noreferrer">

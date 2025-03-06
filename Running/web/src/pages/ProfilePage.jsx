@@ -1,30 +1,73 @@
-import { useAuth } from "../context/AuthContext";
+import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { apiService } from '../services/api';
 
-const ProfilePage = () => {
+export default function ProfilePage() {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [profileData, setProfileData] = useState(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const data = await apiService.getUserProfile();
+        console.log('Datos del perfil cargados:', data);
+        setProfileData(data);
+      } catch (err) {
+        console.error('Error cargando perfil:', err);
+        setError('Error al cargar el perfil');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      loadProfile();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+  if (loading) {
+    return <div className="text-center py-8">Cargando perfil...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-8 text-red-600">{error}</div>;
+  }
+
+  if (!profileData) {
+    return <div className="text-center py-8">No hay datos del perfil</div>;
+  }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#fdf7ed] p-4">
-      <h1 className="text-3xl font-bold mb-6 text-[#1a1204]">Perfil del Usuario</h1>
-      {user ? (
-        <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-md">
-          <div className="flex flex-col items-center">
-            <img
-              src={user.avatar}
-              alt="Avatar"
-              className="w-24 h-24 rounded-full mb-4 border-2 border-[#9B9D79]"
-            />
-            <p className="text-lg font-semibold text-[#1a1204]"><strong>Nombre:</strong> {user.name}</p>
-            <p className="text-lg text-[#1a1204]"><strong>Email:</strong> {user.email}</p>
-            <p className="text-lg text-[#1a1204]"><strong>Edad:</strong> {user.age}</p>
-            <p><strong>Fecha de registro: </strong>{user.registrationDate}</p>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+        <h1 className="text-2xl font-bold mb-6">Perfil de Usuario</h1>
+        <div className="space-y-4">
+          <div>
+            <label className="font-medium text-gray-600">Nombre:</label>
+            <p className="mt-1">{profileData.name}</p>
+          </div>
+          <div>
+            <label className="font-medium text-gray-600">Email:</label>
+            <p className="mt-1">{profileData.email}</p>
+          </div>
+          <div>
+            <label className="font-medium text-gray-600">Edad:</label>
+            <p className="mt-1">{profileData.age} años</p>
+          </div>
+          <div>
+            <label className="font-medium text-gray-600">Género:</label>
+            <p className="mt-1">{profileData.gender}</p>
+          </div>
+          <div>
+            <label className="font-medium text-gray-600">Miembro desde:</label>
+            <p className="mt-1">{new Date(profileData.registeredAt).toLocaleDateString()}</p>
           </div>
         </div>
-      ) : (
-        <p className="text-lg text-[#8EAC93]">Cargando información del usuario...</p>
-      )}
+      </div>
     </div>
   );
 }
-
-export default ProfilePage;
