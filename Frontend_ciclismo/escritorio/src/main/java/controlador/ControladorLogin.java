@@ -70,7 +70,7 @@ public class ControladorLogin implements Initializable{
     
     private void abrirVistaPrincipal() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("../vista/vista.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vista/ciclismo.fxml"));
             Parent root = loader.load();
 
             Stage loginStage = (Stage) btnIngresarLogin.getScene().getWindow();
