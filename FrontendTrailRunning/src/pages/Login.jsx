@@ -9,7 +9,7 @@ const Login = () => {
   const navigate = useNavigate();
 
 
-  const { user, login } = useAuth({});
+  const { login } = useAuth({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,7 +49,7 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-primary text-white p-3 rounded-lg font-semibold hover:bg-rose-500 transition mb-5"
+            className="w-full bg-primary text-white p-3 rounded-lg font-semibold hover:bg-accent transition mb-5"
           >
             Iniciar Sesión
           </button>

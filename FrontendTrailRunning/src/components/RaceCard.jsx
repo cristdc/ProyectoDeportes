@@ -1,13 +1,18 @@
 import React from "react";
 import { createRegistration } from "../helpers/fetch";
+import { useNavigate } from "react-router-dom";
 
 const RaceCard = ({ race, status = null }) => {
-  const handleClick = async () => {
+
+    const navigate = useNavigate();
+
+    const handleClick = async () => {
     const data = await createRegistration(race._id);
     console.log(data);
-  };
+    navigate('/races')
+    };
 
-  return (
+    return (
 
     <div className="bg-white shadow-lg rounded-lg p-6 m-4 border border-gray-200">
         <h2 className="text-xl text-center font-bold text-gray-800">{race.name}</h2> 
@@ -50,7 +55,7 @@ const RaceCard = ({ race, status = null }) => {
     </div>
 
 
-  );
+    );
 };
 
 export default RaceCard;
