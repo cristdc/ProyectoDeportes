@@ -34,8 +34,6 @@ const Profile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
-        setSuccess(null);
 
         try {
             const response = await fetch(`${API_URL}/users/profile`, {
@@ -43,24 +41,23 @@ const Profile = () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     username: formData.name,
-                    age: formData.age ? parseInt(formData.age) : undefined
-                }),
-                credentials: 'include'
+                    age: parseInt(formData.age) || undefined
+                })
             });
 
-            if (!response.ok) {
-                throw new Error('Error al editar el usuario');
-            }
-
             const data = await response.json();
-            setSuccess('Perfil actualizado correctamente');
-            setIsEditing(false);
-            window.location.reload();
-
+            
+            if (response.ok) {
+                setSuccess('Perfil actualizado correctamente');
+                window.location.reload();
+            } else {
+                setError(data.message || 'Error al actualizar el perfil');
+            }
         } catch (err) {
-            setError(err.message);
+            setError('Error al actualizar el perfil');
         }
     };
 
