@@ -7,45 +7,6 @@ import User from "../models/User.js";
  * Crea una nueva inscripción para un usuario en una carrera
  * @route POST /api/registrations
  */
-
-const uploadGpxFile = async (req, res) => {
-  try {
-    const registrationId = req.params.id;
-    const userId = req.user._id;
-
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-
-    const registration = await Registration.findById(registrationId);
-    
-    if (!registration) {
-      return res.status(404).json({ message: "Registration not found" });
-    }
-
-    if (registration.user.toString() !== userId.toString()) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
-
-    registration.hasUserGpx = true;
-    registration.userGpxPath = req.file.filename;
-    registration.userGpxUploadedAt = new Date();
-    registration.userGpxFileName = req.file.originalname;
-
-    await registration.save();
-
-    return res.status(200).json({
-      message: "GPX file uploaded successfully",
-      registration
-    });
-  } catch (error) {
-    console.error("Error in uploadGpxFile:", error);
-    return res.status(500).json({
-      message: "Error uploading GPX file",
-      error: error.message
-    });
-  }
-};
 const createRegistration = async (req, res) => {
   try {
     const { raceId } = req.body;
@@ -510,5 +471,4 @@ export {
   getAllRegistrations,
   updateRegistrationTime,
   cancelRegistration,
-  uploadGpxFile,
 };
