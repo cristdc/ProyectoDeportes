@@ -42,8 +42,8 @@ app.get("/api/test-cookies", (req, res) => {
 
   res.cookie("test-cookie", "test-value", {
     httpOnly: true,
-    secure: false, // Ajusta según corresponda
-    sameSite: "none",
+    secure: process.env.COOKIE_SECURE === "true", // Sincronizar con las otras cookies
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 60000, // 1 minuto
   });
 

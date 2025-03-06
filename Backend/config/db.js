@@ -5,19 +5,17 @@ dotenv.config();
 
 const connectDB = async () => {
   try {
-    console.log("Intentando conectar a MongoDB...");
+    console.log(
+      "Conectando a: mongodb://admin:pass@mongodb:27017/sports?authSource=admin"
+    );
 
-    // Usa exactamente la misma URI que funcionó en tu script de prueba
-    const mongoURI =
-      "mongodb://admin:pass@mongodb:27017/sports?authSource=admin";
+    // Usa exactamente la misma URI que funcionó en tus pruebas
+    await mongoose.connect(
+      "mongodb://admin:pass@mongodb:27017/sports?authSource=admin"
+    );
 
-    // Simplifica las opciones para evitar advertencias de obsolescencia
-    const options = {
-      serverSelectionTimeoutMS: 30000,
-    };
-
-    await mongoose.connect(mongoURI, options);
-    console.log("Conectado exitosamente a MongoDB");
+    console.log("Conexión a MongoDB establecida");
+    return mongoose.connection;
   } catch (error) {
     console.error("Error al conectar a MongoDB:", error);
     process.exit(1);
