@@ -1,32 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import { createRegistration } from "../helpers/fetch";
 import { unRegister } from "../helpers/fetch";
-import { Navigate } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 
 const RaceCard = ({ race, status = null, registrationId = null}) => { 
 
-    const navigate = useNavigate();
+    const [visible, setVisible] = useState(true);
+    const [state, setState] = useState(status);
 
     const handleClick = async () => {
         const data = await createRegistration(race._id);
         console.log(data);
-        navigate('/races')
+        setVisible(false);
     };
 
   const handleUnRegister = async (registration_id) => {
     try {
         const message = await unRegister(registration_id);
-        console.log("mensaje : ", message);
-
-        return <Navigate to="/racesuser"/>
+        if(message){
+            setState("cancelled");
+        }
     } catch(error){
         throw new error("Error al tratar de desapuntarse", error);
     }
-   
+
+
   }
 
-
+  if (!visible) return null;
 
     return (
 
@@ -42,8 +42,8 @@ const RaceCard = ({ race, status = null, registrationId = null}) => {
             <p className="flex justify-between rounded-lg bg-background px-2 py-1"><span>⏳</span> {race.qualifyingTime}</p>
         </div>
 
-        { status ? (
-            status.toLowerCase() === "registered" ? ( // Según el estado del registro aparece el botón bloqueado o no
+        { state ? (
+            state.toLowerCase() === "registered" ? ( // Según el estado del registro aparece el botón bloqueado o no
                 <button 
                 className="mt-4 bg-primary hover:bg-accent text-white px-4 py-2 rounded disabled:bg-gray-400 w-full"
                 onClick={() => handleUnRegister(registrationId)}
@@ -51,17 +51,27 @@ const RaceCard = ({ race, status = null, registrationId = null}) => {
                 Desapuntarse
                 </button>
             ) : (
-                <button 
-                className="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed opacity-50"
-                disabled
-                >
-                Finalizada
-                </button>
+                state === "cancelled" ? (
+                    <button 
+                    className="mt-4 bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed opacity-50 w-full"
+                    disabled
+                    >
+                    Cancelado
+                    </button>
+                ):(
+                    <button 
+                    className="mt-4 bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed opacity-50 w-full"
+                    disabled
+                    >
+                    Finalizado
+                    </button>
+                )
+
             )
         ) : (
 
             <button 
-            onClick={handleClick} 
+            onClick={() => handleClick()} 
             disabled={race.status !== "open"} 
             className="mt-4 bg-primary hover:bg-accent text-white px-4 py-2 rounded disabled:bg-gray-400 w-full">
                 Participar

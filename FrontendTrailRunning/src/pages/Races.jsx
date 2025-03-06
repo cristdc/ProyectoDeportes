@@ -149,10 +149,9 @@ const Races = () => {
           return 0;
         })
         .map((race)=>(
-          <>
-            <RaceCard key={race._id} race={race} />
-          </>
-
+          <div key={race._id}>
+            <RaceCard race={race} />
+          </div>
         )):(
           <div>No hay carreras disponibles</div>
         )}

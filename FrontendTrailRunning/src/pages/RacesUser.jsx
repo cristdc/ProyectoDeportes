@@ -163,11 +163,13 @@ const RacesUser = () => {
               return 0;
             })
             .map((registration) => (
-              <RaceCard key={registration.race._id} 
-              race={registration.race} 
-              status={registration.status} 
-              registrationId={registration._id}
-              />
+              <div key={registration.race._id}>
+                <RaceCard
+                race={registration.race} 
+                status={registration.status} 
+                registrationId={registration._id}
+                />
+              </div>
             ))
         ) : (
           <div>No hay carreras disponibles</div>
