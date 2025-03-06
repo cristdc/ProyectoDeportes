@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { FaEnvelope, FaLock, FaRunning } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext'; 
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; 
+
 
 const LoginPage = () => {
   const { login } = useAuth();
