@@ -37,7 +37,8 @@ jar {
 
 dependencies {
     implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
-
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
     implementation 'net.sf.jasperreports:jasperreports:7.0.1'
     implementation 'net.sf.jasperreports:jasperreports-pdf:7.0.0' //Exportar PDF
     implementation 'net.sf.jasperreports:jasperreports-charts:7.0.1' //Charts
