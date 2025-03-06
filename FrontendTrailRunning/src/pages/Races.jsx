@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { fetchAllRaces } from "../helpers/fetch";
-import RacesList from "../components/RacesList";
 import RaceCard from "../components/RaceCard";
 
 const Races = () => {
