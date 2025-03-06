@@ -14,6 +14,6 @@ import retrofit2.http.GET;
  * @author Juanan
  */
 public interface ServicioLeerCarreras {
-    @GET(".")
+    @GET("races")
     Call<List<Carrera>> getCarrera();
 }
