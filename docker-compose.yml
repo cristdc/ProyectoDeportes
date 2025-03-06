@@ -21,7 +21,7 @@ services:
       MONGODB_URI: ${MONGODB_URI}
       JWT_SECRET: ${JWT_SECRET}
       FRONTEND_URL: ${FRONTEND_URL}
-      COOKIE_SECURE: false
+      COOKIE_SECURE: true
     depends_on:
       - mongodb
     volumes:

@@ -34,15 +34,21 @@ const login = async (req, res) => {
       { expiresIn: "24h" }
     );
 
-    // Configuración optimizada de cookies
+    // Configuración de cookies optimizada
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: true, // Necesario para sameSite: 'none'
+    //   sameSite: "none", // Crucial para permitir que la cookie funcione cross-origin
+    //   maxAge: 24 * 60 * 60 * 1000,
+    //   path: "/",
+    // });
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Solo usa secure en producción
-      sameSite: "lax", // Permite solicitudes cross-origin en navegadores modernos
-      maxAge: 86400000, // 24 horas
-      path: "/", // Asegurar que la cookie esté disponible en todas las rutas
-      domain:
-        process.env.NODE_ENV === "production" ? process.env.DOMAIN : undefined, // Dominio en producción
+      secure: false, // Cambia a false si estás usando HTTP y no HTTPS
+      sameSite: "none", // Esto es crucial para cross-origin
+      maxAge: 24 * 60 * 60 * 1000,
+      path: "/",
     });
 
     res.json({
@@ -53,13 +59,13 @@ const login = async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      // Incluye el token en la respuesta para que el frontend pueda guardarlo si es necesario
-      token: token,
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al iniciar sesión", error: error.message });
+    console.error("Error en login:", error);
+    res.status(500).json({
+      message: "Error al iniciar sesión",
+      error: error.message,
+    });
   }
 };
 
@@ -123,24 +129,31 @@ const register = async (req, res) => {
 };
 
 // Cerrar sesión
-const logout = (req, res) => {
+const logout = async (req, res) => {
   try {
+    // Eliminar la cookie con la misma configuración que al crearla
+   // res.cookie("token", "", {
+   //   httpOnly: true,
+   //   secure: true,
+   //   sameSite: "none",
+   //   path: "/",
+   //   expires: new Date(0),
+    // });
     res.cookie("token", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      expires: new Date(0),
-      maxAge: 0,
+      secure: false, // Mismo criterio que arriba
+      sameSite: "none",
       path: "/",
-      domain:
-        process.env.NODE_ENV === "production" ? process.env.DOMAIN : undefined,
+      expires: new Date(0),
     });
 
     res.json({ message: "Cierre de sesión exitoso" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al cerrar sesión", error: error.message });
+    console.error("Error en logout:", error);
+    res.status(500).json({
+      message: "Error al cerrar sesión",
+      error: error.message,
+    });
   }
 };
 

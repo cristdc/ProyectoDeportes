@@ -1,4 +1,5 @@
-const allowOrigin = [
+// Lista de dominios permitidos
+const allowedOrigins = [
   "http://localhost:5173", // Frontend React
   "http://localhost:5174", // Frontend Propio (SPA)
   "http://localhost:3000", // Frontend
@@ -7,21 +8,20 @@ const allowOrigin = [
 ];
 
 export const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowOrigin.includes(origin)) {
+  origin: function (origin, callback) {
+    // Permitir peticiones sin origin en desarrollo
+    if (!origin && process.env.NODE_ENV !== "production") {
+      return callback(null, true);
+    }
+
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Origin not allowed"));
+      callback(new Error("No permitido por CORS"));
     }
   },
-  credentials: true,
+  credentials: true, // Esto es crucial
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  exposedHeaders: [
-    "Access-Control-Allow-Origin",
-    "Access-Control-Allow-Credentials",
-    "Set-Cookie",
-  ],
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["set-cookie"],
 };
