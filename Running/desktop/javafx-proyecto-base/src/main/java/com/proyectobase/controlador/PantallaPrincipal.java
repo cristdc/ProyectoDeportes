@@ -107,21 +107,27 @@ public class PantallaPrincipal implements Initializable {
 
     @FXML
     private VBox vboxRecorridos;
+    
+    @FXML
+    private TableColumn<Carrera,String> columnParticipando;
+    
 
     @FXML
     void btnAccionDesapuntarse(ActionEvent event) {
-
+        
     }
 
     @FXML
     void btnAccionParticipar(ActionEvent event) {
-
+        
     }
 
     @FXML
     void navegarLogin(MouseEvent event) {
 
     }
+    
+    
     
     private ServicioLeerCarreras servicioLeer;
 
@@ -184,7 +190,7 @@ public class PantallaPrincipal implements Initializable {
     
     public void inicializarTablaCarreras() {
         try {
-            columnId.setCellValueFactory(new PropertyValueFactory<>("id"));
+            //columnId.setCellValueFactory(new PropertyValueFactory<>("id"));
             columnNombre.setCellValueFactory(new PropertyValueFactory<>("name"));
             columnLocalizacion.setCellValueFactory(new PropertyValueFactory<>("location"));
             columnDistancia.setCellValueFactory(new PropertyValueFactory<>("distance"));
@@ -203,6 +209,10 @@ public class PantallaPrincipal implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         inicializarTablaCarreras();
         aplicarEfectoHover(imgUsuario);
+        
+        columnParticipando.setCellValueFactory(param -> {
+            return new javafx.beans.property.SimpleStringProperty("No");
+        });
 
         Image imagen = new Image(getClass().getResource("/imagenRunning.png").toExternalForm());
 
