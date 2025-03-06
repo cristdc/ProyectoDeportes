@@ -1,10 +1,24 @@
 package com.proyectobase.controlador;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,8 +32,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import modelo.Carrera;
-import modelo.Usuario;
+import com.proyectobase.modelo.Carrera;
+import com.proyectobase.modelo.Usuario;
 
 public class PantallaPrincipal implements Initializable {
 
@@ -36,10 +50,10 @@ public class PantallaPrincipal implements Initializable {
     private TableColumn<Carrera, String> columnEstado;
 
     @FXML
-    private TableColumn<Carrera, LocalDate> columnFecha;
+    private TableColumn<Carrera, LocalDateTime> columnFecha;
 
     @FXML
-    private TableColumn<Carrera, Integer> columnId;
+    private TableColumn<Carrera, String> columnId;
 
     @FXML
     private TableColumn<Carrera, String> columnLocalizacion;
@@ -60,7 +74,7 @@ public class PantallaPrincipal implements Initializable {
     private TableColumn<Carrera, Double> columnTiempoCorredor;
 
     @FXML
-    private TableColumn<Carrera, ?> columnTour;
+    private TableColumn<Carrera, String> columnTour;
 
     @FXML
     private ImageView imgLogo;
@@ -96,10 +110,8 @@ public class PantallaPrincipal implements Initializable {
 
     }
 
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
     }
-
 }
