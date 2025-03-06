@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+
+<TabPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ControladorCarreras">
+   <tabs>
+      <Tab closable="false" text="Inicio">
+         <content>
+            <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="599.0" prefWidth="967.0" style="-fx-background-color: #fdf7ed; -fx-border-color: #9B9D79; -fx-border-width: 5;">
+               <children>
+                  <HBox alignment="CENTER_LEFT" layoutY="-4.0" prefHeight="106.0" prefWidth="967.0" style="-fx-background-color: #9B9D79;">
+                     <children>
+                        <ImageView fitHeight="103.0" fitWidth="181.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@ico-ciclismo.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                           </HBox.margin>
+                        </ImageView>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="646.0" layoutY="6.0" prefHeight="96.0" prefWidth="328.0">
+                     <children>
+                        <Label contentDisplay="CENTER" prefHeight="146.0" prefWidth="226.0" style="-fx-background-color: #9B9D79;" text="Carreras Disponibles" textAlignment="CENTER" textFill="#1a1204">
+                           <font>
+                              <Font name="System Bold" size="19.0" />
+                           </font>
+                        </Label>
+                        <ImageView fitHeight="78.0" fitWidth="78.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@ico-user.png" />
+                           </image>
+                           <HBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </HBox.margin>
+                        </ImageView>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="14.0" layoutY="123.0" prefHeight="463.0" prefWidth="940.0">
+                     <children>
+                        <VBox alignment="TOP_CENTER" prefHeight="437.0" prefWidth="476.0" style="-fx-background-image: s;">
+                           <children>
+                              <HBox alignment="TOP_CENTER" layoutX="10.0" layoutY="10.0" prefHeight="43.0" prefWidth="470.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="El ciclismo es la poesía del movimiento." wrappingWidth="448.13671875">
+                                       <font>
+                                          <Font name="System Bold Italic" size="24.0" />
+                                       </font>
+                                    </Text>
+                                 </children>
+                              </HBox>
+                              <HBox alignment="TOP_CENTER" prefHeight="43.0" prefWidth="470.0">
+                                 <children>
+                                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Deja tu huella." textAlignment="RIGHT" wrappingWidth="440.13671875">
+                                       <font>
+                                          <Font name="System Italic" size="18.0" />
+                                       </font>
+                                    </Text>
+                                 </children>
+                              </HBox>
+                              <HBox prefHeight="287.0" prefWidth="470.0" />
+                              <HBox alignment="TOP_CENTER" prefHeight="111.0" prefWidth="470.0">
+                                 <children>
+                                    <VBox prefHeight="200.0" prefWidth="100.0">
+                                       <children>
+                                          <Label prefHeight="21.0" prefWidth="58.0" text="Ciclistas">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </Label>
+                                          <Label fx:id="lblCiclistas" layoutX="10.0" layoutY="10.0" prefHeight="21.0" prefWidth="58.0" text="Label">
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox layoutX="104.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
+                                       <children>
+                                          <Label prefHeight="21.0" prefWidth="72.0" text="Carreras">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </Label>
+                                          <Label fx:id="lblCarreras" layoutX="10.0" layoutY="10.0" prefHeight="21.0" prefWidth="72.0" text="Label">
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                    <VBox layoutX="145.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
+                                       <children>
+                                          <Label prefHeight="21.0" prefWidth="89.0" text="Recorridos">
+                                             <font>
+                                                <Font name="System Bold" size="15.0" />
+                                             </font>
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </Label>
+                                          <Label fx:id="lblRecorridos" layoutX="10.0" layoutY="10.0" prefHeight="21.0" prefWidth="89.0" text="Label">
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                          </Label>
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox alignment="TOP_CENTER" layoutX="10.0" layoutY="10.0" prefHeight="437.0" prefWidth="476.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Mejores ciclistas de la última carrera" wrappingWidth="272.13671875">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                                 <VBox.margin>
+                                    <Insets bottom="20.0" left="2.0" right="2.0" top="7.0" />
+                                 </VBox.margin>
+                              </Text>
+                              <TableView fx:id="TableViewInicio" prefHeight="361.0" prefWidth="470.0">
+                                <columns>
+                                  <TableColumn prefWidth="101.0" text="Puesto" />
+                                  <TableColumn prefWidth="220.0" text="Nombre" />
+                                    <TableColumn prefWidth="148.0" text="Tiempo" />
+                                </columns>
+                              </TableView>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </children>
+            </Pane>
+         </content>
+      </Tab>
+      <Tab closable="false" text="Carreras">
+         <content>
+            <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="599.0" prefWidth="967.0" style="-fx-background-color: #fdf7ed; -fx-border-color: #9B9D79; -fx-border-width: 5;">
+               <children>
+                  <VBox layoutX="35.0" layoutY="29.0" prefHeight="539.0" prefWidth="899.0">
+                     <children>
+                        <HBox prefHeight="68.0" prefWidth="899.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Carreras disponibles" wrappingWidth="411.13671875">
+                                 <font>
+                                    <Font name="System Bold" size="38.0" />
+                                 </font>
+                              </Text>
+                           </children>
+                        </HBox>
+                        <TableView fx:id="TableViewCarreras" prefHeight="392.0" prefWidth="899.0">
+                          <columns>
+                            <TableColumn prefWidth="61.0" text="Id" />
+                            <TableColumn prefWidth="187.0" text="Nombre" />
+                              <TableColumn prefWidth="134.0" text="Localicación" />
+                              <TableColumn prefWidth="105.0" text="Fecha" />
+                              <TableColumn prefWidth="105.0" text="Distancia" />
+                              <TableColumn prefWidth="141.0" text="Tiempo" />
+                              <TableColumn prefWidth="165.0" text="Tour" />
+                          </columns>
+                        </TableView>
+                        <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <Button fx:id="btnDesapuntarse" mnemonicParsing="false" onAction="#desapuntarseCarrera" prefHeight="47.0" prefWidth="99.0" style="-fx-background-color: #9B9D79;" text="Desapuntarse" textFill="WHITE">
+                                 <HBox.margin>
+                                    <Insets right="5.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Button>
+                              <Button fx:id="btnParticipar" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#apuntarseCarrera" prefHeight="47.0" prefWidth="83.0" style="-fx-background-color: #9B9D79;" text="Participar" textFill="WHITE">
+                                 <HBox.margin>
+                                    <Insets left="10.0" />
+                                 </HBox.margin>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Button>
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </Pane>
+         </content>
+      </Tab>
+   </tabs>
+</TabPane>
