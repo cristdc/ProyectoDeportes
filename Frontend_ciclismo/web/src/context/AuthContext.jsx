@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 const AuthContext = createContext();
-
+const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
         return localStorage.getItem('isAuthenticated') === 'true'
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (userData) => {
         try {
-            const response = await fetch("http://192.168.50.143:3000/api/users/login", {
+            const response = await fetch(`${API_URL}/users/login`, {
                 method: "POST",
                 body: JSON.stringify(userData),
                 credentials: "include",
@@ -37,10 +37,9 @@ export const AuthProvider = ({ children }) => {
                     "Content-Type": "application/json"
                 }
             });
-            
             if (response.ok) {
                 const data = await response.json();
-                setIsAuthenticated(true);
+                setIsAuthenticated(true);   
                 setUser(data.user);
                 setError(null);
                 return true;
@@ -57,7 +56,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            const response = await fetch("http://192.168.50.143:3000/api/users/logout", {
+            const response = await fetch(`${API_URL}/users/logout`, {
                 method: "POST",
                 credentials: "include",
             });
