@@ -7,6 +7,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import RootLayout from "../layout/RootLayout";
 import CarrerasDisponibles from "../pages/CarrerasDisponibles";
 import CarrerasHistorial from "../pages/CarrerasHistorial";
+import CarrerasDetail from "../pages/CarrerasDetail";
 
 export const router = createBrowserRouter([
     {
@@ -33,6 +34,14 @@ export const router = createBrowserRouter([
             {
                 path: "carreras-historial",
                 element: <ProtectedRoute><CarrerasHistorial /></ProtectedRoute>
+            },
+            {
+                path: "carrerasDetail/:carreraId",
+                element: <ProtectedRoute><CarrerasDetail /></ProtectedRoute>
+            },
+            {
+                path: "profile",
+                element: <ProtectedRoute><Profile /></ProtectedRoute>
             }
         ]
     }
