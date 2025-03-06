@@ -1454,7 +1454,6 @@ export {
   registerRaceResults,
   getRaceResults,
   downloadRunnersCSV,
-  uploadResultsCSV,
   uploadGPXFile,
   downloadGPXFile,
   deleteGPXFile,

@@ -11,7 +11,6 @@ import {
   registerRaceResults,
   getRaceResults,
   downloadRunnersCSV,
-  uploadResultsCSV,
   uploadGPXFile,
   downloadGPXFile,
   deleteGPXFile,
@@ -52,7 +51,6 @@ router.post(
   authMiddleware,
   adminMiddleware,
   csvUpload.single("file"),
-  uploadResultsCSV
 );
 
 // NUEVAS RUTAS PARA ARCHIVOS GPX

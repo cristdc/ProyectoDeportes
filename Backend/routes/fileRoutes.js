@@ -1,16 +1,35 @@
 import express from "express";
-import { adminMiddleware, authMiddleware } from "../middlewares/authmiddleware";
+import {
+  downloadFile,
+  getAvailableFiles,
+  uploadFile,
+  deleteFile,
+} from "../controllers/fileController.js";
+import {
+  authMiddleware,
+  adminMiddleware,
+} from "../middlewares/authmiddleware.js";
+import { appUpload } from "../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
-// Todas las rutas requieren autenticación y rol de admin
+// Ruta para obtener archivos disponibles (requiere autenticación)
+router.get("/list", authMiddleware, (req, res) => getAvailableFiles(req, res));
+router.get("/list/:type", authMiddleware, (req, res) =>
+  getAvailableFiles(req, res)
+);
+
+// Ruta para descargar archivos (requiere autenticación)
+router.get("/download/:type/:filename", authMiddleware, downloadFile);
+
+// Rutas para administradores (requieren autenticación y rol admin)
 router.use(authMiddleware);
 router.use(adminMiddleware);
 
-// Ruta para descargar EXE
-router.get("/file", downloadFile);
+// Subir un nuevo archivo
+router.post("/upload", appUpload.single("file"), uploadFile);
 
-// Ruta para descargar APK
-router.get("/file", downloadFile);
+// Eliminar un archivo
+router.delete("/:type/:filename", deleteFile);
 
 export default router;
