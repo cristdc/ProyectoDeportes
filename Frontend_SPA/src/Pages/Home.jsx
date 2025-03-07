@@ -126,43 +126,367 @@ const Home = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-col items-center gap-4">
-        <h2 className="text-2xl font-bold text-[#9b9d79]">Ciclismo</h2>
-        <img 
-          src={carrera1}
-          alt="Carrera 1" 
-          className="max-w-2xl w-full h-48 object-cover rounded-lg shadow-lg"
-        />
-        <ul className="list-disc text-[#9b9d79]">
-          <li>Enlace uno</li>
-          <li>Enlace dos</li>
-          <li>Enlace tres</li>
-        </ul>
+    <div className="flex flex-col w-full relative">
+      {/* Botón de tema */}
+      <button
+        onClick={toggleTheme}
+        className={`fixed top-8 right-8 w-12 h-12 rounded-full 
+          ${
+            isDark
+              ? "bg-white/20 hover:bg-white/30 text-white"
+              : "bg-[#333333]/20 hover:bg-[#333333]/30 text-[#333333]"
+          }
+          backdrop-blur-sm transition-all duration-300 
+          flex items-center justify-center z-50 group`}
+        aria-label={isDark ? "Activar modo claro" : "Activar modo oscuro"}
+      >
+        {isDark ? (
+          // Icono del sol para modo claro
+          <svg
+            className="w-6 h-6 transform group-hover:rotate-90 transition-transform duration-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+            />
+          </svg>
+        ) : (
+          // Icono de la luna para modo oscuro
+          <svg
+            className="w-6 h-6 transform group-hover:rotate-12 transition-transform duration-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+            />
+          </svg>
+        )}
+      </button>
 
-        <h2 className="text-2xl font-bold text-[#9b9d79]">Running</h2>
-        <img 
-          src={carrera2} 
-          alt="Carrera 2" 
-          className="max-w-2xl w-full h-48 object-cover object-top rounded-lg shadow-lg"
-        />
-        <ul className="list-disc text-[#9b9d79]">
-          <li>Enlace uno</li>
-          <li>Enlace dos</li>
-          <li>Enlace tres</li>
-        </ul>
+      {/* Sección superior responsive */}
+      <div
+        className="w-full flex flex-col items-center justify-start relative overflow-hidden"
+        style={{ height: "100vh" }}
+      >
+        <div className="absolute inset-0 z-0" style={backgroundStyle} />
 
-        <h2 className="text-2xl font-bold text-[#9b9d79]">Trailrunning</h2>
-        <img 
-          src={carrera3}
-          alt="Carrera 3" 
-          className="max-w-2xl w-full h-48 object-cover rounded-lg shadow-lg"
-        />
-        <ul className="list-disc text-[#9b9d79]">
-          <li>Enlace uno</li>
-          <li>Enlace dos</li>
-          <li>Enlace tres</li>
-        </ul>
+        <div className="relative z-10 flex flex-col items-center w-full max-w-3xl mx-auto px-4 sm:px-6 h-full py-4 sm:py-8">
+          <div className="w-[15vh] h-[15vh] min-w-[60px] max-w-[120px] flex items-center justify-center bg-black/40 rounded-full p-3 mb-4">
+            <img
+              src={logo}
+              alt="Logo"
+              className="w-full h-full object-contain"
+            />
+          </div>
+
+          <button
+            onClick={() => navigate("/register")}
+            className="bg-[#9CAF88] px-4 sm:px-6 py-2 rounded-lg shadow-lg hover:bg-[#8A9C76] transition-colors text-white text-[2vh] mb-4"
+          >
+            Registrarse
+          </button>
+
+          <div className="text-center flex flex-col gap-4 flex-grow">
+            <h1 className="text-[2.5vh] sm:text-[3.5vh] text-white font-bold">
+              Bienvenido a MultiSports
+            </h1>
+            <p className="text-[1.5vh] sm:text-[1.8vh] text-gray-200 leading-relaxed px-2">
+              Tu destino definitivo para los amantes del deporte al aire libre.
+              En MultiSports, nos especializamos en tres emocionantes
+              modalidades que te conectarán con la naturaleza y desafiarán tus
+              límites.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2 px-2">
+              <div
+                onClick={() => scrollToSection("cycling")}
+                className="bg-black/40 p-3 sm:p-4 rounded-lg cursor-pointer transform hover:scale-105 transition-all duration-300 hover:bg-black/50"
+              >
+                <h3 className="font-bold text-[1.8vh] sm:text-[2vh] mb-1 sm:mb-2 text-white">
+                  Cycling
+                </h3>
+                <p className="text-[1.4vh] sm:text-[1.6vh] text-gray-200">
+                  Explora rutas desafiantes y paisajes impresionantes sobre dos
+                  ruedas.
+                </p>
+                <span className="text-[1.2vh] sm:text-[1.4vh] text-white mt-1 block">
+                  Click para ver más →
+                </span>
+              </div>
+
+              <div
+                onClick={() => scrollToSection("trail")}
+                className="bg-black/40 p-3 sm:p-4 rounded-lg cursor-pointer transform hover:scale-105 transition-all duration-300 hover:bg-black/50"
+              >
+                <h3 className="font-bold text-[1.8vh] sm:text-[2vh] mb-1 sm:mb-2 text-white">
+                  Trail Running
+                </h3>
+                <p className="text-[1.4vh] sm:text-[1.6vh] text-gray-200">
+                  Descubre senderos naturales y supera tus límites corriendo por
+                  montañas, bosques y terrenos técnicos.
+                </p>
+                <span className="text-[1.2vh] sm:text-[1.4vh] text-white mt-1 block">
+                  Click para ver más →
+                </span>
+              </div>
+
+              <div
+                onClick={() => scrollToSection("running")}
+                className="bg-black/40 p-3 sm:p-4 rounded-lg cursor-pointer transform hover:scale-105 transition-all duration-300 hover:bg-black/50"
+              >
+                <h3 className="font-bold text-[1.8vh] sm:text-[2vh] mb-1 sm:mb-2 text-white">
+                  Running
+                </h3>
+                <p className="text-[1.4vh] sm:text-[1.6vh] text-gray-200">
+                  Participa en carreras urbanas y eventos que combinan la pasión
+                  por correr con el espíritu competitivo.
+                </p>
+                <span className="text-[1.2vh] sm:text-[1.4vh] text-white mt-1 block">
+                  Click para ver más →
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Secciones de deportes responsive */}
+      {/* Cycling */}
+      <div
+        id="cycling"
+        className="w-full relative overflow-hidden flex flex-col lg:flex-row"
+        style={{ minHeight: "100vh" }}
+      >
+        <div className="w-full lg:w-1/2 relative" style={{ minHeight: "50vh" }}>
+          <img
+            src={carrera1}
+            alt="Cycling"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+          <h2 className="absolute bottom-10 left-10 text-3xl sm:text-4xl font-bold text-white">
+            Cycling
+          </h2>
+        </div>
+
+        <div className="w-full lg:w-1/2 bg-[var(--bg-primary)] p-6 sm:p-8 lg:p-16 flex flex-col justify-center">
+          <div className="space-y-4 sm:space-y-8">
+            <h3 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] mb-3 sm:mb-6">
+              Descubre nuevas rutas
+            </h3>
+            <p className="text-base sm:text-lg text-[var(--text-secondary)] mb-6 sm:mb-10">
+              Explora rutas desafiantes y paisajes impresionantes sobre dos
+              ruedas. Desde cicloturismo hasta competiciones de mountain bike.
+            </p>
+            <div className="space-y-3 sm:space-y-4">
+              <button
+                onClick={handleDownload}
+                className="w-full bg-[var(--accent-light)] hover:bg-[var(--accent-hover)] px-4 sm:px-8 py-3 sm:py-4 
+                  rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
+                  flex items-center justify-center group"
+              >
+                <span>Accede a nuestra pagina Web</span>
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </button>
+              <button
+                onClick={handleDownload}
+                className="w-full bg-transparent border-2 border-[var(--accent-light)] 
+                  hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
+                  transition-all duration-300 text-[var(--accent-light)]
+                  text-base sm:text-lg flex items-center justify-center group"
+              >
+                <span>Descarga nuestra App</span>
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Running */}
+      <div
+        id="running"
+        className="w-full relative overflow-hidden flex flex-col lg:flex-row-reverse"
+        style={{ minHeight: "100vh" }}
+      >
+        <div className="w-full lg:w-1/2 relative" style={{ minHeight: "50vh" }}>
+          <img
+            src={carrera2}
+            alt="Running"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-l from-black/50 to-transparent" />
+          <h2 className="absolute bottom-10 right-10 text-3xl sm:text-4xl font-bold text-white">
+            Running
+          </h2>
+        </div>
+
+        <div className="w-full lg:w-1/2 bg-[var(--bg-primary)] p-6 sm:p-8 lg:p-16 flex flex-col justify-center">
+          <div className="space-y-4 sm:space-y-8">
+            <h3 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] mb-3 sm:mb-6">
+              Supera tus límites
+            </h3>
+            <p className="text-base sm:text-lg text-[var(--text-secondary)] mb-6 sm:mb-10">
+              Participa en carreras urbanas y eventos que combinan la pasión por
+              correr con el espíritu competitivo.
+            </p>
+            <div className="space-y-3 sm:space-y-4">
+              <button
+                onClick={handleDownload}
+                className="w-full bg-[var(--accent-light)] hover:bg-[var(--accent-hover)] px-4 sm:px-8 py-3 sm:py-4 
+                  rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
+                  flex items-center justify-center group"
+              >
+                <span>Accede a nuestra pagina Web</span>
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </button>
+              <button
+                onClick={handleDownload}
+                className="w-full bg-transparent border-2 border-[var(--accent-light)] 
+                  hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
+                  transition-all duration-300 text-[var(--accent-light)]
+                  text-base sm:text-lg flex items-center justify-center group"
+              >
+                <span>Descarga nuestra App</span>
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Trail Running */}
+      <div
+        id="trail"
+        className="w-full relative overflow-hidden flex flex-col lg:flex-row"
+        style={{ minHeight: "100vh" }}
+      >
+        <div className="w-full lg:w-1/2 relative" style={{ minHeight: "50vh" }}>
+          <img
+            src={carrera3}
+            alt="Trail Running"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+          <h2 className="absolute bottom-10 left-10 text-3xl sm:text-4xl font-bold text-white">
+            Trail Running
+          </h2>
+        </div>
+
+        <div className="w-full lg:w-1/2 bg-[var(--bg-primary)] p-6 sm:p-8 lg:p-16 flex flex-col justify-center">
+          <div className="space-y-4 sm:space-y-8">
+            <h3 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] mb-3 sm:mb-6">
+              Conquista la naturaleza
+            </h3>
+            <p className="text-base sm:text-lg text-[var(--text-secondary)] mb-6 sm:mb-10">
+              Descubre senderos naturales y supera tus límites corriendo por
+              montañas, bosques y terrenos técnicos.
+            </p>
+            <div className="space-y-3 sm:space-y-4">
+              <button
+                onClick={handleDownload}
+                className="w-full bg-[var(--accent-light)] hover:bg-[var(--accent-hover)] px-4 sm:px-8 py-3 sm:py-4 
+                  rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
+                  flex items-center justify-center group"
+              >
+                <span>Accede a nuestra pagina Web</span>
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </button>
+              <button
+                onClick={handleDownload}
+                className="w-full bg-transparent border-2 border-[var(--accent-light)] 
+                  hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
+                  transition-all duration-300 text-[var(--accent-light)]
+                  text-base sm:text-lg flex items-center justify-center group"
+              >
+                <span>Descarga nuestra App</span>
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Botón flotante para volver arriba */}
@@ -219,9 +543,5 @@ const Home = () => {
     </div>
   );
 };
-  
-};
 
 export default Home;
-
-
