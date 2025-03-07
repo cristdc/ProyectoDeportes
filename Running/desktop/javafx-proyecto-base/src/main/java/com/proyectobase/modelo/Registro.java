@@ -22,7 +22,6 @@ public class Registro {
     private Integer position;
     private List<String> awards;
 
-    // Getters and Setters
     public String getId() {
         return id;
     }

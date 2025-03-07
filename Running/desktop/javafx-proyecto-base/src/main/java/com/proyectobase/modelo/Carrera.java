@@ -4,35 +4,59 @@
  */
 package com.proyectobase.modelo;
 
+import com.google.gson.annotations.SerializedName;
 import java.time.LocalDateTime;
 import java.util.List;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  *
  * @author Juanan
  */
 public class Carrera {
-    private String id;
-    private String name;
-    private String sport;
-    private LocalDateTime date;
-    private String location;
-    private double distance;
-    private Integer maxParticipants;
-    private Integer unevenness;
-    private String tour;
-    private String qualifyingTime;
-    private List<Classification> classification;
-    private String createdBy;
-    private String status;
-    private LocalDateTime createdAt;
 
+    private String _id;
+    private String name;
+    private String location;
+    private Double distance;
+    private String qualifyingTime;
+    private LocalDateTime date;
+    private String status;
+    private String tour;
+    private StringProperty participando = new SimpleStringProperty("No");
+
+    public String getParticipando() {
+        return participando.get();
+    }
+
+    public void setParticipando(String participando) {
+        this.participando.set(participando);
+    }
+    
+    public String participandoProperty(){
+        return this.participando.get();
+    }
+    
+    public StringProperty participandoProperty1(){
+        return participando;
+    }
+    
+    
     public String getId() {
-        return id;
+        return _id;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this._id = id;
+    }
+
+    public void setQualifyingTime(String qualifyingTime) {
+        this.qualifyingTime = qualifyingTime;
+    }
+
+    public String getQualifyingTime() {
+        return qualifyingTime;
     }
 
     public String getName() {
@@ -43,12 +67,20 @@ public class Carrera {
         this.name = name;
     }
 
-    public String getSport() {
-        return sport;
+    public String getLocation() {
+        return location;
     }
 
-    public void setSport(String sport) {
-        this.sport = sport;
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
     }
 
     public LocalDateTime getDate() {
@@ -59,70 +91,6 @@ public class Carrera {
         this.date = date;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public double getDistance() {
-        return distance;
-    }
-
-    public void setDistance(double distance) {
-        this.distance = distance;
-    }
-
-    public int getMaxParticipants() {
-        return maxParticipants;
-    }
-
-    public void setMaxParticipants(int maxParticipants) {
-        this.maxParticipants = maxParticipants;
-    }
-
-    public int getUnevenness() {
-        return unevenness;
-    }
-
-    public void setUnevenness(int unevenness) {
-        this.unevenness = unevenness;
-    }
-
-    public String getTour() {
-        return tour;
-    }
-
-    public void setTour(String tour) {
-        this.tour = tour;
-    }
-
-    public String getQualifyingTime() {
-        return qualifyingTime;
-    }
-
-    public void setQualifyingTime(String qualifyingTime) {
-        this.qualifyingTime = qualifyingTime;
-    }
-
-    public List<Classification> getClassification() {
-        return classification;
-    }
-
-    public void setClassification(List<Classification> classification) {
-        this.classification = classification;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -131,37 +99,11 @@ public class Carrera {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public String getTour() {
+        return tour;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public static class Classification {
-        private String corredor;
-        private int tiempo;
-
-        public Classification(String corredor, int tiempo) {
-            this.corredor = corredor;
-            this.tiempo = tiempo;
-        }
-
-        public String getCorredor() {
-            return corredor;
-        }
-
-        public void setCorredor(String corredor) {
-            this.corredor = corredor;
-        }
-
-        public int getTiempo() {
-            return tiempo;
-        }
-
-        public void setTiempo(int tiempo) {
-            this.tiempo = tiempo;
-        }
+    public void setTour(String tour) {
+        this.tour = tour;
     }
 }
