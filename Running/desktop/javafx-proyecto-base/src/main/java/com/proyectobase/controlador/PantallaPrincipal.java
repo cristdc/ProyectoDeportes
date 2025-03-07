@@ -159,11 +159,10 @@ public class PantallaPrincipal implements Initializable {
     }
 
     ObservableList<Carrera> listaCarreras;
-<<<<<<< HEAD
-    String idUltimaCarrera;
-=======
 
->>>>>>> 823595727d665bdc0822c133d783f2393b15b234
+    String idUltimaCarrera;
+
+
     public void obtenerListaCarreras() {
         String baseUrl = "http://192.168.50.143:3000/api/races/";
 
@@ -192,7 +191,6 @@ public class PantallaPrincipal implements Initializable {
                         System.out.println("Carreras obtenidas: " + carreras.size());
                         if (carreras != null && !carreras.isEmpty()) {
                             tvCarreras.setItems(FXCollections.observableArrayList(carreras));
-<<<<<<< HEAD
                             idUltimaCarrera =  FXCollections.observableArrayList(carreras).get(0).getId();
                         } else {
                             System.out.println("No hay carreras disponibles.");
@@ -237,10 +235,9 @@ public class PantallaPrincipal implements Initializable {
                             tableViewPuestos.setItems(FXCollections.observableArrayList(resultados));
                             
                             System.out.println(FXCollections.observableArrayList(resultados).get(0).getId());
-=======
 
-                            System.out.println(FXCollections.observableArrayList(carreras).get(0).getId());
->>>>>>> 823595727d665bdc0822c133d783f2393b15b234
+                            System.out.println(FXCollections.observableArrayList(resultados).get(0).getId());
+
                         } else {
                             System.out.println("No hay carreras disponibles.");
                         }
