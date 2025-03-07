@@ -192,6 +192,7 @@ public class PantallaPrincipal implements Initializable {
                         if (carreras != null && !carreras.isEmpty()) {
                             tvCarreras.setItems(FXCollections.observableArrayList(carreras));
                             idUltimaCarrera =  FXCollections.observableArrayList(carreras).get(0).getId();
+                            System.out.println(idUltimaCarrera);
                         } else {
                             System.out.println("No hay carreras disponibles.");
                         }
