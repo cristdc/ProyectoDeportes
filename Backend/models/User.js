@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema({
   avatar: { type: String, default: "default.jpg" },
   age: { type: Number },
   registrationDate: { type: Date, default: Date.now },
-  gender: { type: String, enum: ["male", "female"], require:true },
 });
 
 // Middleware para encriptar la contraseña antes de guardar
