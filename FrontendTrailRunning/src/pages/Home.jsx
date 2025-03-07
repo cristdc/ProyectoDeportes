@@ -52,10 +52,11 @@ const Home = () => {
         </h3>
         
         {loading ? (
+          <>
           <div className="w-full flex justify-center ">
             <BeatLoader color="#9B9D79" />
           </div>
-          <p className="text-center md:text-left">Cargando última carrera...</p>
+          <p className="text-center md:text-left">Cargando última carrera...</p></>
         ) : error ? (
           <p className="text-red-500 text-center md:text-left">Error: {error}</p>
         ) : lastRace ? (

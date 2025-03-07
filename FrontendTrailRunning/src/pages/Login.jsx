@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth.js";
 import { toast } from "react-toastify";
 
 const Login = () => {
-  const [email, setEmail] = useState("");  // Cambio setUsername -> setEmail
+  const [email, setEmail] = useState("");  
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 

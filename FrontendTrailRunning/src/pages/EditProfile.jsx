@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAuth from "../hooks/useAuth";
-import { fetchKmUser } from "../helpers/fetch";
 
 const EditProfile = () => {
   const { user, editUser } = useAuth();
@@ -24,7 +23,7 @@ const EditProfile = () => {
         toast.success("Usuario editado correctamente 🎉");
       }
     } catch (err) {
-      toast.error("Error al editar el usuario ❌");
+      toast.error("Error al editar el usuario ❌", err);
     }
   };
 
