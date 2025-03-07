@@ -1,16 +1,16 @@
-const express = require('express');
+import express from "express";
+import path from "path";
 const router = express.Router();
-const path = require('path');
 
-router.get('/HOLA.exe', (req, res) => {
-  const filePath = path.join(__dirname, '../uploads/EXE/HOLA.exe');
-  res.download(filePath, 'HOLA.exe', (err) => {
+router.get("/HOLA.exe", (req, res) => {
+  const filePath = path.join(process.cwd(), "uploads/EXE/HOLA.exe");
+  res.download(filePath, "HOLA.exe", (err) => {
     if (err) {
       res.status(500).send({
-        message: "Error al descargar el archivo"
+        message: "Error al descargar el archivo",
       });
     }
   });
 });
 
-module.exports = router; 
+export default router;

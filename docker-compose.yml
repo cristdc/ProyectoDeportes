@@ -30,6 +30,8 @@ services:
       - ./Backend:/app
       - /app/node_modules
       - ./Backend/uploads:/app/uploads
+      - ./Backend/uploads/EXE:/app/uploads/EXE
+      - ./Backend/uploads/Downloads:/app/uploads/Downloads
     networks:
       - deportes_network
 
