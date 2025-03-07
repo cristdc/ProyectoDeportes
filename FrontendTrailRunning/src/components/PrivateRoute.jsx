@@ -1,6 +1,8 @@
 import { Navigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth.js"; // Asegúrate de tener el hook de autenticación
 import { useEffect, useState } from "react";
+import BeatLoader from "react-spinners/BeatLoader";
+
 
 const PrivateRoute = ({ children }) => {
   const { checkAuthStatus } = useAuth();
@@ -17,7 +19,13 @@ const PrivateRoute = ({ children }) => {
   }, [])
 
   if(loading){
-    return <div>Cargando...</div>
+    return (
+      <div className="w-full flex justify-center ">
+        <BeatLoader color="#9B9D79" />
+      </div>
+    )  
+    
+
   }
   
   if (auth) {

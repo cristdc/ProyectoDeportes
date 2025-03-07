@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react"
 import { fetchAllRaces } from "../helpers/fetch";
 import RaceCard from "../components/RaceCard";
+import BeatLoader from "react-spinners/BeatLoader";
+
 
 const Races = () => {
   const [races, setRaces] = useState([]);
@@ -17,7 +19,11 @@ const Races = () => {
   }, [])
 
   if(loading){
-    return <div>Cargando...</div>
+    return (
+      <div className="w-full flex justify-center ">
+        <BeatLoader color="#9B9D79" />
+      </div>
+    );
   }
   
 

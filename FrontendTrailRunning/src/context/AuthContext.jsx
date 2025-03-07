@@ -86,14 +86,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const editUser = async (name, age) => {
+  const editUser = async (name, age, avatar = null) => {7
     try {
       const response = await fetch(`${BACKEND_URL}/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, age }),
+        body: JSON.stringify({ name, age, avatar }),
         credentials: 'include' // Importante para recibir las cookies
       });
       

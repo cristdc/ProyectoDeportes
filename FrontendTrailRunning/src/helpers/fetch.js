@@ -69,6 +69,56 @@ export const fetchLastRace = async () => {
     }
 }
 
+export const fetchKmUser = async () => {
+    try {
+        // Obtenemos las inscripciones terminadas
+        const finish = await fetch(`${api}/registrations/user?status=finished`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!finish.ok) {
+            throw new Error("Error al obtener las carreras finalizadas del usuario");
+        }
+
+        // Parseamos el JSON de la respuesta
+        const finishData = await finish.json();
+
+        // Usamos Promise.all para obtener detalles de todas las carreras
+        const races = await Promise.all(
+            finishData.registrations.map(async (reg) => {
+                const race = await fetch(`${api}/races/${reg.race._id}`);
+                if (!race.ok) {
+                    throw new Error(`Error al obtener detalles de la carrera con ID: ${reg.race}`);
+                }
+
+                return race.json(); // Retorna el JSON de la carrera
+            })
+        );
+        const allKm = races.reduce((totalKm, race) => {
+            // Convertimos explícitamente la fecha de la carrera
+            const raceDate = new Date(race.date);
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            
+            // Verificamos si es del mes y año actual
+            if (raceDate.getMonth() === currentMonth && raceDate.getFullYear() === currentYear) {
+              // Convertimos explícitamente distance a número
+              return totalKm + parseFloat(race.distance || 0);
+            }
+            return totalKm;
+          }, 0);
+
+        return {allKm, racesChart: races};
+
+    } catch (error) {
+        console.error("Error al hacer la petición:", error); // Log para mayor claridad
+        throw new Error(error.message || "Error desconocido"); // Lanza un error con mensaje adecuado
+    }
+};
 
 export const fetchRacesUserNumber = async () => {
     try {
