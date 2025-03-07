@@ -1,35 +1,57 @@
-const BASE_URL = 'http://192.168.50.143:3000/api';
+const BASE_URL = 'http://localhost:3000/api';
 
-// Función auxiliar para manejar las peticiones
 // Función auxiliar para manejar las peticiones
 const fetchWithAuth = async (endpoint, options = {}) => {
   const token = localStorage.getItem('userToken');
-  console.log(`Usando token en fetchWithAuth:`, token); // Debug
-
+  
+  // Asegurarnos de que options.headers existe
   options.headers = options.headers || {};
-
+  
+  // Configuración base para todas las peticiones
   const config = {
     ...options,
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
+      // Solo añadir el token si existe
       ...(token && { 'Authorization': `Bearer ${token}` }),
       ...options.headers
     },
-    credentials: 'include',  // Esto asegura que las cookies se envíen correctamente
+    // Añadir credentials para manejar cookies si el servidor las usa
+    credentials: 'include',
     mode: 'cors'
-  };  
+  };
 
   try {
-    console.log('Haciendo petición a:', `${BASE_URL}${endpoint}`, config);
+    console.log('Haciendo petición a:', `${BASE_URL}${endpoint}`, config); // Debug
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
+    
+    // Log para debug
+    console.log('Respuesta del servidor:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
+    });
 
+    // Si la respuesta no es ok, intentamos obtener el mensaje de error
     if (!response.ok) {
-      const errorData = await response.json().catch(() => null);
-      throw new Error(errorData?.message || `Error HTTP: ${response.status}`);
+      let errorMessage;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || `Error HTTP: ${response.status}`;
+      } catch (e) {
+        errorMessage = `Error HTTP: ${response.status}`;
+      }
+      throw new Error(errorMessage);
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.log('Datos recibidos:', data); // Debug
+    localStorage.setItem('user', JSON.stringify(data));
+    console.log(JSON.stringify(data));
+    localStorage.setItem('token', data.token || '');
+    console.log(data.token);
+    return data;
   } catch (error) {
     console.error('Error en la petición:', error);
     throw error;
@@ -38,53 +60,24 @@ const fetchWithAuth = async (endpoint, options = {}) => {
 
 // API Service
 export const apiService = {
+  // Autenticación
   login: async (credentials) => {
     try {
       const response = await fetchWithAuth('/users/login', {
         method: 'POST',
         body: JSON.stringify(credentials)
       });
-
-      console.log('Respuesta del login:', response); // Debug
-
-      // Verificar si el token está en las cabeceras de la respuesta
-      const token = response.headers.get('Authorization')?.split(' ')[1]; // Ejemplo: Bearer <token>
-      if (token) {
-        localStorage.setItem('userToken', token);
+      
+      // Guardar datos de usuario en localStorage
+      if (response.token) {
+        localStorage.setItem('userToken', response.token);
         localStorage.setItem('userData', JSON.stringify(response.user));
-        console.log('Token guardado en localStorage:', token); // Debug
-      } else {
-        console.error('Error: No se encontró el token en las cabeceras');
       }
-
       return response;
     } catch (error) {
       console.error('Error en login:', error);
       throw error;
     }
-  },
-
-  logout: () => {
-    localStorage.removeItem('userToken');
-    localStorage.removeItem('userData');
-  },
-
-  getUserProfile: async () => {
-    return fetchWithAuth('/users/profile');
-  },
-
-  setAuthData: (token, user) => {
-    console.log("Guardando en localStorage:", token, user); // 🔹 Debug
-    localStorage.setItem('userToken', token);
-    localStorage.setItem('userData', JSON.stringify(user));
-    console.log("Guardado en localStorage:", localStorage.getItem('userToken'), localStorage.getItem('userData'));
-},
-
-
-  getAuthData: () => {
-    const token = localStorage.getItem('userToken');
-    const userData = localStorage.getItem('userData');
-    return { token, user: userData ? JSON.parse(userData) : null };
   },
 
   // Carreras
@@ -133,7 +126,7 @@ export const apiService = {
   },
 
   // Perfil de usuario
-  /*getUserProfile: async () => {
+  getUserProfile: async () => {
     try {
       const response = await fetchWithAuth('/users/profile');
       return response;
@@ -141,7 +134,7 @@ export const apiService = {
       console.error('Error obteniendo perfil:', error);
       throw error;
     }
-  }*/
+  }
 };
 
 export default apiService;
