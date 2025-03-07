@@ -3,6 +3,8 @@ package modelo;
 
 import java.util.Date;
 import java.util.List;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 
 public class Race {
@@ -20,6 +22,8 @@ public class Race {
     private String createdBy;         // ID del administrador que creó la carrera (ObjectId en la BD)
     private String status;            // Estado de la carrera: "open", "closed", "finished"
     private Date createdAt;           // Fecha en la que se registró la carrera
+    private StringProperty participando = new SimpleStringProperty("No");
+
 
     // Constructor vacío
     public Race() {
@@ -46,6 +50,19 @@ public class Race {
     }
 
     // Getters y Setters
+
+    public String getParticipando() {
+        return participando.get();
+    }
+
+    public void setParticipando(String participando) {
+        this.participando.set(participando);
+    }
+
+    // Método property: Único y correcto para JavaFX
+    public StringProperty participandoProperty() {
+        return participando;
+    }
 
     public String get_id() {
         return _id;

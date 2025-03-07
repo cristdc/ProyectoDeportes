@@ -37,7 +37,7 @@ class SplashScreenFragment : Fragment() {
 
     private fun esperarInicioApp(){
         lifecycleScope.launch {
-            delay(5000)
+            delay(7000)
             iniciarFadeOut()
             val mainActivity = activity as MainActivity
             mainActivity.inicializarInterfazPrincipal()

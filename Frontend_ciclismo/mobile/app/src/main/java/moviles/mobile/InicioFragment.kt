@@ -48,7 +48,7 @@ class InicioFragment : Fragment() {
 
             }
         }
-        binding.webHLanz.loadUrl("https://www.lkb`vu.es/")
+        binding.webHLanz.loadUrl("https://www.instagram.com/")
     }
 
 }

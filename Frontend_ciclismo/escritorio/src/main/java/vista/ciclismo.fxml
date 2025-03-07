@@ -40,7 +40,7 @@
                               <Font name="System Bold" size="19.0" />
                            </font>
                         </Label>
-                        <ImageView fitHeight="78.0" fitWidth="78.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView fx:id="imgUsuario" fitHeight="78.0" fitWidth="78.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@ico-user.png" />
                            </image>
@@ -52,7 +52,7 @@
                   </HBox>
                   <HBox layoutX="14.0" layoutY="123.0" prefHeight="463.0" prefWidth="940.0">
                      <children>
-                        <VBox alignment="TOP_CENTER" prefHeight="437.0" prefWidth="476.0" style="-fx-background-image: s;">
+                        <VBox fx:id="VBoxImage" alignment="TOP_CENTER" prefHeight="437.0" prefWidth="476.0" style="-fx-background-image: s;">
                            <children>
                               <HBox alignment="TOP_CENTER" layoutX="10.0" layoutY="10.0" prefHeight="43.0" prefWidth="470.0">
                                  <children>
@@ -72,10 +72,13 @@
                                     </Text>
                                  </children>
                               </HBox>
-                              <HBox prefHeight="287.0" prefWidth="470.0" />
+                              <HBox prefHeight="287.0" prefWidth="470.0">
+                                 <children>
+                                    <ImageView fitHeight="281.0" fitWidth="500.0" pickOnBounds="true" preserveRatio="true" />
+                                 </children></HBox>
                               <HBox alignment="TOP_CENTER" prefHeight="111.0" prefWidth="470.0">
                                  <children>
-                                    <VBox prefHeight="200.0" prefWidth="100.0">
+                                    <VBox fx:id="vboxCiclistas" prefHeight="200.0" prefWidth="100.0">
                                        <children>
                                           <Label prefHeight="21.0" prefWidth="58.0" text="Ciclistas">
                                              <font>
@@ -92,7 +95,7 @@
                                           </Label>
                                        </children>
                                     </VBox>
-                                    <VBox layoutX="104.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
+                                    <VBox fx:id="vBoxCarreras" layoutX="104.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
                                        <children>
                                           <Label prefHeight="21.0" prefWidth="72.0" text="Carreras">
                                              <font>
@@ -109,7 +112,7 @@
                                           </Label>
                                        </children>
                                     </VBox>
-                                    <VBox layoutX="145.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
+                                    <VBox fx:id="vBoxRecorridos" layoutX="145.0" layoutY="10.0" prefHeight="200.0" prefWidth="100.0">
                                        <children>
                                           <Label prefHeight="21.0" prefWidth="89.0" text="Recorridos">
                                              <font>
@@ -142,9 +145,9 @@
                               </Text>
                               <TableView fx:id="TableViewInicio" prefHeight="361.0" prefWidth="470.0">
                                 <columns>
-                                  <TableColumn prefWidth="101.0" text="Puesto" />
-                                  <TableColumn prefWidth="220.0" text="Nombre" />
-                                    <TableColumn prefWidth="148.0" text="Tiempo" />
+                                  <TableColumn fx:id="tvPuesto" prefWidth="101.0" text="Puesto" />
+                                  <TableColumn fx:id="tvNombre" prefWidth="220.0" text="Nombre" />
+                                    <TableColumn fx:id="tvTiempo" prefWidth="148.0" text="Tiempo" />
                                 </columns>
                               </TableView>
                            </children>
@@ -172,13 +175,14 @@
                         </HBox>
                         <TableView fx:id="TableViewCarreras" prefHeight="392.0" prefWidth="899.0">
                           <columns>
-                            <TableColumn prefWidth="61.0" text="Id" />
-                            <TableColumn prefWidth="187.0" text="Nombre" />
-                              <TableColumn prefWidth="134.0" text="Localicación" />
-                              <TableColumn prefWidth="105.0" text="Fecha" />
-                              <TableColumn prefWidth="105.0" text="Distancia" />
-                              <TableColumn prefWidth="141.0" text="Tiempo" />
-                              <TableColumn prefWidth="165.0" text="Tour" />
+                            <TableColumn fx:id="tv2Nombre" prefWidth="142.0" text="Nombre" />
+                              <TableColumn fx:id="tv2Estado" prefWidth="120.0" text="Estado" />
+                              <TableColumn fx:id="tv2Localizacion" prefWidth="125.0" text="Localicación" />
+                              <TableColumn fx:id="tv2Fecha" prefWidth="97.0" text="Fecha" />
+                              <TableColumn fx:id="tv2Distancia" prefWidth="92.0" text="Distancia" />
+                              <TableColumn fx:id="tv2Tiempo" prefWidth="124.0" text="Tiempo" />
+                              <TableColumn fx:id="tv2Tour" prefWidth="70.0" text="Tour" />
+                              <TableColumn fx:id="tv2Participando" prefWidth="121.0" text="Participando" />
                           </columns>
                         </TableView>
                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0">

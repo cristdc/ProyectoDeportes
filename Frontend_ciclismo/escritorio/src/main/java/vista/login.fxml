@@ -63,7 +63,7 @@
                               </Label>
                               <Pane layoutX="55.0" layoutY="99.0" prefHeight="203.0" prefWidth="299.0" style="-fx-border-style: solid; -fx-border-color: #8eac93; -fx-border-width: 4px;">
                                  <children>
-                                    <ImageView fitHeight="204.0" fitWidth="294.0" layoutX="3.0" layoutY="1.0" pickOnBounds="true" preserveRatio="true" />
+                                    <ImageView fx:id="imgLogin" fitHeight="204.0" fitWidth="294.0" layoutX="3.0" layoutY="1.0" pickOnBounds="true" preserveRatio="true" />
                                  </children>
                                  <padding>
                                     <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />

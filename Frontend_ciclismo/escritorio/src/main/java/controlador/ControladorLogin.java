@@ -1,9 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package controlador;
 
+import api.RetrofitClient;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -17,6 +15,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import modelo.User;
@@ -25,11 +25,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-/**
- *
- * @author Marcos
- */
+
 public class ControladorLogin implements Initializable{
+    @FXML
+    private ImageView imgLogin;
     
     @FXML
     private Button btnIngresarLogin;
@@ -55,6 +54,7 @@ public class ControladorLogin implements Initializable{
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         
+        imgLogin.setImage(new Image(getClass().getClassLoader().getResourceAsStream("foto.jpg")));
         txtCorreoLogin.textProperty().addListener((observable, oldValue, newValue) -> {
             comprobarCamposLogin();
         });
@@ -114,7 +114,7 @@ public class ControladorLogin implements Initializable{
             
             System.out.println("Intentando acceder con correo: " + correo);
             LoginRequest loginRequest = new LoginRequest(correo, contrasena);
-            ServiceAPI serviceAPI = ClientAPI.getApiService();
+            ServiceAPI serviceAPI = RetrofitClient.getClient();
             Call<LoginResponse> call = serviceAPI.login(loginRequest);
             System.out.println("Enviando solicitud a la API...");
             
