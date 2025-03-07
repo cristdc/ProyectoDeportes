@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebViewClient
+import androidx.navigation.fragment.findNavController
 import moviles.mobile.databinding.FragmentInicioBinding
 
 class InicioFragment : Fragment() {
@@ -34,8 +35,20 @@ class InicioFragment : Fragment() {
     }
 
     private fun inicializarWebView(){
-        binding.webHLanz.webViewClient = WebViewClient()
-        binding.webHLanz.loadUrl("https://www.ieshlanz.es/")
+        binding.webHLanz.webViewClient = object : WebViewClient() {
+            override fun onReceivedError(
+                view: android.webkit.WebView?,
+                request: android.webkit.WebResourceRequest?,
+                error: android.webkit.WebResourceError?
+            ) {
+
+                requireActivity().runOnUiThread {
+                    findNavController().navigate(R.id.action_inicioFragment_to_errorFragment)
+                }
+
+            }
+        }
+        binding.webHLanz.loadUrl("https://www.lkb`vu.es/")
     }
 
 }
