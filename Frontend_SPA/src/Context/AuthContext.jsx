@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect } from 'react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const AuthContext = createContext();
 
@@ -93,7 +92,41 @@ export const AuthProvider = ({ children }) => {
       setUser(data.user);
       setIsAuth(true);
 
-    
+      return data;
+
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async ({ email, password, name, gender, age }) => {
+    try {
+      setError(null);
+      setLoading(true);
+
+      const response = await fetch(`${BACKEND_URL}/users/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ email, password, name, gender, age }),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al iniciar sesión');
+      }
+
+      // Guardar el usuario en localStorage
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setUser(data.user);
+      setIsAuth(true);
 
       return data;
 
@@ -118,7 +151,6 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || 'Error al cerrar sesión');
       }
       
-      // Limpiar localStorage y estado directamente aquí
       localStorage.removeItem('user');
       setUser(null);
       setIsAuth(false);
@@ -141,6 +173,7 @@ export const AuthProvider = ({ children }) => {
     error,
     loginAdmin,
     logout,
+    register,
     clearError,
     checkAuthStatus,
     isAdmin: true // Siempre será true si el usuario está autenticado

@@ -4,7 +4,7 @@ import { useAuth } from "../hooks/useAuth";
 
 const CreateRace = ({race}) => {
     const navigate = useNavigate();
-    const { loginAdmin, user, error: authError, loading } = useAuth();
+    const { loginAdmin, user, loading } = useAuth();
     const [formData, setFormData] = useState({
       email: '',
       password: ''
@@ -78,11 +78,7 @@ const CreateRace = ({race}) => {
                 />
               </div>
   
-              {(error || authError) && (
-                <div className="text-red-500 text-sm text-center">
-                  {error || authError}
-                </div>
-              )}
+      
   
               <button
                 type="submit"

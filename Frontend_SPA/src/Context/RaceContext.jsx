@@ -192,6 +192,50 @@ export const RaceProvider = ({ children }) => {
     setError(null);
   };
 
+  const getRaceById = async (raceId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`${BACKEND_URL}/api/races/${raceId}`, {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al obtener los detalles de la carrera');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getRaceResults = async (raceId) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch(`${BACKEND_URL}/api/races/${raceId}/results`, {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al obtener los resultados de la carrera');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const value = {
     races,
     loading,
@@ -202,7 +246,9 @@ export const RaceProvider = ({ children }) => {
     downloadCSV,
     uploadResults,
     createRace,
-    clearError
+    clearError,
+    getRaceById,
+    getRaceResults
   };
 
   return <RaceContext.Provider value={value}>{children}</RaceContext.Provider>;

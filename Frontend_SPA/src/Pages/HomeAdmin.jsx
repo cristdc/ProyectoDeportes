@@ -1,21 +1,16 @@
-import { useEffect } from 'react';
-import { replace, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { useAuth } from '../hooks/useAuth';
-import { useRace } from '../Context/RaceContext';
 import RaceCard from '../Components/RaceCard';
+ // Asumiendo que tienes un contexto de autenticación
 
 const HomeAdmin = () => {
+  const [races, setRaces] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { user } = useAuth(); // Para obtener el usuario actual
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const { 
-    races, 
-    loading, 
-    error, 
-    fetchRaces, 
-    deleteRace, 
-    downloadCSV, 
-    uploadResults 
-  } = useRace();
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
@@ -26,6 +21,83 @@ const HomeAdmin = () => {
   useEffect(() => {
     fetchRaces();
   }, []);
+
+  const fetchRaces = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/races`);
+      if (!response.ok) {
+        throw new Error('Error al cargar las carreras');
+      }
+      const data = await response.json();
+      setRaces(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = async (raceId) => {
+    try {
+      navigate(`/admin/races/edit/${raceId}`);
+    } catch (error) {
+      console.error('Error al editar la carrera:', error);
+    }
+  };
+
+  const handleDelete = async (raceId) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar esta carrera?')) {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/races/${raceId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al eliminar la carrera');
+        }
+
+        setRaces(races.filter(race => race._id !== raceId));
+      } catch (error) {
+        console.error('Error al eliminar la carrera:', error);
+      }
+    }
+  };
+
+  const handleDownloadCSV = async (raceId) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/races/${raceId}/download-csv`, {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al descargar el CSV');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `carrera-${raceId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error al descargar el CSV:', error);
+    }
+  };
+
+  const handleUploadResults = async (raceId) => {
+    // Aquí puedes implementar la lógica para subir resultados
+    // Por ejemplo, abrir un modal o navegar a una página de subida
+    try {
+      // Por ahora solo navegamos a una ruta hipotética
+      navigate(`/admin/races/${raceId}/upload-results`);
+    } catch (error) {
+      console.error('Error al preparar la subida de resultados:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -43,6 +115,10 @@ const HomeAdmin = () => {
     );
   }
 
+  if (!user || user.role !== 'admin') {
+    return null; // o un componente de loading
+  }
+
   return (
     <div className="container mx-auto px-4 py-4 sm:py-8">
       {/* Header con título y botón */}
@@ -51,7 +127,7 @@ const HomeAdmin = () => {
           Panel de Administración
         </h1>
         <button 
-         onClick={() => navigate('admin/races/new', { replace: true })}
+          onClick={() => navigate('/admin/races/new')}
           className="w-full sm:w-auto bg-[#9b9d79] hover:bg-[#6b6d54] text-white 
                     font-bold py-2 px-4 rounded-lg transition-all duration-1000 ease-in-out"
         >
@@ -91,9 +167,10 @@ const HomeAdmin = () => {
             key={race._id}
             race={race}
             currentUserId={user._id}
-            onDelete={deleteRace}
-            onDownloadCSV={downloadCSV}
-            onUploadResults={uploadResults}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onDownloadCSV={handleDownloadCSV}
+            onUploadResults={handleUploadResults}
           />
         ))}
       </div>
