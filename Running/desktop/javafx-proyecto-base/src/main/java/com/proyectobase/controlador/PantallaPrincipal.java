@@ -182,9 +182,8 @@ public class PantallaPrincipal implements Initializable {
 
     String idUltimaCarrera;
 
-
     public void obtenerListaCarreras() {
-        String baseUrl = "http://192.168.50.143:3000/api/races/";
+        String baseUrl = "http://18.206.203.108/api/races/";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -211,7 +210,7 @@ public class PantallaPrincipal implements Initializable {
                         System.out.println("Carreras obtenidas: " + carreras.size());
                         if (carreras != null && !carreras.isEmpty()) {
                             tvCarreras.setItems(FXCollections.observableArrayList(carreras));
-                            idUltimaCarrera =  FXCollections.observableArrayList(carreras).get(0).getId();
+                            idUltimaCarrera = FXCollections.observableArrayList(carreras).get(0).getId();
                         } else {
                             System.out.println("No hay carreras disponibles.");
                         }
@@ -223,22 +222,21 @@ public class PantallaPrincipal implements Initializable {
 
         });
     }
-    
-    
+
     public void obtenerListaResultadoUltimaCarrera() {
-        String baseUrl = "http://44.203.132.49:3000/api/races/"+idUltimaCarrera+"/results";
+        String baseUrl = "http://18.206.203.108/api/races/" + idUltimaCarrera + "/results";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
-                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()) 
+                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                         .create()))
                 .build();
 
         servicioLeerResultado = retrofit.create(ServicioLeerResultadoCarrera.class);
 
         Call<ApiResponse> nuevaCallLect = servicioLeerResultado.getResultado();
-        
+
         nuevaCallLect.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
@@ -253,7 +251,7 @@ public class PantallaPrincipal implements Initializable {
                         System.out.println("Carreras obtenidas: " + resultados.size());
                         if (resultados != null && !resultados.isEmpty()) {
                             tableViewPuestos.setItems(FXCollections.observableArrayList(resultados));
-                            
+
                             System.out.println(FXCollections.observableArrayList(resultados).get(0).getId());
 
                             System.out.println(FXCollections.observableArrayList(resultados).get(0).getId());
@@ -285,7 +283,7 @@ public class PantallaPrincipal implements Initializable {
             System.out.println("Error en inicializarTablaCarreras: " + ex.getMessage());
         }
     }
-    
+
     public void inicializarTablaResultados() {
         try {
             columnPuesto.setCellValueFactory(new PropertyValueFactory<>(""));
@@ -308,10 +306,7 @@ public class PantallaPrincipal implements Initializable {
         });
         inicializarTablaCarreras();
         inicializarTablaResultados();
-        
-        
-        
-        
+
         aplicarEfectoHover(imgUsuario);
 
         columnParticipando.setCellValueFactory(param -> param.getValue().participandoProperty1());
