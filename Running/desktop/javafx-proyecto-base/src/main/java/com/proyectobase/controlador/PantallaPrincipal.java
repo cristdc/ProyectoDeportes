@@ -13,7 +13,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 import com.proyectobase.modelo.Carrera;
+import java.io.IOException;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TableRow;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -25,6 +30,7 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 public class PantallaPrincipal implements Initializable {
 
@@ -106,7 +112,22 @@ public class PantallaPrincipal implements Initializable {
 
     @FXML
     void navegarLogin(MouseEvent event) {
+        Platform.runLater(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/proyectobase/vista/ventanaLogin.fxml"));
+                Parent root = loader.load();
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.setTitle("Running");
+                stage.show();
 
+                // Cierra la ventana de inicio de sesión
+                Stage principalStage = (Stage) imgUsuario.getScene().getWindow();
+                principalStage.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void aplicarEfectoHover(ImageView imagenVista) {
