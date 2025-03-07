@@ -7,34 +7,24 @@ const allowedOrigins = [
   "http://localhost:8081", // Otro puerto alternativo (por si acaso)
   "http://127.0.0.1:5500", // Añade esta línea
   "http://localhost:5500", // También esta
-  "http://localhost", // Nuevo origen (Docker frontend)
+  "http://192.168.70.191",
   "http://localhost/prueba", // Nuevo origen específico para la página de prueba
 ];
 
-// export const corsOptions = {
-//   origin: function (origin, callback) {
-//     // Permitir peticiones sin origin en desarrollo
-//     if (!origin && process.env.NODE_ENV !== "production") {
-//       return callback(null, true);
-//     }
-// 
-//     if (!origin || allowedOrigins.includes(origin)) {
-//       callback(null, true);
-//     } else {
-//       callback(new Error("No permitido por CORS"));
-//     }
-//   },
-//   credentials: true, // Esto es crucial
-//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//   allowedHeaders: ["Content-Type", "Authorization"],
-//   exposedHeaders: ["set-cookie"],
-// };
-
 export const corsOptions = {
   origin: function (origin, callback) {
-    callback(null, origin || "*"); // Permite cualquier origen, incluso sin origin
+    // Permitir peticiones sin origin en desarrollo
+    if (!origin && process.env.NODE_ENV !== "production") {
+      return callback(null, true);
+    }
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("No permitido por CORS"));
+    }
   },
-  credentials: true, // Permitir credenciales
+  credentials: true, // Esto es crucial
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   exposedHeaders: ["set-cookie"],
