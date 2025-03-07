@@ -1,6 +1,7 @@
 package com.proyectobase.controlador;
 
 import apirest.ServicioLeerCarreras;
+import apirest.ServicioLeerResultadoCarrera;
 import com.google.gson.GsonBuilder;
 import com.proyectobase.modelo.ApiResponse;
 import javafx.scene.input.MouseEvent;
@@ -143,6 +144,7 @@ public class PantallaPrincipal implements Initializable {
     }
 
     private ServicioLeerCarreras servicioLeer;
+    private ServicioLeerResultadoCarrera servicioLeerResultado;
 
     private void aplicarEfectoHover(ImageView imagenVista) {
         imagenVista.setOnMouseEntered(event -> {
@@ -158,8 +160,15 @@ public class PantallaPrincipal implements Initializable {
 
     ObservableList<Carrera> listaCarreras;
 
+    String idUltimaCarrera;
+
+
     public void obtenerListaCarreras() {
+<<<<<<< HEAD
         String baseUrl = "http://192.168.60.191/:3000/api/races/";
+=======
+        String baseUrl = "http://18.206.203.108/api/races/";
+>>>>>>> ffee6b55256531e11caf084b0aea34fbe388c3ee
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -186,8 +195,53 @@ public class PantallaPrincipal implements Initializable {
                         System.out.println("Carreras obtenidas: " + carreras.size());
                         if (carreras != null && !carreras.isEmpty()) {
                             tvCarreras.setItems(FXCollections.observableArrayList(carreras));
+                            idUltimaCarrera =  FXCollections.observableArrayList(carreras).get(0).getId();
+                        } else {
+                            System.out.println("No hay carreras disponibles.");
+                        }
+                    } else {
+                        System.out.println("Error al obtener carreras: " + response.code() + " - " + response.message());
+                    }
+                });
+            }
 
-                            System.out.println(FXCollections.observableArrayList(carreras).get(0).getId());
+        });
+    }
+    
+    
+    public void obtenerListaResultadoUltimaCarrera() {
+        String baseUrl = "http://18.206.203.108/api/races/"+idUltimaCarrera+"/results";
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
+                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()) 
+                        .create()))
+                .build();
+
+        servicioLeerResultado = retrofit.create(ServicioLeerResultadoCarrera.class);
+
+        Call<ApiResponse> nuevaCallLect = servicioLeerResultado.getResultado();
+        
+        nuevaCallLect.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                System.out.println("Network Error :: " + t.getLocalizedMessage());
+            }
+
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                Platform.runLater(() -> {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<Carrera> resultados = response.body().getRaces();
+                        System.out.println("Carreras obtenidas: " + resultados.size());
+                        if (resultados != null && !resultados.isEmpty()) {
+                            tableViewPuestos.setItems(FXCollections.observableArrayList(resultados));
+                            
+                            System.out.println(FXCollections.observableArrayList(resultados).get(0).getId());
+
+                            System.out.println(FXCollections.observableArrayList(resultados).get(0).getId());
+
                         } else {
                             System.out.println("No hay carreras disponibles.");
                         }
@@ -215,6 +269,17 @@ public class PantallaPrincipal implements Initializable {
             System.out.println("Error en inicializarTablaCarreras: " + ex.getMessage());
         }
     }
+    
+    public void inicializarTablaResultados() {
+        try {
+            columnPuesto.setCellValueFactory(new PropertyValueFactory<>(""));
+            columnNombreCorredor.setCellValueFactory(new PropertyValueFactory<>(""));
+            columnTiempoCorredor.setCellValueFactory(new PropertyValueFactory<>(""));
+            obtenerListaResultadoUltimaCarrera();
+        } catch (Exception ex) {
+            System.out.println("Error en inicializarTablaResultados: " + ex.getMessage());
+        }
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -226,6 +291,11 @@ public class PantallaPrincipal implements Initializable {
             scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         });
         inicializarTablaCarreras();
+        inicializarTablaResultados();
+        
+        
+        
+        
         aplicarEfectoHover(imgUsuario);
 
         columnParticipando.setCellValueFactory(param -> param.getValue().participandoProperty1());

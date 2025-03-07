@@ -62,7 +62,11 @@ public class controladorLogin implements Initializable {
                 .create();
 
         Retrofit retrofit = new Retrofit.Builder()
+<<<<<<< HEAD
                 .baseUrl("http://192.168.60.191/:3000/api/") // Cambia esto a tu URL de API
+=======
+                .baseUrl("http://18.206.203.108/api/") // Cambia esto a tu URL de API
+>>>>>>> ffee6b55256531e11caf084b0aea34fbe388c3ee
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
