@@ -1,6 +1,8 @@
 import { createContext, useState, useEffect } from 'react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+import { createContext, useState, useEffect } from 'react';
+
 
 export const AuthContext = createContext();
 
@@ -17,90 +19,46 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem('user') !== null;
   });
 
-  useEffect(() => {
-    if (localStorage.getItem('user')) {
-      checkAuthStatus();
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  const checkAuthStatus = async () => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/users/profile`, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.role === 'admin') {
-          setUser(data);
-          setIsAuth(true);
-          localStorage.setItem('user', JSON.stringify(data));
-          return true;
-        }
-      }
-      
-      // Si no hay usuario válido o no es admin, limpiar todo
-      localStorage.removeItem('user');
-      setUser(null);
-      setIsAuth(false);
-      return false;
-
-    } catch (err) {
-      console.error('Error al verificar autenticación:', err);
-      localStorage.removeItem('user');
-      setUser(null);
-      setIsAuth(false);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loginAdmin = async (email, password) => {
-    try {
-      setError(null);
-      setLoading(true);
-
-      const response = await fetch(`${BACKEND_URL}/users/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include'
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Error al iniciar sesión');
-      }
-
-      if (data.user.role !== 'admin') {
-        throw new Error('Acceso denegado. Esta página es solo para administradores.');
-      }
-
-      // Guardar el usuario en localStorage
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setUser(data.user);
-      setIsAuth(true);
-
-      return data;
-
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Verificar estado de autenticación al cargar
+    useEffect(() => {
+        const checkAuthStatus = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(`${API_URL}/users/auth-status`, {
+                    method: 'GET',
+                    credentials: 'include', // Importante para enviar las cookies
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    // Obtenemos datos completos del usuario si está autenticado
+                    const userResponse = await fetch(`${API_URL}/users/profile`, {
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (userResponse.ok) {
+                        const userData = await userResponse.json();
+                        setUser(userData);
+                    } else {
+                        setUser(data.user); // Información básica del usuario (id y role)
+                    }
+                } else {
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error("Error al verificar autenticación:", error);
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
 
   const register = async ({ email, password, name, gender, age }) => {
     try {
