@@ -1,7 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
 const CardRace = ({ race }) => {
+  const { userRegistrations, registerToRace, unregisterFromRace } = useAuth();
   const navigate = useNavigate();
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  useEffect(() => {
+    const checkRegistration = () => {
+      if (Array.isArray(userRegistrations)) {
+        const registered = userRegistrations.some(
+          reg => reg.race._id === race._id && reg.status === 'registered'
+        );
+        setIsRegistered(registered);
+      }
+    };
+    checkRegistration();
+  }, [userRegistrations, race._id]);
+
+  const handleRegistration = async () => {
+    if (isRegistered) {
+      const registration = userRegistrations.find(
+        reg => reg.race._id === race._id && reg.status === 'registered'
+      );
+      
+      if (!registration) {
+        console.error('No se encontró una inscripción activa para esta carrera');
+        return;
+      }
+
+      const result = await unregisterFromRace(registration._id);
+      if (result.success) {
+        setIsRegistered(false);
+      } else {
+        console.error(result.message);
+      }
+    } else {
+      const result = await registerToRace(race._id);
+      if (result.success) {
+        setIsRegistered(true);
+      } else {
+        console.error(result.message);
+      }
+    }
+  };
+
+  const handleDownload = async (e) => {
+      e.preventDefault();
+      
+  };
+
   // Si no hay datos de carrera, mostramos un mensaje o retornamos null
   if (!race) {
     console.log('No hay datos de carrera');
@@ -63,11 +112,41 @@ const CardRace = ({ race }) => {
 
         {/* Botón de acción */}
         <button 
+          onClick={handleRegistration}
+          className={`w-full mb-2 ${
+            isRegistered 
+              ? 'bg-red-500 hover:bg-red-600' 
+              : 'bg-[#9B9D79] hover:bg-opacity-90'
+          } text-white py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2`}
+        >
+          {isRegistered ? 'Desapuntarse' : 'Inscribirme'}
+        </button>
+        <button 
           onClick={() => navigate(`/carrerasDetail/${race._id}`)}
           className="w-full bg-[#9B9D79] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2"
         >
           Ver detalles
         </button>
+            
+        <button
+                onClick={handleDownload}
+                className="flex mt-2 w-full justify-center items-center gap-2 px-4 py-2 bg-[#9B9D79] text-white rounded-md hover:bg-[#8EAC93] transition-colors"
+            >
+                <svg 
+                    className="h-5 w-5" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                >
+                    <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                </svg>
+                Descargar
+            </button>
       </div>
     </div>
   );
