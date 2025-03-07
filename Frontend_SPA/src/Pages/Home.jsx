@@ -1,3 +1,4 @@
+// Importaciones necesarias
 import carrera1 from '../assets/carrera1.png'
 import carrera2 from '../assets/carrera2.png'
 import carrera3 from '../assets/carrera3.png'
@@ -5,15 +6,19 @@ import logo from '../assets/logo.png'
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 const Home = () => {
+  // Hook para la navegación
   const navigate = useNavigate();
+
+  // Estados para el componente de la pagina Home
   const [currentImage, setCurrentImage] = useState(0);
   const images = [carrera1, carrera2, carrera3];
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Cambiar imagen cada 5 segundos
+  // Efecto para cambiar la imagen cada 5 segundos
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prev) => (prev + 1) % images.length);
@@ -21,62 +26,43 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Efecto para mostrar el botón de volver arriba cuando se hace scroll
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollButton(true);
-      } else {
-        setShowScrollButton(false);
-      }
-    };
-
+    const handleScroll = () => setShowScrollButton(window.scrollY > 300);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Efecto para comprobar si hay un tema guardado
   useEffect(() => {
-    // Comprobar si hay un tema guardado
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark') {
       setIsDark(true);
       document.documentElement.classList.add('dark');
-    } else {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
     }
   }, []);
 
+  // Efecto para comprobar el tamaño de la pantalla
   useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 1024); // 1024px es el breakpoint de lg en Tailwind
-    };
-
-    // Comprobar tamaño inicial
+    const checkScreenSize = () => setIsMobile(window.innerWidth < 1024);
     checkScreenSize();
-
-    // Añadir listener para cambios de tamaño
     window.addEventListener('resize', checkScreenSize);
-
-    // Limpiar listener
     return () => window.removeEventListener('resize', checkScreenSize);
   }, []);
 
+  // Efecto para cambiar el fondo de la página
   const backgroundStyle = {
-    backgroundImage: `linear-gradient(${
-      isDark 
-        ? 'rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)' 
-        : 'rgba(253, 247, 237, 0.6), rgba(0, 0, 0, 0.6)'
-    }), url(${images[currentImage]})`,
+    backgroundImage: `linear-gradient(${isDark ? 'rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)' : 'rgba(253, 247, 237, 0.6), rgba(0, 0, 0, 0.6)'}), url(${images[currentImage]})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     transition: 'background-image 1s ease-in-out, background-color 0.3s ease-in-out',
   };
 
+  // Función para descargar el archivo
   const handleDownload = async () => {
     try {
       const fileName = isMobile ? 'ADIOS.exe' : 'HOLA.exe';
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download/${fileName}`);
-      
       if (!response.ok) throw new Error('Error al descargar el archivo');
       
       const blob = await response.blob();
@@ -94,13 +80,12 @@ const Home = () => {
     }
   };
 
+  // Función para desplazarse a una sección
   const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Función para desplazarse hacia arriba
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -112,74 +97,45 @@ const Home = () => {
   const toggleTheme = () => {
     const newTheme = !isDark;
     setIsDark(newTheme);
-    
-    if (newTheme) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    document.documentElement.classList[newTheme ? 'add' : 'remove']('dark');
+    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
   };
 
   return (
     <div className="flex flex-col w-full relative">
-      {/* Botón de tema */}
+      {/* Botón para cambiar el tema */}
       <button
         onClick={toggleTheme}
         className={`fixed top-8 right-8 w-12 h-12 rounded-full 
-          ${isDark 
-            ? 'bg-white/20 hover:bg-white/30 text-white' 
-            : 'bg-[#333333]/20 hover:bg-[#333333]/30 text-[#333333]'
-          }
-          backdrop-blur-sm transition-all duration-300 
-          flex items-center justify-center z-50 group`}
+          ${isDark ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-[#333333]/20 hover:bg-[#333333]/30 text-[#333333]'}
+          backdrop-blur-sm transition-all duration-300 flex items-center justify-center z-50 group`}
         aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
       >
         {isDark ? (
-          // Icono del sol para modo claro
-          <svg 
-            className="w-6 h-6 transform group-hover:rotate-90 transition-transform duration-300" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-            />
+          <svg className="w-6 h-6 transform group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
         ) : (
-          // Icono de la luna para modo oscuro
-          <svg 
-            className="w-6 h-6 transform group-hover:rotate-12 transition-transform duration-300" 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-            />
+          <svg className="w-6 h-6 transform group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
           </svg>
         )}
       </button>
 
-      {/* Sección superior responsive */}
+      {/* Contenedor principal de la página */}
       <div 
         className="w-full flex flex-col items-center justify-start relative overflow-hidden"
         style={{ height: '100vh' }}
       >
+        {/* Fondo de la página */}
         <div 
           className="absolute inset-0 z-0"
           style={backgroundStyle}
         />
 
+        {/* Contenedor de la página */}
         <div className="relative z-10 flex flex-col items-center w-full max-w-3xl mx-auto px-4 sm:px-6 h-full py-4 sm:py-8">
+          {/* Logo de la página */}
           <div className="w-[15vh] h-[15vh] min-w-[60px] max-w-[120px] flex items-center justify-center bg-black/40 rounded-full p-3 mb-4">
             <img 
               src={logo} 
@@ -188,6 +144,7 @@ const Home = () => {
             />
           </div>
 
+          {/* Botón para registrarse */}
           <button 
             onClick={() => navigate('/register')}
             className="bg-[#9CAF88] px-4 sm:px-6 py-2 rounded-lg shadow-lg hover:bg-[#8A9C76] transition-colors text-white text-[2vh] mb-4"
@@ -195,6 +152,7 @@ const Home = () => {
             Registrarse
           </button>
 
+          {/* Contenedor de la sección de bienvenida */}
           <div className="text-center flex flex-col gap-4 flex-grow">
             <h1 className="text-[2.5vh] sm:text-[3.5vh] text-white font-bold">
               Bienvenido a MultiSports
@@ -202,7 +160,8 @@ const Home = () => {
             <p className="text-[1.5vh] sm:text-[1.8vh] text-gray-200 leading-relaxed px-2">
               Tu destino definitivo para los amantes del deporte al aire libre. En MultiSports, nos especializamos en tres emocionantes modalidades que te conectarán con la naturaleza y desafiarán tus límites.
             </p>
-            
+
+            {/* Contenedor de las secciones de los deportes */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2 px-2">
               <div 
                 onClick={() => scrollToSection('cycling')}
@@ -213,6 +172,7 @@ const Home = () => {
                 <span className="text-[1.2vh] sm:text-[1.4vh] text-white mt-1 block">Click para ver más →</span>
               </div>
 
+              {/* Sección de Trail Running */}
               <div 
                 onClick={() => scrollToSection('trail')}
                 className="bg-black/40 p-3 sm:p-4 rounded-lg cursor-pointer transform hover:scale-105 transition-all duration-300 hover:bg-black/50"
@@ -222,6 +182,7 @@ const Home = () => {
                 <span className="text-[1.2vh] sm:text-[1.4vh] text-white mt-1 block">Click para ver más →</span>
               </div>
 
+              {/* Sección de Running */}
               <div 
                 onClick={() => scrollToSection('running')}
                 className="bg-black/40 p-3 sm:p-4 rounded-lg cursor-pointer transform hover:scale-105 transition-all duration-300 hover:bg-black/50"
@@ -235,8 +196,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Secciones de deportes responsive */}
-      {/* Cycling */}
+      {/* Sección de Cycling */}
       <div id="cycling" className="w-full relative overflow-hidden flex flex-col lg:flex-row" style={{ minHeight: '100vh' }}>
         <div className="w-full lg:w-1/2 relative" style={{ minHeight: '50vh' }}>
           <img 
@@ -286,7 +246,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Running */}
+      {/* Sección de Running */}
       <div id="running" className="w-full relative overflow-hidden flex flex-col lg:flex-row-reverse" style={{ minHeight: '100vh' }}>
         <div className="w-full lg:w-1/2 relative" style={{ minHeight: '50vh' }}>
           <img 
@@ -336,7 +296,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Trail Running */}
+      {/* Sección de Trail Running */}
       <div id="trail" className="w-full relative overflow-hidden flex flex-col lg:flex-row" style={{ minHeight: '100vh' }}>
         <div className="w-full lg:w-1/2 relative" style={{ minHeight: '50vh' }}>
           <img 
@@ -386,7 +346,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Botón flotante para volver arriba */}
+      {/* Botón para volver arriba */}  
       <button
         onClick={scrollToTop}
         className={`fixed bottom-8 right-8 w-12 h-12 rounded-full bg-black/30 backdrop-blur-sm 
@@ -410,7 +370,7 @@ const Home = () => {
         </svg>
       </button>
 
-      {/* Añade también estas clases al CSS global o en un archivo de estilos */}
+      {/* Estilos para el tema */}
       <style jsx global>{`
         :root {
           --bg-primary: #FDF7ED;
@@ -428,7 +388,6 @@ const Home = () => {
           --accent-hover: #6A7F58;
         }
 
-        /* Transición suave al cambiar de tema */
         * {
           transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
         }
