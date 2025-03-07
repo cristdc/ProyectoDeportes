@@ -6,43 +6,42 @@ const CardRace = ({ race }) => {
   const { userRegistrations, registerToRace, unregisterFromRace } = useAuth();
   const navigate = useNavigate();
   const [isRegistered, setIsRegistered] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const checkRegistration = () => {
-      if (Array.isArray(userRegistrations)) {
-        const registered = userRegistrations.some(
-          reg => reg.race._id === race._id && reg.status === 'registered'
-        );
-        setIsRegistered(registered);
-      }
+      const registration = userRegistrations.find(
+        reg => reg.race._id === race._id && reg.status === 'registered'
+      );
+      setIsRegistered(!!registration);
     };
     checkRegistration();
   }, [userRegistrations, race._id]);
 
   const handleRegistration = async () => {
-    if (isRegistered) {
-      const registration = userRegistrations.find(
-        reg => reg.race._id === race._id && reg.status === 'registered'
-      );
-      
-      if (!registration) {
-        console.error('No se encontró una inscripción activa para esta carrera');
-        return;
-      }
-
-      const result = await unregisterFromRace(registration._id);
-      if (result.success) {
-        setIsRegistered(false);
+    setIsLoading(true);
+    try {
+      if (isRegistered) {
+        const registration = userRegistrations.find(
+          reg => reg.race._id === race._id && reg.status === 'registered'
+        );
+        
+        if (registration) {
+          const result = await unregisterFromRace(registration._id);
+          if (result.success) {
+            setIsRegistered(false);
+          }
+        }
       } else {
-        console.error(result.message);
+        const result = await registerToRace(race._id);
+        if (result.success) {
+          setIsRegistered(true);
+        }
       }
-    } else {
-      const result = await registerToRace(race._id);
-      if (result.success) {
-        setIsRegistered(true);
-      } else {
-        console.error(result.message);
-      }
+    } catch (error) {
+      console.error("Error en la inscripción:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -113,13 +112,16 @@ const CardRace = ({ race }) => {
         {/* Botón de acción */}
         <button 
           onClick={handleRegistration}
+          disabled={isLoading}
           className={`w-full mb-2 ${
             isRegistered 
               ? 'bg-red-500 hover:bg-red-600' 
               : 'bg-[#9B9D79] hover:bg-opacity-90'
-          } text-white py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2`}
+          } text-white py-2 px-4 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2 ${
+            isLoading ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
-          {isRegistered ? 'Desapuntarse' : 'Inscribirme'}
+          {isLoading ? 'Procesando...' : isRegistered ? 'Desapuntarse' : 'Inscribirme'}
         </button>
         <button 
           onClick={() => navigate(`/carrerasDetail/${race._id}`)}

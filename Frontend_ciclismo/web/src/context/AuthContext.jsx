@@ -160,39 +160,87 @@ export const AuthProvider = ({ children }) => {
 
     const registerToRace = async (raceId) => {
         try {
-            const response = await fetchWithToken(`${API_URL}/registrations`, {
-                method: "POST",
-                body: JSON.stringify({ raceId })
-            });
+            // Buscar cualquier registro previo para esta carrera (incluso los cancelados)
+            const existingRegistration = userRegistrations.find(reg => 
+                reg.race._id === raceId
+            );
+            
+            if (existingRegistration) {
+                console.log("Encontrado registro existente:", existingRegistration);
+                
+                // Si existe un registro previo, actualizarlo a 'registered'
+                const response = await fetch(`${API_URL}/registrations/${existingRegistration._id}/cancel`, {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status: 'registered' })
+                });
 
-            const data = await response.json();
+                const data = await response.json();
+                console.log("Respuesta de actualización:", data);
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Error al inscribirse');
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error al actualizar la inscripción');
+                }
+
+                // Actualizar el estado local
+                await fetchRegistrations();
+                return { success: true, message: 'Inscripción actualizada correctamente' };
+            } else {
+                // Solo si no existe ningún registro previo, crear uno nuevo
+                const response = await fetch(`${API_URL}/registrations`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ raceId })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Error al inscribirse');
+                }
+
+                await fetchRegistrations();
+                return { success: true, message: data.message };
             }
-
-            await fetchRegistrations();
-            return { success: true, message: data.message };
         } catch (error) {
+            console.error("Error en el registro:", error);
             return { success: false, message: error.message };
         }
     };
 
     const unregisterFromRace = async (registrationId) => {
         try {
-            const response = await fetchWithToken(`${API_URL}/registrations/${registrationId}/cancel`, {
-                method: "PUT"
+            const response = await fetch(`${API_URL}/registrations/${registrationId}/cancel`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                throw new Error(data.message || 'Error al desinscribirse');
+                throw new Error(data.message || 'Error al cancelar la inscripción');
             }
 
-            await fetchRegistrations();
+            setUserRegistrations(prevRegistrations => 
+                prevRegistrations.map(reg => 
+                    reg._id === registrationId 
+                        ? { ...reg, status: 'cancelled' }
+                        : reg
+                )
+            );
+
             return { success: true, message: data.message };
         } catch (error) {
+            console.error("Error al cancelar inscripción:", error);
             return { success: false, message: error.message };
         }
     };

@@ -58,6 +58,16 @@ function NavBar() {
                             >
                                 Historial de Carreras
                             </Link>
+                            <Link 
+                                to="/mis-carreras"
+                                className={`${
+                                    isActiveRoute('/mis-carreras')
+                                    ? 'text-[#9B9D79] border-b-2 border-[#9B9D79]'
+                                    : 'text-[#1a1204] hover:text-[#8EAC93]'
+                                } px-3 py-2 text-sm font-medium transition-colors duration-200`}
+                            >
+                                Mis Carreras
+                            </Link>
                         </div>
 
                         {/* Botones de autenticación */}
