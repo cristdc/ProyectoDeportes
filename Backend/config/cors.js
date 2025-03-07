@@ -11,20 +11,30 @@ const allowedOrigins = [
   "http://localhost/prueba", // Nuevo origen específico para la página de prueba
 ];
 
+// export const corsOptions = {
+//   origin: function (origin, callback) {
+//     // Permitir peticiones sin origin en desarrollo
+//     if (!origin && process.env.NODE_ENV !== "production") {
+//       return callback(null, true);
+//     }
+// 
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error("No permitido por CORS"));
+//     }
+//   },
+//   credentials: true, // Esto es crucial
+//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//   allowedHeaders: ["Content-Type", "Authorization"],
+//   exposedHeaders: ["set-cookie"],
+// };
+
 export const corsOptions = {
   origin: function (origin, callback) {
-    // Permitir peticiones sin origin en desarrollo
-    if (!origin && process.env.NODE_ENV !== "production") {
-      return callback(null, true);
-    }
-
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("No permitido por CORS"));
-    }
+    callback(null, origin || "*"); // Permite cualquier origen, incluso sin origin
   },
-  credentials: true, // Esto es crucial
+  credentials: true, // Permitir credenciales
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   exposedHeaders: ["set-cookie"],
