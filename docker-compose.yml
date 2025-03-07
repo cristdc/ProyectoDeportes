@@ -64,7 +64,7 @@ services:
   nginx:
       build: ./nginx
       ports:
-        - "80:80"
+        - "81:81"
       restart: always
       depends_on:
         - app
