@@ -112,7 +112,6 @@ public class controladorLogin implements Initializable {
                 stage.setTitle("Pantalla Principal");
                 stage.show();
 
-                // Cierra la ventana de inicio de sesión
                 Stage loginStage = (Stage) btnIniciarSesion.getScene().getWindow();
                 loginStage.close();
             } catch (IOException e) {
