@@ -7,13 +7,15 @@ package com.proyectobase.modelo;
 import com.google.gson.annotations.SerializedName;
 import java.time.LocalDateTime;
 import java.util.List;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  *
  * @author Juanan
  */
-
 public class Carrera {
+
     private String _id;
     private String name;
     private String location;
@@ -22,7 +24,25 @@ public class Carrera {
     private LocalDateTime date;
     private String status;
     private String tour;
+    private StringProperty participando = new SimpleStringProperty("No");
 
+    public String getParticipando() {
+        return participando.get();
+    }
+
+    public void setParticipando(String participando) {
+        this.participando.set(participando);
+    }
+    
+    public String participandoProperty(){
+        return this.participando.get();
+    }
+    
+    public StringProperty participandoProperty1(){
+        return participando;
+    }
+    
+    
     public String getId() {
         return _id;
     }
@@ -30,12 +50,12 @@ public class Carrera {
     public void setId(String id) {
         this._id = id;
     }
-    
+
     public void setQualifyingTime(String qualifyingTime) {
         this.qualifyingTime = qualifyingTime;
     }
-    
-    public String getQualifyingTime(){
+
+    public String getQualifyingTime() {
         return qualifyingTime;
     }
 
