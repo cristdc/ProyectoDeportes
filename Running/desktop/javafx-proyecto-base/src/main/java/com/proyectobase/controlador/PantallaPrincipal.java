@@ -22,6 +22,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.Scene;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -34,6 +35,7 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -107,28 +109,39 @@ public class PantallaPrincipal implements Initializable {
 
     @FXML
     private VBox vboxRecorridos;
-    
+
     @FXML
-    private TableColumn<Carrera,String> columnParticipando;
-    
+    private TableColumn<Carrera, String> columnParticipando;
 
     @FXML
     void btnAccionDesapuntarse(ActionEvent event) {
-        
+        Carrera carreraSeleccionada = tvCarreras.getSelectionModel().getSelectedItem();
+
+        if (carreraSeleccionada != null) {
+            carreraSeleccionada.setParticipando("No");
+            tvCarreras.refresh();
+        } else {
+            System.out.println("No hay una carrera seleccionada.");
+        }
     }
 
     @FXML
     void btnAccionParticipar(ActionEvent event) {
-        
+        Carrera carreraSeleccionada = tvCarreras.getSelectionModel().getSelectedItem();
+
+        if (carreraSeleccionada != null) {
+            carreraSeleccionada.setParticipando("Sí");
+            tvCarreras.refresh();
+        } else {
+            System.out.println("No hay una carrera seleccionada.");
+        }
     }
 
     @FXML
     void navegarLogin(MouseEvent event) {
 
     }
-    
-    
-    
+
     private ServicioLeerCarreras servicioLeer;
 
     private void aplicarEfectoHover(ImageView imagenVista) {
@@ -142,24 +155,23 @@ public class PantallaPrincipal implements Initializable {
             imagenVista.setScaleY(1.0);
         });
     }
-    
 
-    
     ObservableList<Carrera> listaCarreras;
+
     public void obtenerListaCarreras() {
-        String baseUrl = "http://44.203.132.49:3000/api/races/";
+        String baseUrl = "http://192.168.50.143:3000/api/races/";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(new GsonBuilder()
-                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()) 
+                        .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                         .create()))
                 .build();
 
         servicioLeer = retrofit.create(ServicioLeerCarreras.class);
 
         Call<ApiResponse> nuevaCallLect = servicioLeer.getCarrera();
-        
+
         nuevaCallLect.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
@@ -174,7 +186,7 @@ public class PantallaPrincipal implements Initializable {
                         System.out.println("Carreras obtenidas: " + carreras.size());
                         if (carreras != null && !carreras.isEmpty()) {
                             tvCarreras.setItems(FXCollections.observableArrayList(carreras));
-                            
+
                             System.out.println(FXCollections.observableArrayList(carreras).get(0).getId());
                         } else {
                             System.out.println("No hay carreras disponibles.");
@@ -187,10 +199,9 @@ public class PantallaPrincipal implements Initializable {
 
         });
     }
-    
+
     public void inicializarTablaCarreras() {
         try {
-            //columnId.setCellValueFactory(new PropertyValueFactory<>("id"));
             columnNombre.setCellValueFactory(new PropertyValueFactory<>("name"));
             columnLocalizacion.setCellValueFactory(new PropertyValueFactory<>("location"));
             columnDistancia.setCellValueFactory(new PropertyValueFactory<>("distance"));
@@ -207,12 +218,17 @@ public class PantallaPrincipal implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        Platform.runLater(() -> {
+            Stage stage = (Stage) txtCarreras.getScene().getWindow();
+            stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream("logo.png")));
+
+            Scene scene = txtCarreras.getScene();
+            scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+        });
         inicializarTablaCarreras();
         aplicarEfectoHover(imgUsuario);
-        
-        columnParticipando.setCellValueFactory(param -> {
-            return new javafx.beans.property.SimpleStringProperty("No");
-        });
+
+        columnParticipando.setCellValueFactory(param -> param.getValue().participandoProperty1());
 
         Image imagen = new Image(getClass().getResource("/imagenRunning.png").toExternalForm());
 
