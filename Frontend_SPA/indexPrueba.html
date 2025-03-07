@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Autenticación API</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #f44336;
+            margin-top: 5px;
+        }
+        .success {
+            color: #4CAF50;
+            margin-top: 5px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .logged-in {
+            background-color: #e8f5e9;
+            border: 1px solid #a5d6a7;
+        }
+        .logged-out {
+            background-color: #ffebee;
+            border: 1px solid #ef9a9a;
+        }
+        .hidden {
+            display: none;
+        }
+        #logoutBtn {
+            background-color: #f44336;
+        }
+        #logoutBtn:hover {
+            background-color: #e53935;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: white;
+            border-bottom: 2px solid #4CAF50;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test de Autenticación API</h1>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="login">Login</div>
+        <div class="tab" data-tab="register">Register</div>
+        <div class="tab" data-tab="cookies">Test Cookies</div>
+        <div class="tab" data-tab="profile">Profile</div>
+    </div>
+
+    <div id="status" class="status logged-out">
+        Estado: No autenticado
+    </div>
+
+    <div id="login" class="tab-content container active">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div>
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" placeholder="Email" required>
+            </div>
+            <div>
+                <label for="loginPassword">Contraseña:</label>
+                <input type="password" id="loginPassword" placeholder="Contraseña" required>
+            </div>
+            <button type="submit">Iniciar sesión</button>
+        </form>
+        <div id="loginError" class="error hidden"></div>
+        <div id="loginSuccess" class="success hidden"></div>
+        <div id="loginResponse" class="hidden">
+            <h3>Respuesta API:</h3>
+            <pre id="loginResponseJson"></pre>
+        </div>
+    </div>
+
+    <div id="register" class="tab-content container">
+        <h2>Registro</h2>
+        <form id="registerForm">
+            <div>
+                <label for="registerName">Nombre:</label>
+                <input type="text" id="registerName" placeholder="Nombre" required>
+            </div>
+            <div>
+                <label for="registerEmail">Email:</label>
+                <input type="email" id="registerEmail" placeholder="Email" required>
+            </div>
+            <div>
+                <label for="registerPassword">Contraseña:</label>
+                <input type="password" id="registerPassword" placeholder="Contraseña" required>
+            </div>
+            <div>
+                <label for="registerGender">Género:</label>
+                <select id="registerGender" required>
+                    <option value="male">Masculino</option>
+                    <option value="female">Femenino</option>
+                </select>
+            </div>
+            <button type="submit">Registrarse</button>
+        </form>
+        <div id="registerError" class="error hidden"></div>
+        <div id="registerSuccess" class="success hidden"></div>
+        <div id="registerResponse" class="hidden">
+            <h3>Respuesta API:</h3>
+            <pre id="registerResponseJson"></pre>
+        </div>
+    </div>
+
+    <div id="cookies" class="tab-content container">
+        <h2>Test de Cookies</h2>
+        <button id="testCookiesBtn">Probar Cookies</button>
+        <div id="cookiesError" class="error hidden"></div>
+        <div id="cookiesSuccess" class="success hidden"></div>
+        <div id="cookiesResponse" class="hidden">
+            <h3>Respuesta API:</h3>
+            <pre id="cookiesResponseJson"></pre>
+        </div>
+    </div>
+
+    <div id="profile" class="tab-content container">
+        <h2>Perfil de Usuario</h2>
+        <button id="getProfileBtn">Obtener Perfil</button>
+        <button id="logoutBtn">Cerrar Sesión</button>
+        <div id="profileError" class="error hidden"></div>
+        <div id="profileSuccess" class="success hidden"></div>
+        <div id="profileResponse" class="hidden">
+            <h3>Respuesta API:</h3>
+            <pre id="profileResponseJson"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        const API_URL = 'http://localhost:3000'; // Cambia esta URL por la de tu API
+
+        // Manejo de pestañas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Función para mostrar/ocultar mensajes
+        function showMessage(elementId, message, isVisible = true) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.classList.toggle('hidden', !isVisible);
+        }
+
+        // Función para mostrar respuesta JSON
+        function showJsonResponse(elementId, responseContainer, data) {
+            document.getElementById(elementId).textContent = JSON.stringify(data, null, 2);
+            document.getElementById(responseContainer).classList.remove('hidden');
+        }
+
+        // Función para actualizar el estado de autenticación
+        function updateAuthStatus(isAuthenticated, userData = null) {
+            const statusElement = document.getElementById('status');
+            
+            if (isAuthenticated) {
+                statusElement.className = 'status logged-in';
+                statusElement.textContent = `Estado: Autenticado como ${userData.name || userData.email || 'Usuario'}`;
+            } else {
+                statusElement.className = 'status logged-out';
+                statusElement.textContent = 'Estado: No autenticado';
+            }
+        }
+
+        // Comprobar estado de autenticación al cargar
+        async function checkAuthStatus() {
+            try {
+                const response = await fetch(`${API_URL}/users/auth-status`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    updateAuthStatus(true, { id: data.user.id, role: data.user.role });
+                    
+                    // Obtener más info del usuario
+                    try {
+                        const profileResponse = await fetch(`${API_URL}/users/profile`, {
+                            method: 'GET',
+                            credentials: 'include'
+                        });
+                        
+                        if (profileResponse.ok) {
+                            const profileData = await profileResponse.json();
+                            updateAuthStatus(true, profileData);
+                        }
+                    } catch (err) {
+                        console.error('Error al obtener perfil:', err);
+                    }
+                } else {
+                    updateAuthStatus(false);
+                }
+            } catch (error) {
+                console.error('Error al verificar estado de autenticación:', error);
+                updateAuthStatus(false);
+            }
+        }
+
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            showMessage('loginError', '', false);
+            showMessage('loginSuccess', '', false);
+            document.getElementById('loginResponse').classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_URL}/users/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password }),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('loginSuccess', 'Login exitoso!');
+                    showJsonResponse('loginResponseJson', 'loginResponse', data);
+                    updateAuthStatus(true, data.user);
+                    document.getElementById('loginForm').reset();
+                } else {
+                    showMessage('loginError', `Error: ${data.message || 'Credenciales incorrectas'}`);
+                    showJsonResponse('loginResponseJson', 'loginResponse', data);
+                }
+            } catch (error) {
+                showMessage('loginError', `Error: ${error.message}`);
+                console.error('Login error:', error);
+            }
+        });
+
+        // Register Form Handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const gender = document.getElementById('registerGender').value;
+            
+            showMessage('registerError', '', false);
+            showMessage('registerSuccess', '', false);
+            document.getElementById('registerResponse').classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_URL}/users/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password, gender }),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('registerSuccess', 'Registro exitoso!');
+                    showJsonResponse('registerResponseJson', 'registerResponse', data);
+                    document.getElementById('registerForm').reset();
+                } else {
+                    showMessage('registerError', `Error: ${data.message || 'No se pudo completar el registro'}`);
+                    showJsonResponse('registerResponseJson', 'registerResponse', data);
+                }
+            } catch (error) {
+                showMessage('registerError', `Error: ${error.message}`);
+                console.error('Register error:', error);
+            }
+        });
+
+        // Test Cookies Button Handler
+        document.getElementById('testCookiesBtn').addEventListener('click', async () => {
+            showMessage('cookiesError', '', false);
+            showMessage('cookiesSuccess', '', false);
+            document.getElementById('cookiesResponse').classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_URL}/test-cookies`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                showMessage('cookiesSuccess', 'Prueba de cookies realizada');
+                showJsonResponse('cookiesResponseJson', 'cookiesResponse', data);
+            } catch (error) {
+                showMessage('cookiesError', `Error: ${error.message}`);
+                console.error('Cookie test error:', error);
+            }
+        });
+
+        // Get Profile Button Handler
+        document.getElementById('getProfileBtn').addEventListener('click', async () => {
+            showMessage('profileError', '', false);
+            showMessage('profileSuccess', '', false);
+            document.getElementById('profileResponse').classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_URL}/users/profile`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('profileSuccess', 'Perfil obtenido correctamente');
+                    showJsonResponse('profileResponseJson', 'profileResponse', data);
+                    updateAuthStatus(true, data);
+                } else {
+                    showMessage('profileError', `Error: ${data.message || 'No autorizado'}`);
+                    showJsonResponse('profileResponseJson', 'profileResponse', data);
+                    
+                    if (response.status === 401) {
+                        updateAuthStatus(false);
+                    }
+                }
+            } catch (error) {
+                showMessage('profileError', `Error: ${error.message}`);
+                console.error('Profile error:', error);
+            }
+        });
+
+        // Logout Button Handler
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            showMessage('profileError', '', false);
+            showMessage('profileSuccess', '', false);
+            document.getElementById('profileResponse').classList.add('hidden');
+            
+            try {
+                const response = await fetch(`${API_URL}/users/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('profileSuccess', 'Sesión cerrada correctamente');
+                    showJsonResponse('profileResponseJson', 'profileResponse', data);
+                    updateAuthStatus(false);
+                } else {
+                    showMessage('profileError', `Error: ${data.message || 'Error al cerrar sesión'}`);
+                    showJsonResponse('profileResponseJson', 'profileResponse', data);
+                }
+            } catch (error) {
+                showMessage('profileError', `Error: ${error.message}`);
+                console.error('Logout error:', error);
+            }
+        });
+
+        // Verificar estado de autenticación al cargar la página
+        document.addEventListener('DOMContentLoaded', checkAuthStatus);
+    </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export const AuthContext = createContext();
 

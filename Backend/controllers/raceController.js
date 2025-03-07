@@ -4,10 +4,14 @@ import Registration from "../models/Registrations.js";
 
 // Importaciones para archivos CSV
 import fs from "fs";
+import path from "path";
 import Papa from "papaparse";
 const { parse, unparse } = Papa;
 import User from "../models/User.js";
 
+
+// Importaciones para archivos GPX
+import { analyzeGPXFile, validateGPXFile } from "../utils/gpxUtils.js";
 
 /**
  * Funciones auxiliares para validaciones comunes
@@ -339,6 +343,12 @@ const getRaceById = async (req, res) => {
       ...race.toObject(),
       registrationsCount,
       availableSlots,
+      // Añadidos archivos GPX
+      gpx: {
+        available: race.hasGPXFile,
+        fileName: race.gpxFileName || null,
+        uploadedAt: race.gpxFileUploadedAt || null
+      }
     };
 
     return res.status(200).json(raceWithDetails);
@@ -1214,6 +1224,224 @@ const uploadResultsCSV = async (req, res) => {
   }
 };
 
+/**
+ * Carga un archivo GPX para una carrera específica y extrae información
+ * @route POST /api/races/:id/gpx
+ */
+const uploadGPXFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { updateRaceInfo } = req.body; // Flag para indicar si actualizar información de la carrera
+    
+    // Verificar si hay un archivo
+    if (!req.file) {
+      return res.status(400).json({ message: "No se ha subido ningún archivo GPX" });
+    }
+
+    // Validar ID de carrera
+    if (!isValidObjectId(id)) {
+      // Eliminar el archivo si existe
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(400).json({ message: "ID de carrera inválido" });
+    }
+
+    // Verificar que la carrera existe
+    const race = await Race.findById(id);
+    if (!race) {
+      // Eliminar el archivo si existe
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    // Verificar permisos (si el usuario es un admin)
+    if (req.user.role !== "admin") {
+      // Eliminar el archivo si existe
+      if (req.file && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
+      return res.status(403).json({ 
+        message: "No tienes permisos para subir archivos GPX"
+      });
+    }
+
+    // Analizar el archivo GPX para extraer información
+    let gpxInfo = null;
+    try {
+      gpxInfo = await analyzeGPXFile(req.file.path);
+    } catch (gpxError) {
+      // Si hay un error al analizar el GPX, es posible que el archivo no sea válido
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({
+        message: "El archivo GPX no es válido o está corrupto",
+        error: gpxError.message
+      });
+    }
+
+    // Si ya existía un archivo GPX previo, eliminarlo
+    if (race.gpxFilePath && fs.existsSync(race.gpxFilePath)) {
+      fs.unlinkSync(race.gpxFilePath);
+    }
+
+    // Actualizar la información de la carrera con los datos del nuevo archivo GPX
+    race.hasGPXFile = true;
+    race.gpxFilePath = req.file.path;
+    race.gpxFileUploadedAt = new Date();
+    race.gpxFileName = req.file.originalname || path.basename(req.file.path);
+    
+    // Si se solicitó actualizar la información de la carrera basada en el GPX
+    if (updateRaceInfo === 'true' && gpxInfo) {
+      // Solo actualizar campos si los valores del GPX son razonables
+      if (gpxInfo.totalDistance > 0) {
+        race.distance = gpxInfo.totalDistance;
+      }
+      
+      if (gpxInfo.elevationGain > 0) {
+        race.unevenness = gpxInfo.elevationGain;
+      }
+      
+      // Actualizar el campo 'tour' si tiene un nombre en el GPX
+      if (gpxInfo.name && gpxInfo.name !== 'Sin nombre') {
+        race.tour = gpxInfo.name;
+      }
+    }
+    
+    await race.save();
+
+    return res.status(200).json({
+      message: "Archivo GPX subido correctamente",
+      race: {
+        id: race._id,
+        name: race.name,
+        gpxFileName: race.gpxFileName,
+        gpxFileUploadedAt: race.gpxFileUploadedAt
+      },
+      gpxInfo: gpxInfo // Devolver la información extraída del GPX
+    });
+  } catch (error) {
+    console.error("Error en uploadGPXFile:", error);
+    
+    // Eliminar archivo si existe y hay un error
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    
+    return res.status(500).json({
+      message: "Error al subir el archivo GPX",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Descarga el archivo GPX de una carrera
+ * @route GET /api/races/:id/gpx
+ */
+const downloadGPXFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validar ID de carrera
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: "ID de carrera inválido" });
+    }
+
+    // Verificar que la carrera existe
+    const race = await Race.findById(id);
+    if (!race) {
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    // Verificar si la carrera tiene un archivo GPX
+    if (!race.hasGPXFile || !race.gpxFilePath) {
+      return res.status(404).json({ message: "Esta carrera no tiene archivo GPX disponible" });
+    }
+
+    // Verificar que el archivo existe en el sistema de archivos
+    if (!fs.existsSync(race.gpxFilePath)) {
+      return res.status(404).json({ message: "El archivo GPX no se encuentra disponible" });
+    }
+
+    // Nombre del archivo para la descarga (usar el nombre original si está disponible)
+    const fileName = race.gpxFileName || `route-${race.name.replace(/\s+/g, '_')}.gpx`;
+
+    // Configurar los encabezados para la descarga
+    res.setHeader('Content-Type', 'application/gpx+xml');
+    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+    // Crear un stream de lectura y enviarlo como respuesta
+    const fileStream = fs.createReadStream(race.gpxFilePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error("Error en downloadGPXFile:", error);
+    return res.status(500).json({
+      message: "Error al descargar el archivo GPX",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * Elimina el archivo GPX de una carrera (solo admin)
+ * @route DELETE /api/races/:id/gpx
+ */
+const deleteGPXFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validar ID de carrera
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ message: "ID de carrera inválido" });
+    }
+
+    // Verificar que la carrera existe
+    const race = await Race.findById(id);
+    if (!race) {
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    // Verificar permisos (si el usuario es un admin)
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ 
+        message: "No tienes permisos para eliminar archivos GPX" 
+      });
+    }
+
+    // Verificar si la carrera tiene un archivo GPX
+    if (!race.hasGPXFile || !race.gpxFilePath) {
+      return res.status(404).json({ message: "Esta carrera no tiene archivo GPX para eliminar" });
+    }
+
+    // Eliminar el archivo del sistema de archivos
+    if (fs.existsSync(race.gpxFilePath)) {
+      fs.unlinkSync(race.gpxFilePath);
+    }
+
+    // Actualizar la información de la carrera
+    race.hasGPXFile = false;
+    race.gpxFilePath = null;
+    race.gpxFileUploadedAt = null;
+    race.gpxFileName = null;
+    
+    await race.save();
+
+    return res.status(200).json({
+      message: "Archivo GPX eliminado correctamente",
+      raceId: race._id
+    });
+  } catch (error) {
+    console.error("Error en deleteGPXFile:", error);
+    return res.status(500).json({
+      message: "Error al eliminar el archivo GPX",
+      error: error.message
+    });
+  }
+};
+
+
 export {
   getAllRaces,
   getRacesByDate,
@@ -1226,5 +1454,7 @@ export {
   registerRaceResults,
   getRaceResults,
   downloadRunnersCSV,
-  uploadResultsCSV,
+  uploadGPXFile,
+  downloadGPXFile,
+  deleteGPXFile,
 };

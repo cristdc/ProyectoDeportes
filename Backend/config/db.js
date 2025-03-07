@@ -4,13 +4,22 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log("Conectado a la base de datos de MongoDB");
-    } catch (error) {
-        console.log("Error al conectar a la base de datos", error.message);
-        process.exit(1);
-    }
+  try {
+    console.log(
+      "Conectando a: mongodb://admin:pass@mongodb:27017/sports?authSource=admin"
+    );
+
+    // Usa exactamente la misma URI que funcionó en tus pruebas
+    await mongoose.connect(
+      "mongodb://admin:pass@mongodb:27017/sports?authSource=admin"
+    );
+
+    console.log("Conexión a MongoDB establecida");
+    return mongoose.connection;
+  } catch (error) {
+    console.error("Error al conectar a MongoDB:", error);
+    process.exit(1);
+  }
 };
 
 export default connectDB;

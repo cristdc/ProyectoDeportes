@@ -273,7 +273,12 @@ http://localhost:3000/api/races/67c5f0baa3b5234796ec17ee
   "status": "open",
   "createdAt": "2025-03-05T14:35:20.123Z",
   "registrationsCount": 120,
-  "availableSlots": 380
+  "availableSlots": 380,
+  "gpx": {
+    "available": true,
+    "fileName": "ruta_maraton_primavera.gpx",
+    "uploadedAt": "2025-03-10T11:20:15.456Z"
+  }
 }
 ```
 
@@ -583,3 +588,126 @@ http://localhost:3000/api/races/67c5f0baa3b5234796ec17ee/results
 - `500`: "Error al obtener los resultados de la carrera"
 
 ---
+
+## 🔹 **11. Subir Archivo GPX de Carrera (Admin)**
+
+### **📌 POST /races/:id/gpx**
+
+📌 **Descripción:** Permite a un administrador subir un archivo GPX de la ruta para una carrera específica.
+
+🔹 **URL Completa:**
+```
+http://localhost:3000/api/races/67c5f0baa3b5234796ec17ee/gpx
+```
+
+🔹 **Autenticación:**
+Requiere cookie con token JWT de un usuario con rol "admin".
+
+🔹 **Body (FormData):**
+- `gpxFile`: Archivo GPX (máximo 20MB)
+- `updateRaceInfo`: boolean (true/false) para actualizar automáticamente la información de la carrera basada en el GPX
+
+🔹 **Ejemplo de Respuesta (200 - OK):**
+```json
+{
+  "message": "Archivo GPX subido correctamente",
+  "race": {
+    "id": "67c5f0baa3b5234796ec17ee",
+    "name": "Maratón de Primavera",
+    "gpxFileName": "ruta_maraton_primavera.gpx",
+    "gpxFileUploadedAt": "2025-03-10T11:20:15.456Z"
+  },
+  "gpxInfo": {
+    "name": "Ruta Maratón de Primavera",
+    "description": "Recorrido oficial",
+    "totalDistance": 42.2,
+    "elevationGain": 120,
+    "elevationLoss": 120,
+    "maxElevation": 150,
+    "minElevation": 10,
+    "totalElevation": 240,
+    "isCircular": true,
+    "numPoints": 1520,
+    "estimatedDuration": "4h 15m",
+    "startLocation": {
+      "lat": 41.3851,
+      "lon": 2.1734
+    },
+    "endLocation": {
+      "lat": 41.3853,
+      "lon": 2.1732
+    }
+  }
+}
+```
+
+🔹 **Errores posibles:**
+- `400`: "No se ha subido ningún archivo GPX"
+- `400`: "ID de carrera inválido"
+- `400`: "El archivo GPX no es válido o está corrupto"
+- `401`: "No hay token de autenticación" o "Token inválido"
+- `403`: "No tienes permisos para subir archivos GPX"
+- `404`: "Carrera no encontrada"
+- `500`: "Error al subir el archivo GPX"
+
+---
+
+## 🔹 **12. Descargar Archivo GPX de Carrera (Admin)**
+
+### **📌 GET /races/:id/gpx**
+
+📌 **Descripción:** Permite a un usuario autenticado descargar el archivo GPX de una carrera.
+
+🔹 **URL Completa:**
+```
+http://localhost:3000/api/races/67c5f0baa3b5234796ec17ee/gpx
+```
+
+🔹 **Autenticación:**
+Requiere cookie con token JWT de cualquier usuario autenticado.
+
+🔹 **Respuesta:**
+El archivo GPX se descarga directamente.
+
+🔹 **Errores posibles:**
+- `400`: "ID de carrera inválido"
+- `401`: "No hay token de autenticación" o "Token inválido"
+- `404`: "Carrera no encontrada"
+- `404`: "Esta carrera no tiene archivo GPX disponible"
+- `404`: "El archivo GPX no se encuentra disponible"
+- `500`: "Error al descargar el archivo GPX"
+
+---
+
+## 🔹 **13. Eliminar Archivo GPX de Carrera (Admin)**
+
+### **📌 DELETE /races/:id/gpx**
+
+📌 **Descripción:** Permite a un administrador eliminar el archivo GPX de una carrera.
+
+🔹 **URL Completa:**
+```
+http://localhost:3000/api/races/67c5f0baa3b5234796ec17ee/gpx
+```
+
+🔹 **Autenticación:**
+Requiere cookie con token JWT de un usuario con rol "admin".
+
+🔹 **Ejemplo de Respuesta (200 - OK):**
+```json
+{
+  "message": "Archivo GPX eliminado correctamente",
+  "raceId": "67c5f0baa3b5234796ec17ee"
+}
+```
+
+🔹 **Errores posibles:**
+- `400`: "ID de carrera inválido"
+- `401`: "No hay token de autenticación" o "Token inválido"
+- `403`: "No tienes permisos para eliminar archivos GPX"
+- `404`: "Carrera no encontrada"
+- `404`: "Esta carrera no tiene archivo GPX para eliminar"
+- `500`: "Error al eliminar el archivo GPX"
+
+---
+

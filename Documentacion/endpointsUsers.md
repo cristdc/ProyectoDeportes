@@ -204,3 +204,29 @@ http://localhost:3000/api/users/profile
 - `500`: "Error interno del servidor"
 
 ---
+## 🔹 **Descargar Archivo GPX de Carrera**
+
+### **📌 GET /users/:id/gpx**
+
+📌 **Descripción:** Permite a un usuario normal descargar el archivo GPX de una carrera.
+
+🔹 **URL Completa:**
+```
+http://localhost:3000/api/users/67c5f0baa3b5234796ec17ee/gpx
+```
+
+🔹 **Autenticación:**
+Requiere cookie con token JWT de cualquier usuario autenticado.
+
+🔹 **Respuesta:**
+El archivo GPX se descarga directamente.
+
+🔹 **Errores posibles:**
+- `400`: "ID de carrera inválido"
+- `401`: "No hay token de autenticación" o "Token inválido"
+- `404`: "Carrera no encontrada"
+- `404`: "Esta carrera no tiene archivo GPX disponible"
+- `404`: "El archivo GPX no se encuentra disponible"
+- `500`: "Error al descargar el archivo GPX"
+
+---

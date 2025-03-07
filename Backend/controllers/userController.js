@@ -1,4 +1,7 @@
+import fs from "fs";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
+import Race from "../models/Race.js";
 import User from "../models/User.js";
 
 // Validar formato de ID de MongoDB
@@ -28,15 +31,25 @@ const login = async (req, res) => {
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "24h" }
     );
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 3600000, // 1 hora
+      secure: process.env.COOKIE_SECURE === "true", // Respeta el valor de la variable de entorno
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 24 * 60 * 60 * 1000,
+      path: "/",
     });
+
+
+    //res.cookie("token", token, {
+    //  httpOnly: true,
+    //  secure: false, // Cambia a false si estás usando HTTP y no HTTPS
+    //  sameSite: "none", // Esto es crucial para cross-origin
+    //  maxAge: 24 * 60 * 60 * 1000,
+    //  path: "/",
+    //});
 
     res.json({
       message: "Inicio de sesión exitoso",
@@ -48,9 +61,11 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al iniciar sesión", error: error.message });
+    console.error("Error en login:", error);
+    res.status(500).json({
+      message: "Error al iniciar sesión",
+      error: error.message,
+    });
   }
 };
 
@@ -88,7 +103,7 @@ const register = async (req, res) => {
       role: "user",
       age: age || null,
       avatar: avatar || "default.jpg",
-      gender
+      gender,
     });
 
     await user.save();
@@ -103,7 +118,7 @@ const register = async (req, res) => {
         age: user.age,
         registrationDate: user.registrationDate,
         avatar: user.avatar,
-        gender: user.gender
+        gender: user.gender,
       },
     });
   } catch (error) {
@@ -114,20 +129,24 @@ const register = async (req, res) => {
 };
 
 // Cerrar sesión
-const logout = (req, res) => {
+const logout = async (req, res) => {
   try {
-    res.cookie("token", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(0),
-      maxAge: 0,
-    });
+
+   res.cookie("token", "", {
+     httpOnly: true,
+     secure: process.env.COOKIE_SECURE === "true",
+     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+     path: "/",
+     expires: new Date(0),
+   });
 
     res.json({ message: "Cierre de sesión exitoso" });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al cerrar sesión", error: error.message });
+    console.error("Error en logout:", error);
+    res.status(500).json({
+      message: "Error al cerrar sesión",
+      error: error.message,
+    });
   }
 };
 
@@ -142,12 +161,10 @@ const getUserProfile = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error al obtener el perfil del usuario",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error al obtener el perfil del usuario",
+      error: error.message,
+    });
   }
 };
 
@@ -199,16 +216,15 @@ const updateProfile = async (req, res) => {
 
 const getUserById = async (req, res) => {
   try {
-    // Respuesta temporal
     const { id } = req.params;
-    if(!isValidObjectId(id)){
+    if (!mongoose.isValidObjectId(id)) {
       return res.status(402).json({ message: "El id no es válido" });
     }
-    const user = User.findById(id);
-    if(!user){
+    const user = await User.findById(id);
+    if (!user) {
       return res.status(404).json({ message: "No existe ese usuario" });
     }
-  
+
     return res.status(200).json({
       user: user,
     });
@@ -240,7 +256,9 @@ const searchUsersByName = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Obtener el total de usuarios que coinciden con la búsqueda
-    const totalUsers = await User.countDocuments({ name: new RegExp(name, "i") });
+    const totalUsers = await User.countDocuments({
+      name: new RegExp(name, "i"),
+    });
 
     // Calcular el número total de páginas
     const totalPages = Math.ceil(totalUsers / limit);
@@ -267,13 +285,104 @@ const searchUsersByName = async (req, res) => {
   }
 };
 
-export {
-  login,
-  register,
-  logout,
-  getUserProfile,
-  updateProfile,
-  getUserById,
-  searchUsersByName,
+const getAuthStatus = (req, res) => {
+  const token =
+    req.cookies.token ||
+    (req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer ")
+      ? req.headers.authorization.split(" ")[1]
+      : null);
+
+  if (!token) {
+    return res.status(200).json({
+      authenticated: false,
+      reason: "no_token",
+      cookies: Object.keys(req.cookies),
+      hasAuthorizationHeader: !!req.headers.authorization,
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return res.status(200).json({
+      authenticated: true,
+      user: {
+        id: decoded.id,
+        role: decoded.role,
+      },
+      tokenExpiresAt: new Date(decoded.exp * 1000).toISOString(),
+    });
+  } catch (err) {
+    return res.status(200).json({
+      authenticated: false,
+      reason:
+        err.name === "TokenExpiredError" ? "token_expired" : "token_invalid",
+      error: err.message,
+    });
+  }
 };
 
+/**
+ * Permite a un usuario descargar un archivo GPX de una carrera
+ * @route GET /api/users/races/:id/gpx
+ */
+const userDownloadGPXFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validar ID de carrera
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "ID de carrera inválido" });
+    }
+
+    // Verificar que la carrera existe
+    const race = await Race.findById(id);
+    if (!race) {
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    // Verificar si la carrera tiene un archivo GPX
+    if (!race.hasGPXFile || !race.gpxFilePath) {
+      return res
+        .status(404)
+        .json({ message: "Esta carrera no tiene archivo GPX disponible" });
+    }
+
+    // Verificar que el archivo existe en el sistema de archivos
+    if (!fs.existsSync(race.gpxFilePath)) {
+      return res
+        .status(404)
+        .json({ message: "El archivo GPX no se encuentra disponible" });
+    }
+
+    // Nombre del archivo para la descarga (usar el nombre original si está disponible)
+    const fileName =
+      race.gpxFileName || `route-${race.name.replace(/\s+/g, "_")}.gpx`;
+
+    // Configurar los encabezados para la descarga
+    res.setHeader("Content-Type", "application/gpx+xml");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+
+    // Crear un stream de lectura y enviarlo como respuesta
+    const fileStream = fs.createReadStream(race.gpxFilePath);
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error("Error en userDownloadGPXFile:", error);
+    return res.status(500).json({
+      message: "Error al descargar el archivo GPX",
+      error: error.message,
+    });
+  }
+};
+
+export {
+  getAuthStatus,
+  getUserById,
+  getUserProfile,
+  login,
+  logout,
+  register,
+  searchUsersByName,
+  updateProfile,
+  userDownloadGPXFile,
+};
