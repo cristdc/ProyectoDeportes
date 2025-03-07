@@ -8,8 +8,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient {
     private static Retrofit retrofit = null;
     
-    //private static String baseURL = "http://192.168.50.143:3000/api/";
-    private static String baseURL = "http://localhost:3000/api/";
+    private static String baseURL = "http://192.168.50.143:3000/api/";
+    //private static String baseURL = "http://localhost:3000/api/";
 
     public static ServiceAPI getClient() {
         if (retrofit == null) {

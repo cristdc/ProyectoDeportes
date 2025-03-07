@@ -73,11 +73,14 @@ public class ControladorLogin implements Initializable{
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vista/ciclismo.fxml"));
             Parent root = loader.load();
 
+            
+            
             Stage loginStage = (Stage) btnIngresarLogin.getScene().getWindow();
             loginStage.close(); 
 
             Stage stage = new Stage();
             stage.setTitle("Ciclismo APP - Inicio");
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/icono.png")));
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
