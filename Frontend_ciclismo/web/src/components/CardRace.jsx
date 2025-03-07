@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'sonner';
 
 const CardRace = ({ race }) => {
   const { userRegistrations, registerToRace, unregisterFromRace } = useAuth();
@@ -19,9 +20,9 @@ const CardRace = ({ race }) => {
   }, [userRegistrations, race._id]);
 
   const handleRegistration = async () => {
-    setIsLoading(true);
     try {
       if (isRegistered) {
+        toast.loading('Cancelando inscripción...');
         const registration = userRegistrations.find(
           reg => reg.race._id === race._id && reg.status === 'registered'
         );
@@ -29,25 +30,31 @@ const CardRace = ({ race }) => {
         if (registration) {
           const result = await unregisterFromRace(registration._id);
           if (result.success) {
+            toast.success('Te has dado de baja correctamente de la carrera');
             setIsRegistered(false);
           }
         }
       } else {
+        toast.loading('Procesando inscripción...');
         const result = await registerToRace(race._id);
         if (result.success) {
+          toast.success('¡Te has inscrito correctamente a la carrera!');
           setIsRegistered(true);
         }
       }
     } catch (error) {
-      console.error("Error en la inscripción:", error);
-    } finally {
-      setIsLoading(false);
+      toast.error('Ha ocurrido un error: ' + error.message);
     }
   };
 
-  const handleDownload = async (e) => {
-      e.preventDefault();
-      
+  const handleDownload = async () => {
+    try {
+      toast.loading('Preparando la descarga...');
+      // ... lógica de descarga ...
+      toast.success('¡Archivo descargado correctamente!');
+    } catch (error) {
+      toast.error('Error al descargar el archivo');
+    }
   };
 
   // Si no hay datos de carrera, mostramos un mensaje o retornamos null

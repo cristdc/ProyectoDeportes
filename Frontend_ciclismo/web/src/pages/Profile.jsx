@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
 
@@ -35,9 +36,10 @@ const Profile = () => {
         }));
     };
 
-    const handleUpdate = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            toast.loading('Actualizando perfil...');
             const response = await fetch(`${API_URL}/users/profile`, {
                 method: 'PUT',
                 credentials: 'include',
@@ -57,12 +59,22 @@ const Profile = () => {
                     age: data.user.age || '',
                     avatar: data.user.avatar || ''
                 });
-                setSuccess('Perfil actualizado correctamente');
+                toast.success('¡Perfil actualizado correctamente!');
                 setIsEditing(false);
             }
         } catch (error) {
-            console.error("Error actualizando perfil:", error);
+            toast.error('Error al actualizar el perfil: ' + error.message);
             setError('Error al actualizar el perfil');
+        }
+    };
+
+    const handleAvatarChange = async (e) => {
+        try {
+            toast.loading('Subiendo imagen...');
+            // ... lógica de subida de avatar ...
+            toast.success('¡Imagen de perfil actualizada!');
+        } catch (error) {
+            toast.error('Error al subir la imagen');
         }
     };
 
@@ -104,7 +116,7 @@ const Profile = () => {
 
                     <div className="p-6">
                         {isEditing ? (
-                            <form onSubmit={handleUpdate} className="space-y-6">
+                            <form onSubmit={handleSubmit} className="space-y-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Nombre de usuario

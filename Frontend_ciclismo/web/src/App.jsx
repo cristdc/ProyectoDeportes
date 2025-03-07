@@ -6,11 +6,11 @@ import { RaceProvider } from './context/RaceContext'
 
 const App = () => {
   return (
-      <AuthProvider>
-        <RaceProvider>
-          <RouterProvider router={router} />
-        </RaceProvider>
-      </AuthProvider>
+    <AuthProvider>
+      <RaceProvider>
+        <RouterProvider router={router} />
+      </RaceProvider>
+    </AuthProvider>
   )
 }
 

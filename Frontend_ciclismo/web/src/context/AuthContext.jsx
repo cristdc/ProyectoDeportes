@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import { toast } from 'sonner';
 
 const AuthContext = createContext();
 const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
@@ -66,6 +67,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (userData) => {
         try {
+            toast.loading('Iniciando sesión...');
             const response = await fetch(`${API_URL}/users/login`, {
                 method: "POST",
                 credentials: "include",
@@ -88,6 +90,7 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('token', data.token);
                 setError(null);
                 await fetchRegistrations();
+                toast.success('¡Bienvenido de nuevo!');
                 return true;
             }
             
@@ -96,18 +99,22 @@ export const AuthProvider = ({ children }) => {
             return false;
         } catch (error) {
             setError(error.message);
+            toast.error('Error al iniciar sesión: ' + error.message);
             return false;
         }
     };
 
     const logout = async () => {
         try {
+            toast.loading('Cerrando sesión...');
             const response = await fetch(`${API_URL}/users/logout`, {   
                 method: "POST",
                 credentials: "include",
             });
+            toast.success('¡Hasta pronto!');
         } catch (error) {
             console.error("Error durante el logout:", error);
+            toast.error('Error al cerrar sesión');
         } finally {
             // Limpiar todo el localStorage
             localStorage.removeItem('token');
@@ -160,6 +167,7 @@ export const AuthProvider = ({ children }) => {
 
     const registerToRace = async (raceId) => {
         try {
+            toast.loading('Procesando inscripción...');
             // Buscar cualquier registro previo para esta carrera (incluso los cancelados)
             const existingRegistration = userRegistrations.find(reg => 
                 reg.race._id === raceId
@@ -182,11 +190,13 @@ export const AuthProvider = ({ children }) => {
                 console.log("Respuesta de actualización:", data);
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Error al actualizar la inscripción');
+                    toast.error(data.message || 'Error al actualizar la inscripción');
+                    throw new Error(data.message);
                 }
 
                 // Actualizar el estado local
                 await fetchRegistrations();
+                toast.success('¡Inscripción actualizada correctamente!');
                 return { success: true, message: 'Inscripción actualizada correctamente' };
             } else {
                 // Solo si no existe ningún registro previo, crear uno nuevo
@@ -202,14 +212,16 @@ export const AuthProvider = ({ children }) => {
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Error al inscribirse');
+                    toast.error(data.message || 'Error al inscribirse');
+                    throw new Error(data.message);
                 }
 
                 await fetchRegistrations();
+                toast.success('¡Te has inscrito correctamente a la carrera!');
                 return { success: true, message: data.message };
             }
         } catch (error) {
-            console.error("Error en el registro:", error);
+            toast.error('Error en la inscripción: ' + error.message);
             return { success: false, message: error.message };
         }
     };
