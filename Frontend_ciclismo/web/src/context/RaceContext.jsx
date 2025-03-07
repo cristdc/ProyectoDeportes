@@ -78,6 +78,20 @@ export const RaceProvider = ({ children }) => {
         }
     };
 
+    const downloadRace = async (id) => {
+        try {
+            const response = await fetch(`${VITE_API_CICLISMO_URL}/races/${id}`, {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        } catch (err) {
+            console.error('Error en downloadRace:', err);
+            setError(err.message);
+        }
+    };
+
     useEffect(() => {
         fetchRaces();
     }, []);
@@ -90,7 +104,8 @@ export const RaceProvider = ({ children }) => {
             error,
             pagination,
             fetchRaces,
-            fetchRaceDetails
+            fetchRaceDetails,
+            downloadRace
         }}>
             {children}
         </RaceContext.Provider>

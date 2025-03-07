@@ -46,6 +46,11 @@ const CardRace = ({ race }) => {
     }
   };
 
+  const handleDownload = async (e) => {
+      e.preventDefault();
+      
+  };
+
   // Si no hay datos de carrera, mostramos un mensaje o retornamos null
   if (!race) {
     console.log('No hay datos de carrera');
@@ -122,6 +127,26 @@ const CardRace = ({ race }) => {
         >
           Ver detalles
         </button>
+            
+        <button
+                onClick={handleDownload}
+                className="flex mt-2 w-full justify-center items-center gap-2 px-4 py-2 bg-[#9B9D79] text-white rounded-md hover:bg-[#8EAC93] transition-colors"
+            >
+                <svg 
+                    className="h-5 w-5" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                >
+                    <path 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth={2} 
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                    />
+                </svg>
+                Descargar
+            </button>
       </div>
     </div>
   );
