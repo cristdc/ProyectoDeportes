@@ -164,7 +164,7 @@ public class PantallaPrincipal implements Initializable {
 
 
     public void obtenerListaCarreras() {
-        String baseUrl = "http://192.168.50.143:3000/api/races/";
+        String baseUrl = "http://18.206.203.108/api/races/";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -206,7 +206,7 @@ public class PantallaPrincipal implements Initializable {
     
     
     public void obtenerListaResultadoUltimaCarrera() {
-        String baseUrl = "http://44.203.132.49:3000/api/races/"+idUltimaCarrera+"/results";
+        String baseUrl = "http://18.206.203.108/api/races/"+idUltimaCarrera+"/results";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
