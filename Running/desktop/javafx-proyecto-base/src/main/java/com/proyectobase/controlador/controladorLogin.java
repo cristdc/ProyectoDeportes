@@ -5,30 +5,21 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
-<<<<<<< HEAD
-=======
-
->>>>>>> b0b8126845d3251f5f2749c98f80dbbce764ca3f
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-<<<<<<< HEAD
 import javafx.scene.Scene;
-=======
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
->>>>>>> b0b8126845d3251f5f2749c98f80dbbce764ca3f
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-<<<<<<< HEAD
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-=======
 import javafx.stage.Stage;
 
 import com.google.gson.Gson;
@@ -48,7 +39,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class controladorLogin implements Initializable {
->>>>>>> b0b8126845d3251f5f2749c98f80dbbce764ca3f
 
     @FXML
     private Button btnIniciarSesion;
@@ -63,12 +53,10 @@ public class controladorLogin implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-<<<<<<< HEAD
         Platform.runLater(() -> {
             Stage stage = (Stage) txtPassword.getScene().getWindow();
             stage.getIcons().add(new Image(getClass().getClassLoader().getResourceAsStream("logo.png")));
         });
-=======
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .create();
@@ -79,7 +67,6 @@ public class controladorLogin implements Initializable {
                 .build();
 
         servicioLeerUsuario = retrofit.create(ServicioLeerUsuario.class);
->>>>>>> b0b8126845d3251f5f2749c98f80dbbce764ca3f
     }
 
     @FXML
@@ -125,7 +112,6 @@ public class controladorLogin implements Initializable {
                 stage.setTitle("Pantalla Principal");
                 stage.show();
 
-                // Cierra la ventana de inicio de sesión
                 Stage loginStage = (Stage) btnIniciarSesion.getScene().getWindow();
                 loginStage.close();
             } catch (IOException e) {
