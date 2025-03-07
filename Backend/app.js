@@ -9,11 +9,8 @@ import connectDB from "./config/db.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import raceRoutes from "./routes/raceRoutes.js";
 import registrationRoutes from "./routes/registrationRoutes.js";
-<<<<<<< HEAD
 import fileRoutes from "./routes/fileRoutes.js";
-=======
-import userRoutes from "./routes/userRoutes.js";
->>>>>>> d2105df8ee8f350a833554ebde61e9ad4ad3b0e4
+import downloadRoutes from "./routes/download.js";
 
 dotenv.config();
 
@@ -45,5 +42,6 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/races", raceRoutes);
 app.use("/api/registrations", registrationRoutes);
 app.use("/api/files", fileRoutes);
+app.use("/download", downloadRoutes);
 
 export default app;

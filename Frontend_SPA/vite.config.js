@@ -4,6 +4,22 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        'bg-light': '#FDF7ED',
+        'text-primary': '#333333',
+        'text-secondary': '#666666',
+        'accent-light': '#9CAF88',
+        'accent-hover': '#8A9C76',
+      },
+    },
+  },
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
