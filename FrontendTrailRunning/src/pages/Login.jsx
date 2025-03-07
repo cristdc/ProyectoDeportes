@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth.js";
+import { toast } from "react-toastify";
 
 const Login = () => {
-
-  const [email, setUsername] = useState("");
+  const [email, setEmail] = useState("");  // Cambio setUsername -> setEmail
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
@@ -13,11 +13,17 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = await login(email, password);
-    if(data.user){
-      navigate('/home')
+    try {
+      const data = await login(email, password);
+      if (data?.user) {
+        toast.success("Inicio de sesión exitoso.", { autoClose: 3000 });
+        navigate("/home");
+      } else {
+        toast.error("Correo o contraseña incorrectos.", { autoClose: 3000 });
+      }
+    } catch (error) {
+      toast.error("Error al iniciar sesión. Inténtalo de nuevo.", error , { autoClose: 3000 });
     }
-    
   };
 
   return (
@@ -32,7 +38,7 @@ const Login = () => {
               className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
               placeholder="email"
               value={email}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>

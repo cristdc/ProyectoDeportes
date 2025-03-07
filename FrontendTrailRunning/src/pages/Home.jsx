@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import useAuth from "../hooks/useAuth"
 import { fetchLastRace } from "../helpers/fetch";
+import BeatLoader from "react-spinners/BeatLoader";
 
 const Home = () => {
   const { user } = useAuth(); 
@@ -36,7 +37,9 @@ const Home = () => {
         <h3 className="ml-5 text-2xl font-semibold mb-4">Última carrera de {user?.name}</h3>
         
         {loading ? (
-          <p>Cargando última carrera...</p>
+          <div className="w-full flex justify-center ">
+            <BeatLoader color="#9B9D79" />
+          </div>
         ) : error ? (
           <p className="text-red-500">Error: {error}</p>
         ) : lastRace ? (
