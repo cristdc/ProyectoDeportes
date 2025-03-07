@@ -77,7 +77,7 @@ const register = async (req, res) => {
     if (!email || !password || !name || !gender) {
       return res
         .status(400)
-        .json({ message: "Se requiere email, contraseña y nombre" });
+        .json({ message: "Se requiere email, contraseña, nombre y genero" });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
