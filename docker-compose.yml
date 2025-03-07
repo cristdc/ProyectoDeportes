@@ -61,15 +61,6 @@ services:
     networks:
       - deportes_network
 
-  nginx:
-      build: ./nginx
-      ports:
-        - "81:81"
-      restart: always
-      depends_on:
-        - app
-
-
 networks:
   deportes_network:
     driver: bridge

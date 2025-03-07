@@ -7,7 +7,7 @@ const allowedOrigins = [
   "http://localhost:8081", // Otro puerto alternativo (por si acaso)
   "http://127.0.0.1:5500", // Añade esta línea
   "http://localhost:5500", // También esta
-  "http://192.168.70.191",
+  "http://localhost", // Nuevo origen (Docker frontend)
   "http://localhost/prueba", // Nuevo origen específico para la página de prueba
 ];
 
