@@ -159,7 +159,7 @@ public class PantallaPrincipal implements Initializable {
     ObservableList<Carrera> listaCarreras;
 
     public void obtenerListaCarreras() {
-        String baseUrl = "http://192.168.50.143:3000/api/races/";
+        String baseUrl = "http://192.168.60.191/:3000/api/races/";
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -176,7 +176,7 @@ public class PantallaPrincipal implements Initializable {
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
                 System.out.println("Network Error :: " + t.getLocalizedMessage());
-            }
+            } 
 
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
