@@ -9,9 +9,6 @@ const Footer = () => {
           <Link to="/" className="footer-logo">
             RUNNING APP
           </Link>
-          <div className="footer-links">
-            <Link to="/carreras-disponibles">Carreras</Link>
-          </div>
           <div className="social-links">
             <a href="#" aria-label="Twitter" target="_blank" rel="noopener noreferrer">
               <FaTwitter />

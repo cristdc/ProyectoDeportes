@@ -1,81 +1,99 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FaHome, FaRunning, FaHistory, FaUser, FaSignOutAlt } from 'react-icons/fa';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { FaRunning, FaHistory, FaUser, FaSignOutAlt } from 'react-icons/fa';
 
 export default function Navbar() {
+  const { logout } = useAuth();
+  const userString = localStorage.getItem('user');
+  const user = userString ? JSON.parse(userString) : null;
   const location = useLocation();
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  // Función para determinar si un enlace está activo
+  const isActive = (path) => {
+    if (path === '/' && location.pathname === '/') {
+      return true;
+    }
+    return path !== '/' && location.pathname.startsWith(path);
+  };
+
+  // Función para generar las clases del enlace
+  const getLinkClasses = (path) => {
+    return `flex items-center px-5 py-2 transition-all duration-300 text-gray-600 rounded-full
+      ${isActive(path)
+        ? 'bg-[#8D9B6A] text-white font-medium shadow-sm'
+        : 'hover:bg-[#F5F7F2] hover:text-[#8D9B6A]'
+      }`;
   };
 
   return (
-    <nav className="bg-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between h-16">
-          <div className="flex space-x-4">
+    <nav className="bg-white border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex justify-between h-20">
+          {/* Logo y enlaces principales */}
+          <div className="flex items-center space-x-8">
+            {/* Logo Running */}
             <Link
               to="/"
-              className={`inline-flex items-center px-3 py-2 text-gray-600 hover:text-blue-600 ${
-                location.pathname === '/' ? 'text-blue-600' : ''
-              }`}
+              className="flex items-center group"
             >
-              <FaHome className="mr-2" />
-              Inicio
+              <FaRunning className="text-3xl text-[#8D9B6A] group-hover:scale-110 transition-transform duration-300" />
+              <span className="ml-2 text-2xl font-bold bg-gradient-to-r from-[#8D9B6A] to-[#A8B892] bg-clip-text text-transparent">
+                Running
+              </span>
             </Link>
-            <Link
-              to="/available-races"
-              className={`inline-flex items-center px-3 py-2 text-gray-600 hover:text-blue-600 ${
-                location.pathname === '/available-races' ? 'text-blue-600' : ''
-              }`}
-            >
-              <FaRunning className="mr-2" />
-              Carreras
-            </Link>
-            {user && (
+
+            {/* Enlaces de navegación */}
+            <div className="flex items-center space-x-2">
               <Link
-                to="/historial"
-                className={`inline-flex items-center px-3 py-2 text-gray-600 hover:text-blue-600 ${
-                  location.pathname === '/historial' ? 'text-blue-600' : ''
-                }`}
+                to="/available-races"
+                className={getLinkClasses('/available-races')}
               >
-                <FaHistory className="mr-2" />
-                Historial
+                <span>Carreras</span>
               </Link>
-            )}
+
+              {user && (
+                <Link
+                  to="/historial"
+                  className={getLinkClasses('/historial')}
+                >
+                  <FaHistory className="mr-2" />
+                  <span>Historial</span>
+                </Link>
+              )}
+            </div>
           </div>
-          <div className="flex items-center space-x-4">
+
+          {/* Enlaces de usuario */}
+          <div className="flex items-center space-x-3">
             {user ? (
               <>
                 <Link
                   to="/profile"
-                  className={`inline-flex items-center px-3 py-2 text-gray-600 hover:text-blue-600 ${
-                    location.pathname === '/profile' ? 'text-blue-600' : ''
-                  }`}
+                  className="flex items-center px-4 py-2 text-gray-700 hover:bg-[#F5F7F2] rounded-full transition-all duration-300"
                 >
-                  <FaUser className="mr-2" />
-                  {user.name}
+                  <div className="w-8 h-8 bg-[#8D9B6A] rounded-full flex items-center justify-center text-white">
+                    <FaUser className="text-sm" />
+                  </div>
+                  <span className="ml-2 font-medium">
+                    {user.name || user.email || 'Usuario'}
+                  </span>
                 </Link>
+
                 <button
-                  onClick={handleLogout}
-                  className="inline-flex items-center px-3 py-2 text-gray-600 hover:text-red-600"
+                  onClick={logout}
+                  className="flex items-center px-4 py-2 text-red-600 hover:bg-red-50 rounded-full transition-all duration-300"
                 >
                   <FaSignOutAlt className="mr-2" />
-                  Cerrar sesión
+                  <span className="font-medium">Cerrar sesión</span>
                 </button>
               </>
             ) : (
               <Link
                 to="/login"
-                className={`inline-flex items-center px-3 py-2 text-gray-600 hover:text-blue-600 ${
-                  location.pathname === '/login' ? 'text-blue-600' : ''
-                }`}
+                className="flex items-center px-6 py-2.5 bg-[#8D9B6A] text-white rounded-full hover:bg-[#7A8759] transition-all duration-300 shadow-sm"
               >
-                <FaUser className="mr-2" />
-                Iniciar sesión
+                <FaUser className="mr-2 text-sm" />
+                <span className="font-medium">Iniciar sesión</span>
               </Link>
             )}
           </div>

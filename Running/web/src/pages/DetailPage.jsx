@@ -8,7 +8,7 @@ const DetailPage = () => {
 
   // Datos de ejemplo - normalmente vendrían de una API
   const raceDetails = {
-    id: id,
+    id: id, 
     title: "Gran Fondo de Montaña",
     date: "31/12/2024",
     time: "08:00",

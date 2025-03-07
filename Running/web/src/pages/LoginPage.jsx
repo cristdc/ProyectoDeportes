@@ -7,11 +7,8 @@ import { useAuth } from '../context/AuthContext';
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [credentials, setCredentials] = useState({
-    email: '',
-    password: '',
-    remember: false
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -19,15 +16,12 @@ const LoginPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    console.log('Intentando login con:', credentials); // Debug
 
     try {
-      const response = await login(credentials);
-      console.log('Login exitoso:', response); // Debug
+      await login(email, password);
       navigate('/profile');
     } catch (err) {
-      console.error('Error en el formulario de login:', err);
-      setError('Error al iniciar sesión. Verifica tus credenciales.');
+      setError(err.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
@@ -58,8 +52,8 @@ const LoginPage = () => {
                 </div>
                 <input
                   type="email"
-                  value={credentials.email}
-                  onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8D9B6A] focus:border-transparent"
                   placeholder="tu@email.com"
                   required
@@ -75,26 +69,13 @@ const LoginPage = () => {
                 </div>
                 <input
                   type="password"
-                  value={credentials.password}
-                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#8D9B6A] focus:border-transparent"
                   placeholder="********"
                   required
                 />
               </div>
-            </div>
-
-            <div className="flex items-center">
-              <input
-                id="remember"
-                type="checkbox"
-                checked={credentials.remember}
-                onChange={(e) => setCredentials({ ...credentials, remember: e.target.checked })}
-                className="h-4 w-4 text-[#8D9B6A] focus:ring-[#8D9B6A] border-gray-300 rounded"
-              />
-              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
-                Recordarme
-              </label>
             </div>
 
             {error && <p className="text-red-500 text-sm">{error}</p>}

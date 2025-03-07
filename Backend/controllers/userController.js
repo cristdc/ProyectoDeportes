@@ -4,20 +4,27 @@ import User from "../models/User.js";
 // Iniciar sesión
 const login = async (req, res) => {
   try {
+    console.log('\n=== Login Process Started ===');
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Se requiere email y contraseña" });
+      console.log('Login failed: Missing credentials');
+      return res.status(400).json({ message: "Se requiere email y contraseña" });
     }
 
-    const user = await User.findOne({ email });
+    // Obtener el usuario con todos sus datos
+    const user = await User.findOne({ email }).select("+password");
+    console.log('Database query result:', {
+      found: !!user,
+      userData: user ? {
+        ...user.toObject(),
+        password: '[PROTECTED]'
+      } : null
+    });
 
     if (!user || !(await user.comparePassword(password))) {
-      return res
-        .status(401)
-        .json({ message: "Usuario o contraseña incorrectos" });
+      console.log('Login failed: Invalid credentials');
+      return res.status(401).json({ message: "Usuario o contraseña incorrectos" });
     }
 
     const token = jwt.sign(
@@ -26,26 +33,45 @@ const login = async (req, res) => {
       { expiresIn: "1h" }
     );
 
+    // Preparar respuesta del usuario con validación de tipos
+    const userResponse = {
+      id: user._id.toString(),
+      name: String(user.name),
+      email: String(user.email),
+      role: String(user.role),
+      height: user.height !== undefined ? Number(user.height) : null,
+      weight: user.weight !== undefined ? Number(user.weight) : null,
+      age: user.age !== undefined ? Number(user.age) : null,
+      gender: user.gender ? String(user.gender) : '',
+      profileImage: user.profileImage ? String(user.profileImage) : null,
+      stats: {
+        totalRaces: Number(user.stats?.totalRaces || 0),
+        completedRaces: Number(user.stats?.completedRaces || 0),
+        totalKilometers: Number(user.stats?.totalKilometers || 0)
+      }
+    };
+
+    console.log('Prepared user response:', userResponse);
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 3600000, // 1 hora
+      maxAge: 3600000,
     });
+
+    console.log('=== Login Process Completed ===\n');
 
     res.json({
       message: "Inicio de sesión exitoso",
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: userResponse
     });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al iniciar sesión", error: error.message });
+    console.error('Login error:', error);
+    res.status(500).json({ 
+      message: "Error al iniciar sesión", 
+      error: error.message 
+    });
   }
 };
 
@@ -147,21 +173,32 @@ const getUserProfile = async (req, res) => {
 // Actualizar perfil propio
 const updateProfile = async (req, res) => {
   try {
-    const updates = req.body;
+    console.log('Datos recibidos para actualización:', req.body);
     const userId = req.user.id;
+    
+    // Crear objeto de actualización con los datos recibidos
+    const updateData = {};
+    
+    // Validar y añadir cada campo si existe
+    if (req.body.name) updateData.name = req.body.name.trim();
+    if (req.body.email) updateData.email = req.body.email.trim();
+    if (req.body.height) updateData.height = Number(req.body.height);
+    if (req.body.weight) updateData.weight = Number(req.body.weight);
+    if (req.body.age) updateData.age = Number(req.body.age);
+    if (req.body.gender) updateData.gender = req.body.gender;
 
-    // Prevenir actualización de campos protegidos
-    if (updates.role || updates.registrationDate) {
-      return res.status(403).json({
-        message: "No tienes permiso para actualizar campos protegidos",
-      });
+    // Manejar la imagen si se subió una nueva
+    if (req.file) {
+      updateData.profileImage = `/uploads/profiles/${req.file.filename}`;
     }
 
+    console.log('Datos a actualizar:', updateData);
+
     // Verificar si se actualiza el email y si ya existe
-    if (updates.email) {
+    if (updateData.email) {
       const emailExists = await User.findOne({
-        email: updates.email,
-        _id: { $ne: userId },
+        email: updateData.email,
+        _id: { $ne: userId }
       });
 
       if (emailExists) {
@@ -169,24 +206,45 @@ const updateProfile = async (req, res) => {
       }
     }
 
-    const user = await User.findByIdAndUpdate(userId, updates, {
-      new: true,
-      runValidators: true,
-    }).select("-password");
+    // Actualizar el usuario en la base de datos
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    ).select("-password");
 
-    if (!user) {
+    if (!updatedUser) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    // En lugar de devolver solo el usuario, devuelve un objeto con mensaje y usuario
+    // Preparar la respuesta
+    const userResponse = {
+      id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      height: updatedUser.height,
+      weight: updatedUser.weight,
+      age: updatedUser.age,
+      gender: updatedUser.gender,
+      profileImage: updatedUser.profileImage,
+      stats: updatedUser.stats || {
+        totalRaces: 0,
+        completedRaces: 0,
+        totalKilometers: 0
+      }
+    };
+
     res.json({
       message: "Perfil actualizado con éxito",
-      user: user,
+      user: userResponse
     });
+
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error al actualizar el perfil", error: error.message });
+    console.error('Error al actualizar el perfil:', error);
+    res.status(500).json({ 
+      message: "Error al actualizar el perfil", 
+      error: error.message 
+    });
   }
 };
 

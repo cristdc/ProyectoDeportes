@@ -201,6 +201,7 @@ const createRace = async (req, res) => {
       unevenness,
       tour,
       qualifyingTime,
+      coordinates,
     } = req.body;
 
     // Verificar permisos
@@ -281,6 +282,7 @@ const createRace = async (req, res) => {
       unevenness,
       tour,
       qualifyingTime,
+      coordinates: coordinates || [40.4168, -3.7038],
       createdBy: req.user.id,
       status: "open",
       createdAt: new Date(),

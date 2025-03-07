@@ -90,54 +90,18 @@ const createRegistration = async (req, res) => {
  */
 const getUserRegistrations = async (req, res) => {
   try {
-    const userId = req.user.id; 
-    const { status, page = 1, limit = 10 } = req.query;
+    const userId = req.user.id;
 
-    // Verificar autenticación
-    if (!req.user || !userId) {
-      return res.status(401).json({ message: "No hay token de autenticación" });
-    }
+    const registrations = await Registration.find({
+      user: userId,
+      status: { $in: ['registered', 'finished'] }
+    }).populate('race', 'name date location distance sport maxParticipants');
 
-    // Construir query
-    let query = { user: userId };
-    if (status) {
-      query.status = status;
-    }
-
-    // Aplicar paginación
-    const pageNum = parseInt(page);
-    const limitNum = parseInt(limit);
-
-    if (isNaN(pageNum) || isNaN(limitNum) || pageNum < 1 || limitNum < 1) {
-      return res
-        .status(400)
-        .json({ message: "Parámetros de paginación inválidos" });
-    }
-
-    const skip = (pageNum - 1) * limitNum;
-
-    // Contar total de registros para paginación
-    const totalRegistrations = await Registration.countDocuments(query);
-    const totalPages = Math.ceil(totalRegistrations / limitNum);
-
-    // Obtener registros con paginación
-    const registrations = await Registration.find(query)
-      .populate("race", "name date sport location distance")
-      .sort({ registeredAt: -1 })
-      .skip(skip)
-      .limit(limitNum);
-
-    return res.status(200).json({
-      registrations,
-      totalRegistrations,
-      totalPages,
-      currentPage: pageNum,
-    });
+    return res.json(registrations);
   } catch (error) {
     console.error("Error en getUserRegistrations:", error);
     return res.status(500).json({
-      message: "Error al obtener las inscripciones",
-      error: error.message,
+      message: "Error al obtener las inscripciones"
     });
   }
 };
@@ -463,7 +427,104 @@ const getAllRegistrations = async (req, res) => {
   }
 };
 
-export {
+// Controlador para inscribirse/desinscribirse de una carrera
+const toggleRegistration = async (req, res) => {
+  try {
+    const { raceId } = req.params;
+    const userId = req.user.id;
+
+    // Verificar que la carrera existe y está abierta
+    const race = await Race.findById(raceId);
+    if (!race) {
+      return res.status(404).json({ message: "Carrera no encontrada" });
+    }
+
+    if (race.status !== "open") {
+      return res.status(400).json({ 
+        message: "Las inscripciones para esta carrera no están abiertas" 
+      });
+    }
+
+    // Buscar si ya existe una inscripción
+    const existingRegistration = await Registration.findOne({
+      race: raceId,
+      user: userId
+    });
+
+    // Si existe y está activa, la cancelamos
+    if (existingRegistration && existingRegistration.status === 'registered') {
+      existingRegistration.status = 'cancelled';
+      await existingRegistration.save();
+      return res.json({ 
+        message: "Inscripción cancelada correctamente",
+        isRegistered: false
+      });
+    }
+    
+    // Si no existe o está cancelada, creamos una nueva
+    if (!existingRegistration) {
+      // Verificar que hay plazas disponibles
+      const registrationsCount = await Registration.countDocuments({
+        race: raceId,
+        status: 'registered'
+      });
+
+      if (registrationsCount >= race.maxParticipants) {
+        return res.status(400).json({
+          message: "No hay plazas disponibles para esta carrera"
+        });
+      }
+
+      // Crear nueva inscripción
+      await Registration.create({
+        race: raceId,
+        user: userId,
+        status: 'registered',
+        registeredAt: new Date()
+      });
+    } else {
+      // Si existe pero está cancelada, la reactivamos
+      existingRegistration.status = 'registered';
+      await existingRegistration.save();
+    }
+
+    return res.json({
+      message: "Inscripción realizada correctamente",
+      isRegistered: true
+    });
+
+  } catch (error) {
+    console.error("Error en toggleRegistration:", error);
+    return res.status(500).json({
+      message: "Error al procesar la inscripción"
+    });
+  }
+};
+
+// Controlador para verificar si un usuario está inscrito en una carrera específica
+const checkRegistrationStatus = async (req, res) => {
+  try {
+    const { raceId } = req.params;
+    const userId = req.user.id;
+
+    const registration = await Registration.findOne({
+      race: raceId,
+      user: userId,
+      status: 'registered'
+    });
+
+    return res.json({
+      isRegistered: !!registration
+    });
+  } catch (error) {
+    console.error("Error en checkRegistrationStatus:", error);
+    return res.status(500).json({
+      message: "Error al verificar el estado de la inscripción"
+    });
+  }
+};
+
+export default {
   createRegistration,
   getUserRegistrations,
   getRaceRegistrations, 
@@ -471,4 +532,6 @@ export {
   getAllRegistrations,
   updateRegistrationTime,
   cancelRegistration,
+  checkRegistrationStatus,
+  toggleRegistration
 };
