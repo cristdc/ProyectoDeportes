@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
 
 const Profile = () => {
-    const { user, logout, updateUserData } = useAuth();
+    const { user, logout, updateUserData, checkAuth } = useAuth();
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [error, setError] = useState(null);
@@ -16,17 +16,24 @@ const Profile = () => {
         age: user?.age || '',
         avatar: user?.avatar || ''
     });
+    const [isLoading, setIsLoading] = useState(true);
 
     console.log("Datos del usuario en Profile:", user);
     useEffect(() => {
-        if (user) {
-            setFormData({
-                name: user.name || '',
-                age: user.age || '',
-                avatar: user.avatar || ''
-            });
-        }
-    }, [user]);
+        const refreshProfile = async () => {
+            try {
+                setIsLoading(true);
+                await checkAuth();
+            } catch (error) {
+                console.error('Error al actualizar perfil:', error);
+                toast.error('Error al cargar el perfil');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        refreshProfile();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -77,6 +84,17 @@ const Profile = () => {
             toast.error('Error al subir la imagen');
         }
     };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-[#fdf7ed] flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9B9D79] mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Cargando perfil...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#fdf7ed] p-4 md:p-8">

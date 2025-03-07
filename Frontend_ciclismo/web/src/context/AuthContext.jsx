@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error('No hay token');
             }
 
-            const response = await fetch(`${API_URL}/users/check-auth`, {
+            const response = await fetch(`${API_URL}/users/profile`, {
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
@@ -40,12 +40,21 @@ export const AuthProvider = ({ children }) => {
             const data = await response.json();
             setIsAuthenticated(true);
             localStorage.setItem('isAuthenticated', 'true');
-            if (data.user) {
-                setUser(data.user);
-                localStorage.setItem('user', JSON.stringify(data.user));
-            }
+            
+            // Asegurarnos de guardar todos los datos del usuario
+            const userData = {
+                _id: data._id,
+                name: data.name,
+                email: data.email,
+                age: data.age,
+                avatar: data.avatar,
+                role: data.role
+            };
+            
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
             setError(null);
-            await fetchRegistrations(); // Cargar inscripciones después de verificar autenticación
+            await fetchRegistrations();
         } catch (error) {
             console.error("Error durante la verificación de autenticación:", error);
             localStorage.removeItem('token');
@@ -65,6 +74,12 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem('user', JSON.stringify(user));
+        }
+    }, [user]);
+
     const login = async (userData) => {
         try {
             toast.loading('Iniciando sesión...');
@@ -79,14 +94,21 @@ export const AuthProvider = ({ children }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                // Veamos qué contiene la respuesta
-                console.log('Respuesta completa:', data);
-                console.log('Cookies disponibles:', document.cookie);
+                
+                // Normalizar los datos del usuario antes de guardarlos
+                const normalizedUser = {
+                    _id: data.user._id,
+                    name: data.user.name,
+                    email: data.user.email,
+                    age: data.user.age,
+                    avatar: data.user.avatar,
+                    role: data.user.role
+                };
 
                 setIsAuthenticated(true);   
-                setUser(data.user);
+                setUser(normalizedUser);
                 localStorage.setItem('isAuthenticated', 'true');
-                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('user', JSON.stringify(normalizedUser));
                 localStorage.setItem('token', data.token);
                 setError(null);
                 await fetchRegistrations();
@@ -271,13 +293,14 @@ export const AuthProvider = ({ children }) => {
                 age: updatedUser.age
             };
 
-            console.log("Datos normalizados:", normalizedUser);
-            
             // Actualizar estado y localStorage
             setUser(normalizedUser);
             localStorage.setItem('user', JSON.stringify(normalizedUser));
             
-            console.log("Usuario guardado en estado:", normalizedUser);
+            // Verificar que los datos se guardaron correctamente
+            const savedUser = JSON.parse(localStorage.getItem('user'));
+            console.log("Usuario guardado en localStorage:", savedUser);
+            
             return true;
         } catch (error) {
             console.error("Error actualizando datos del usuario:", error);
