@@ -17,20 +17,17 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.image.ImageView;
 import com.proyectobase.modelo.Carrera;
-<<<<<<< HEAD
 import java.io.IOException;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
-=======
 import com.proyectobase.modelo.LocalDateTimeAdapter;
 import java.util.List;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
->>>>>>> 4768f3a92217ff54669779d5e95b5bb62cacb92c
 import javafx.scene.Scene;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -45,14 +42,11 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-<<<<<<< HEAD
-=======
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
->>>>>>> 4768f3a92217ff54669779d5e95b5bb62cacb92c
 
 public class PantallaPrincipal implements Initializable {
 
