@@ -56,7 +56,7 @@ const Navbar = ( { user } ) => {
             <Link to="/racesuser" className="pr-3 text-text  hover:text-accent transition-all duration-300">Historial de Carreras</Link>
             <button
               onClick={handleLogout}
-              className="text-text hover:text-accent transition-all duration-300"
+              className="text-text hover:text-accent transition-all duration-300 cursor-pointer"
             >
               Cerrar sesión
             </button>
@@ -83,7 +83,7 @@ const Navbar = ( { user } ) => {
 
             <button
               onClick={async () => logout()}
-              className="text-text hover:text-accent transition-all duration-300"
+              className="text-text hover:text-accent transition-all duration-300 cursor-pointer"
             >
               Cerrar sesión
             </button>

@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth.js";
 import { toast } from "react-toastify";
 
 const Login = () => {
-  const [email, setEmail] = useState("");  // Cambio setUsername -> setEmail
+  const [email, setEmail] = useState("");  
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
