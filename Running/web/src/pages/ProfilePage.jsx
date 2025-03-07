@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { apiService } from '../services/api';
+import { Pie } from 'react-chartjs-2';
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [profileData, setProfileData] = useState(null);
+  const [kilometers, setKilometers] = useState(0);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -14,6 +16,7 @@ export default function ProfilePage() {
         const data = await apiService.getUserProfile();
         console.log('Datos del perfil cargados:', data);
         setProfileData(data);
+        setKilometers(data.kilometers);
       } catch (err) {
         console.error('Error cargando perfil:', err);
         setError('Error al cargar el perfil');
@@ -28,6 +31,16 @@ export default function ProfilePage() {
       setLoading(false);
     }
   }, [user]);
+
+  const data = {
+    labels: ['Kilómetros Recorridos', 'Restante'],
+    datasets: [
+      {
+        data: [kilometers, 100 - kilometers],
+        backgroundColor: ['#36A2EB', '#FF6384'],
+      },
+    ],
+  };
 
   if (loading) {
     return <div className="text-center py-8">Cargando perfil...</div>;
@@ -66,6 +79,10 @@ export default function ProfilePage() {
             <label className="font-medium text-gray-600">Miembro desde:</label>
             <p className="mt-1">{new Date(profileData.registeredAt).toLocaleDateString()}</p>
           </div>
+        </div>
+        <div className="mt-6">
+          <h2 className="text-xl font-bold mb-4">Kilómetros Recorridos</h2>
+          <Pie data={data} />
         </div>
       </div>
     </div>
