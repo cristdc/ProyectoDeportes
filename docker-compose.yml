@@ -62,7 +62,7 @@ services:
       - deportes_network
 
   nginx:
-      build: .
+      build: ./nginx
       ports:
         - "80:80"
       restart: always
