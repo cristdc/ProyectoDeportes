@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { toast } from 'sonner';
 
 const AuthContext = createContext();
 const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
@@ -26,7 +25,7 @@ export const AuthProvider = ({ children }) => {
                 throw new Error('No hay token');
             }
 
-            const response = await fetch(`${API_URL}/users/profile`, {
+            const response = await fetch(`${API_URL}/users/check-auth`, {
                 credentials: "include",
                 headers: {
                     "Content-Type": "application/json",
@@ -40,21 +39,12 @@ export const AuthProvider = ({ children }) => {
             const data = await response.json();
             setIsAuthenticated(true);
             localStorage.setItem('isAuthenticated', 'true');
-            
-            // Asegurarnos de guardar todos los datos del usuario
-            const userData = {
-                _id: data._id,
-                name: data.name,
-                email: data.email,
-                age: data.age,
-                avatar: data.avatar,
-                role: data.role
-            };
-            
-            setUser(userData);
-            localStorage.setItem('user', JSON.stringify(userData));
+            if (data.user) {
+                setUser(data.user);
+                localStorage.setItem('user', JSON.stringify(data.user));
+            }
             setError(null);
-            await fetchRegistrations();
+            await fetchRegistrations(); // Cargar inscripciones después de verificar autenticación
         } catch (error) {
             console.error("Error durante la verificación de autenticación:", error);
             localStorage.removeItem('token');
@@ -74,15 +64,8 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem('user', JSON.stringify(user));
-        }
-    }, [user]);
-
     const login = async (userData) => {
         try {
-            toast.loading('Iniciando sesión...');
             const response = await fetch(`${API_URL}/users/login`, {
                 method: "POST",
                 credentials: "include",
@@ -94,25 +77,17 @@ export const AuthProvider = ({ children }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                
-                // Normalizar los datos del usuario antes de guardarlos
-                const normalizedUser = {
-                    _id: data.user._id,
-                    name: data.user.name,
-                    email: data.user.email,
-                    age: data.user.age,
-                    avatar: data.user.avatar,
-                    role: data.user.role
-                };
+                // Veamos qué contiene la respuesta
+                console.log('Respuesta completa:', data);
+                console.log('Cookies disponibles:', document.cookie);
 
                 setIsAuthenticated(true);   
-                setUser(normalizedUser);
+                setUser(data.user);
                 localStorage.setItem('isAuthenticated', 'true');
-                localStorage.setItem('user', JSON.stringify(normalizedUser));
+                localStorage.setItem('user', JSON.stringify(data.user));
                 localStorage.setItem('token', data.token);
                 setError(null);
                 await fetchRegistrations();
-                toast.success('¡Bienvenido de nuevo!');
                 return true;
             }
             
@@ -121,22 +96,18 @@ export const AuthProvider = ({ children }) => {
             return false;
         } catch (error) {
             setError(error.message);
-            toast.error('Error al iniciar sesión: ' + error.message);
             return false;
         }
     };
 
     const logout = async () => {
         try {
-            toast.loading('Cerrando sesión...');
             const response = await fetch(`${API_URL}/users/logout`, {   
                 method: "POST",
                 credentials: "include",
             });
-            toast.success('¡Hasta pronto!');
         } catch (error) {
             console.error("Error durante el logout:", error);
-            toast.error('Error al cerrar sesión');
         } finally {
             // Limpiar todo el localStorage
             localStorage.removeItem('token');
@@ -189,7 +160,6 @@ export const AuthProvider = ({ children }) => {
 
     const registerToRace = async (raceId) => {
         try {
-            toast.loading('Procesando inscripción...');
             // Buscar cualquier registro previo para esta carrera (incluso los cancelados)
             const existingRegistration = userRegistrations.find(reg => 
                 reg.race._id === raceId
@@ -212,13 +182,11 @@ export const AuthProvider = ({ children }) => {
                 console.log("Respuesta de actualización:", data);
 
                 if (!response.ok) {
-                    toast.error(data.message || 'Error al actualizar la inscripción');
-                    throw new Error(data.message);
+                    throw new Error(data.message || 'Error al actualizar la inscripción');
                 }
 
                 // Actualizar el estado local
                 await fetchRegistrations();
-                toast.success('¡Inscripción actualizada correctamente!');
                 return { success: true, message: 'Inscripción actualizada correctamente' };
             } else {
                 // Solo si no existe ningún registro previo, crear uno nuevo
@@ -234,16 +202,14 @@ export const AuthProvider = ({ children }) => {
                 const data = await response.json();
 
                 if (!response.ok) {
-                    toast.error(data.message || 'Error al inscribirse');
-                    throw new Error(data.message);
+                    throw new Error(data.message || 'Error al inscribirse');
                 }
 
                 await fetchRegistrations();
-                toast.success('¡Te has inscrito correctamente a la carrera!');
                 return { success: true, message: data.message };
             }
         } catch (error) {
-            toast.error('Error en la inscripción: ' + error.message);
+            console.error("Error en el registro:", error);
             return { success: false, message: error.message };
         }
     };
@@ -293,14 +259,13 @@ export const AuthProvider = ({ children }) => {
                 age: updatedUser.age
             };
 
+            console.log("Datos normalizados:", normalizedUser);
+            
             // Actualizar estado y localStorage
             setUser(normalizedUser);
             localStorage.setItem('user', JSON.stringify(normalizedUser));
             
-            // Verificar que los datos se guardaron correctamente
-            const savedUser = JSON.parse(localStorage.getItem('user'));
-            console.log("Usuario guardado en localStorage:", savedUser);
-            
+            console.log("Usuario guardado en estado:", normalizedUser);
             return true;
         } catch (error) {
             console.error("Error actualizando datos del usuario:", error);
