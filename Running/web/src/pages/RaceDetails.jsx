@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { FaMapMarkerAlt, FaCalendarAlt, FaRunning, FaUsers, FaMountain, FaClock } from 'react-icons/fa';
 import { apiService } from '../services/api';

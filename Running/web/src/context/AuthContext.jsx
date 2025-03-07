@@ -8,22 +8,32 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('user');
-        const checkAuth = async () => {
-            if (token) {
-                try {
-                    const userData = await apiService.getUserProfile();
-                    setUser(userData);
-                } catch (error) {
-                    console.error('Error verificando autenticación:', error);
-                    localStorage.removeItem('user');
-                    setUser(null);
-                }
-            }
+        const { token, user } = apiService.getAuthData();
+        console.log('Token encontrado en localStorage al iniciar AuthProvider:', token);
+
+        if (!token) {
             setLoading(false);
+            return;
+        }
+
+        const checkAuth = async () => {
+            try {
+                const userData = await apiService.getUserProfile();
+                setUser(userData);
+            } catch (error) {
+                console.error('Error verificando autenticación:', error);
+                logout();
+            } finally {
+                setLoading(false);
+            }
         };
 
-        checkAuth();
+        if (user) {
+            setUser(user);
+            setLoading(false);
+        } else {
+            checkAuth();
+        }
     }, []);
 
     const login = async (credentials) => {
@@ -40,7 +50,8 @@ export function AuthProvider({ children }) {
     };
 
     const logout = () => {
-        localStorage.removeItem('user');
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userData');
         setUser(null);
     };
 
