@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from "react";
+import { apiRequest } from "../utils/api"; 
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -18,67 +19,36 @@ export const AuthProvider = ({ children }) => {
   const checkAuthStatus = async () => {
     try {
       console.log("Verificando autenticación...");
-      
-      // Primer intento: usar cookies
-      let response = await fetch(`${BACKEND_URL}/users/profile`, {
+
+      const response = await apiRequest(`${BACKEND_URL}/users/profile`, {
         method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json"
-        }
       });
 
-      // Si las cookies fallan, intentar con localStorage
-      if (!response.ok) {
-        console.log("Cookies fallaron, intentando con localStorage");
-        const storedToken = localStorage.getItem('authToken');
-        
-        if (storedToken) {
-          response = await fetch(`${BACKEND_URL}/users/profile`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-              Authorization: `Bearer ${storedToken}`
-            }
-          });
-          
-          if (response.ok) {
-            setUsingLocalStorage(true);
-            console.log("Autenticación exitosa usando localStorage");
-          }
-        }
-      } else {
-        setUsingLocalStorage(false);
-        console.log("Autenticación exitosa usando cookies");
-      }
+      console.log("Respuesta de verificación:", response.status);
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Datos de usuario:", data);
+        console.log("Autenticación exitosa, datos:", data);
         setUser(data);
         setIsAuth(true);
+        setUsingLocalStorage(false);
         return true;
       } else {
-        // Si ambos métodos fallaron, limpiar todo
-        localStorage.removeItem('authToken');
+        // Si falla, limpiamos el estado
         setUser(null);
         setIsAuth(false);
-        setUsingLocalStorage(false);
         return false;
       }
     } catch (err) {
       console.error("Error al verificar autenticación:", err);
-      localStorage.removeItem('authToken');
       setUser(null);
       setIsAuth(false);
-      setUsingLocalStorage(false);
       return false;
     } finally {
       setLoading(false);
     }
   };
+
 
   const login = async (email, password) => {
     try {
@@ -86,14 +56,9 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       console.log("Intentando login con:", email);
 
-      const response = await fetch(`${BACKEND_URL}/users/login`, {
+      const response = await apiRequest(`${BACKEND_URL}/users/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
         body: JSON.stringify({ email, password }),
-        credentials: "include",
       });
 
       const data = await response.json();
@@ -103,18 +68,15 @@ export const AuthProvider = ({ children }) => {
       }
 
       if (data.user.role !== "admin") {
-        throw new Error("Acceso denegado. Esta página es solo para administradores.");
+        throw new Error(
+          "Acceso denegado. Esta página es solo para administradores."
+        );
       }
 
-      // Guardar el token en localStorage solo si las cookies no funcionan
-      if (!document.cookie.includes('token=')) {
-        console.log("Cookies no disponibles, usando localStorage como respaldo");
-        if (data.token) {
-          localStorage.setItem('authToken', data.token);
-          setUsingLocalStorage(true);
-        }
-      } else {
-        setUsingLocalStorage(false);
+      // Guardar el token en localStorage
+      if (data.token) {
+        localStorage.setItem("authToken", data.token);
+        console.log("Token guardado en localStorage");
       }
 
       setUser(data.user);
@@ -134,14 +96,9 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      const response = await fetch(`${BACKEND_URL}/users/register`, {
+      const response = await apiRequest(`${BACKEND_URL}/users/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
         body: JSON.stringify({ email, password, name, gender, age }),
-        credentials: "include",
       });
 
       const data = await response.json();
@@ -150,8 +107,9 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || "Error al registrarse");
       }
 
+      // Guardar el token en localStorage si está disponible
       if (data.token) {
-        localStorage.setItem('authToken', data.token);
+        localStorage.setItem("authToken", data.token);
       }
 
       setUser(data.user);
@@ -168,38 +126,32 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       setLoading(true);
-      const headers = {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      };
 
-      // Si estamos usando localStorage, incluir el token en los headers
-      if (usingLocalStorage) {
-        const storedToken = localStorage.getItem('authToken');
-        if (storedToken) {
-          headers.Authorization = `Bearer ${storedToken}`;
-        }
-      }
-
-      const response = await fetch(`${BACKEND_URL}/users/logout`, {
+      const response = await apiRequest(`${BACKEND_URL}/users/logout`, {
         method: "POST",
-        credentials: "include",
-        headers
       });
 
       if (!response.ok) {
         console.warn("Error en logout, limpiando estado local de todos modos");
       }
-    } catch (err) {
-      console.error("Error en logout:", err);
-    } finally {
-      // Limpiar todo independientemente del resultado
-      localStorage.removeItem('authToken');
+
+      // Siempre limpiamos el estado local y eliminamos el token
+      localStorage.removeItem("authToken");
       setUser(null);
       setIsAuth(false);
       setUsingLocalStorage(false);
-      setLoading(false);
+
+      // Redirigir al login después de cerrar sesión
       window.location.href = "/admin";
+    } catch (err) {
+      console.error("Error en logout:", err);
+      // Incluso si hay error, limpiamos el estado
+      localStorage.removeItem("authToken");
+      setUser(null);
+      setIsAuth(false);
+      window.location.href = "/admin";
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -33,11 +33,22 @@ const UploadResults = () => {
     formData.append('results', file);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/races/${id}/results`, {
-        method: 'POST',
-        credentials: 'include',
-        body: formData,
-      });
+      const headers = {};
+
+      const storedToken = localStorage.getItem("authToken");
+      if (storedToken) {
+        headers["Authorization"] = `Bearer ${storedToken}`;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/races/${id}/results`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: headers,
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Error al subir los resultados');

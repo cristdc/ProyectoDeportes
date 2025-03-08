@@ -1,4 +1,5 @@
 import { createContext, useState, useContext } from "react";
+import { apiRequest } from "../utils/api";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -13,9 +14,7 @@ export const UserProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${BACKEND_URL}/admin/users`, {
-        credentials: "include",
-      });
+      const response = await apiRequest(`${BACKEND_URL}/admin/users`);
 
       if (!response.ok) {
         throw new Error("Error al obtener usuarios");
@@ -36,10 +35,13 @@ export const UserProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${BACKEND_URL}/admin/users/${userId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+
+      const response = await apiRequest(
+        `${BACKEND_URL}/admin/users/${userId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Error al eliminar usuario");
@@ -59,14 +61,14 @@ export const UserProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${BACKEND_URL}/admin/users/change-role`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId, role: newRole }),
-        credentials: "include",
-      });
+
+      const response = await apiRequest(
+        `${BACKEND_URL}/admin/users/change-role`,
+        {
+          method: "POST",
+          body: JSON.stringify({ userId, role: newRole }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Error al cambiar el rol del usuario");

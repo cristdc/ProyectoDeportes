@@ -29,9 +29,11 @@ const HomeAdmin = () => {
 
   const fetchRaces = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/races`);
+      const response = await apiRequest(
+        `${import.meta.env.VITE_BACKEND_URL}/races`
+      );
       if (!response.ok) {
-        throw new Error('Error al cargar las carreras');
+        throw new Error("Error al cargar las carreras");
       }
       const data = await response.json();
       setRaces(data);

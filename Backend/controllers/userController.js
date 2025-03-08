@@ -37,13 +37,17 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Se requiere email y contraseña" });
+      return res
+        .status(400)
+        .json({ message: "Se requiere email y contraseña" });
     }
 
     const user = await User.findOne({ email });
 
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: "Usuario o contraseña incorrectos" });
+      return res
+        .status(401)
+        .json({ message: "Usuario o contraseña incorrectos" });
     }
 
     const token = jwt.sign(
@@ -52,47 +56,42 @@ const login = async (req, res) => {
       { expiresIn: "24h" }
     );
 
-    // Determinar el dominio para la cookie
-    let cookieDomain;
-    if (req.headers.host.includes('.amazonaws.com')) {
-      cookieDomain = '.amazonaws.com';
-    } else if (req.headers.host.includes('localhost')) {
-      cookieDomain = 'localhost';
-    }
+    // Determinar si la conexión es segura
+    const isSecureConnection =
+      req.secure || req.headers["x-forwarded-proto"] === "https";
+    console.log("Conexión segura:", isSecureConnection);
+    console.log("Headers:", req.headers);
 
-    // Intentar establecer la cookie
     try {
+      // Configuración de cookies más permisiva para ALB
       res.cookie("token", token, {
         httpOnly: true,
-        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-        sameSite: 'lax',
+        secure: isSecureConnection,
+        sameSite: "lax", // 'lax' es mejor para cross-domain en HTTP
         maxAge: 24 * 60 * 60 * 1000,
         path: "/",
-        domain: cookieDomain
       });
-      console.log("Cookie establecida exitosamente");
+      console.log("Cookie establecida con éxito");
     } catch (cookieError) {
-      console.error("Error al establecer la cookie:", cookieError);
-      // No lanzamos el error aquí, continuamos para enviar el token en la respuesta
+      console.error("Error al establecer cookie:", cookieError);
     }
 
-    // Enviar respuesta con token y datos del usuario
+    // Incluir el token en la respuesta para localStorage
     res.json({
       message: "Inicio de sesión exitoso",
-      token, // Incluir el token solo si la cookie no se pudo establecer
+      token, // Siempre incluir el token en la respuesta
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
       },
-      cookieSet: !cookieError // Indicar al frontend si la cookie se estableció
     });
   } catch (error) {
     console.error("Error en login:", error);
     res.status(500).json({
       message: "Error al iniciar sesión",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -406,6 +405,59 @@ const userDownloadGPXFile = async (req, res) => {
   }
 };
 
+
+const authDiagnostic = async (req, res) => {
+  try {
+    // Establecer cookie de prueba
+    res.cookie("test_cookie", "test_value", {
+      httpOnly: false, // Para poder verla en el navegador
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+    });
+
+    // Obtener información del token
+    const token =
+      req.cookies.token ||
+      (req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+        ? req.headers.authorization.split(" ")[1]
+        : null);
+
+    let tokenInfo = null;
+    if (token) {
+      try {
+        tokenInfo = jwt.verify(token, process.env.JWT_SECRET);
+      } catch (err) {
+        tokenInfo = { error: err.message };
+      }
+    }
+
+    res.json({
+      message: "Diagnóstico de autenticación",
+      cookies: req.cookies,
+      token: token ? "presente" : "ausente",
+      tokenSource: token
+        ? req.cookies.token
+          ? "cookie"
+          : "header"
+        : "ninguno",
+      tokenInfo,
+      headers: {
+        host: req.headers.host,
+        origin: req.headers.origin,
+        referer: req.headers.referer,
+        userAgent: req.headers["user-agent"],
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error en diagnóstico",
+      error: error.message,
+    });
+  }
+};
+
 export {
   getAuthStatus,
   getUserById,
@@ -417,4 +469,5 @@ export {
   updateProfile,
   userDownloadGPXFile,
   checkCookies,
+  authDiagnostic,
 };

@@ -10,6 +10,7 @@ import {
   getAuthStatus,
   userDownloadGPXFile,
   checkCookies,
+  authDiagnostic,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../middlewares/authmiddleware.js";
 
@@ -28,6 +29,7 @@ router.put("/profile", authMiddleware, updateProfile);
 router.get("/search", authMiddleware, searchUsersByName); 
 
 router.get("/check-cookies", checkCookies);
+router.get("/auth-diagnostic", authDiagnostic);
 
 router.get("/check-auth", authMiddleware, (req, res) => {
   

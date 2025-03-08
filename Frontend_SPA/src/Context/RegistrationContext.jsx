@@ -1,4 +1,5 @@
 import { createContext, useState, useContext } from "react";
+import { apiRequest } from "../utils/api";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -16,11 +17,8 @@ export const RegistrationProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
-        `${BACKEND_URL}/registrations/race/${raceId}`,
-        {
-          credentials: "include",
-        }
+      const response = await apiRequest(
+        `${BACKEND_URL}/registrations/race/${raceId}`
       );
 
       if (!response.ok) {
@@ -28,9 +26,8 @@ export const RegistrationProvider = ({ children }) => {
       }
 
       const data = await response.json();
-      // La respuesta del backend incluye registrations y metadata de paginación
-      setRegistrations(data.registrations || []); // Extraer solo las inscripciones
-      return data; // Devolver toda la data para la paginación
+      setRegistrations(data.registrations || []);
+      return data;
     } catch (err) {
       setError(err.message);
       setRegistrations([]);
@@ -39,6 +36,7 @@ export const RegistrationProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
 
   // Actualizar tiempo y posición de una inscripción
   const updateRegistrationTime = async (
@@ -49,12 +47,8 @@ export const RegistrationProvider = ({ children }) => {
   ) => {
     try {
       // 1. Primero actualizamos el estado de la carrera a "finished"
-      const raceResponse = await fetch(`${BACKEND_URL}/races/${raceId}`, {
+      const raceResponse = await apiRequest(`${BACKEND_URL}/races/${raceId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
         body: JSON.stringify({
           status: "finished",
         }),
@@ -65,14 +59,10 @@ export const RegistrationProvider = ({ children }) => {
       }
 
       // 2. Ahora actualizamos el tiempo de la inscripción
-      const timeResponse = await fetch(
+      const timeResponse = await apiRequest(
         `${BACKEND_URL}/registrations/${registrationId}/time`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
           body: JSON.stringify({
             time,
             position,
@@ -88,7 +78,8 @@ export const RegistrationProvider = ({ children }) => {
       const updatedData = await timeResponse.json();
       return updatedData;
     } catch (error) {
-      console.error();
+      console.error("Error al actualizar tiempo:", error);
+      throw error;
     }
   };
 
@@ -98,14 +89,10 @@ export const RegistrationProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(
+      const response = await apiRequest(
         `${BACKEND_URL}/registrations/${registrationId}`,
         {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
           body: JSON.stringify(registrationData),
         }
       );
@@ -133,11 +120,10 @@ export const RegistrationProvider = ({ children }) => {
   // Cancelar una inscripción
   const cancelRegistration = async (registrationId) => {
     try {
-      const response = await fetch(
+      const response = await apiRequest(
         `${BACKEND_URL}/registrations/${registrationId}/cancel`,
         {
           method: "PUT",
-          credentials: "include",
         }
       );
 
@@ -170,9 +156,7 @@ export const RegistrationProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`${BACKEND_URL}/registrations`, {
-        credentials: "include",
-      });
+      const response = await apiRequest(`${BACKEND_URL}/registrations`);
 
       if (!response.ok) {
         throw new Error("Error al obtener todas las inscripciones");
