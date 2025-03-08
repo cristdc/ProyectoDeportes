@@ -371,7 +371,7 @@ const Home = () => {
                   rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
                   flex items-center justify-center group"
               >
-                <span>Accede a nuestra pagina Web</span>
+                <Link to="/running/">Accede a nuestra página Web</Link>
                 <svg
                   className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
                   fill="none"
