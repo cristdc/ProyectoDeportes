@@ -5,12 +5,10 @@ const UserCard = ({ user, onDelete, onChangeRole }) => {
   const [isChangingRole, setIsChangingRole] = useState(false);
 
   const handleDelete = async () => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
-      try {
-        await onDelete(user._id);
-      } catch (error) {
-        console.error('Error al eliminar usuario:', error);
-      }
+    try {
+      await onDelete(user._id);
+    } catch (error) {
+      console.error('Error al eliminar usuario:', error);
     }
   };
 

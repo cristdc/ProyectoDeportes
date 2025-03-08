@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useRace } from '../Context/RaceContext';
-import { useAuth } from '../hooks/useAuth';
 
 const EditRace = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { getRaceById, editRace, loading } = useRace();
   const [formError, setFormError] = useState('');
   const [formData, setFormData] = useState({

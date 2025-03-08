@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 
 const LoginAdmin = () => {
   const navigate = useNavigate();
-  const { login, user, logout } = useAuth();
+  const { loginAdmin, user, logout } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -31,7 +31,7 @@ const LoginAdmin = () => {
     setLoading(true);
 
     try {
-      const data = await login(formData.email, formData.password);
+      const data = await loginAdmin(formData.email, formData.password);
       
       if (data.user.role !== 'admin') {
         // Si no es admin, hacemos logout y mostramos error
@@ -48,6 +48,7 @@ const LoginAdmin = () => {
         ...prev,
         password: ''
       }));
+      console.error(err);
     } finally {
       setLoading(false);
     }

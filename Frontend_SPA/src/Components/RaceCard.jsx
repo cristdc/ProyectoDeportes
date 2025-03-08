@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const RaceCard = ({ 
   race, 
@@ -8,6 +9,9 @@ const RaceCard = ({
   onDownloadCSV, 
   onUploadResults 
 }) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Verifica si el usuario actual es el creador de la carrera
   const isCreator = race.createdBy === currentUserId;
 
@@ -41,6 +45,61 @@ const RaceCard = ({
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await onDelete(race._id);
+      setShowDeleteModal(false);
+      toast.success('Carrera eliminada correctamente', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+      });
+    } catch (error) {
+      toast.error('Error al eliminar la carrera', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDownloadCSV = async () => {
+    const result = await onDownloadCSV(race._id);
+    
+    if (!result.success) {
+      if (result.message === 'No hay inscripciones') {
+        toast.info('No hay inscripciones registradas para esta carrera', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        });
+      } else {
+        toast.error(result.message, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true
+        });
+      }
+      return;
+    }
+
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
       {/* Barra de acciones superior */}
@@ -59,7 +118,7 @@ const RaceCard = ({
 
         {/* Descargar CSV */}
         <button 
-          onClick={() => onDownloadCSV(race._id)}
+          onClick={handleDownloadCSV}
           className="p-1.5 hover:bg-[#9b9d79] hover:text-white rounded-full transition-all duration-300"
           title="Descargar CSV"
         >
@@ -83,7 +142,7 @@ const RaceCard = ({
 
         {/* Eliminar */}
         <button 
-          onClick={() => onDelete(race._id)}
+          onClick={() => setShowDeleteModal(true)}
           className="p-1.5 hover:bg-red-500 hover:text-white rounded-full transition-all duration-300"
           title="Eliminar carrera"
         >
@@ -140,6 +199,34 @@ const RaceCard = ({
           </Link>
         </div>
       </div>
+
+      {/* Modal de confirmación */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Confirmar eliminación</h3>
+            <p className="text-gray-600 mb-6">
+              ¿Estás seguro de que deseas eliminar la carrera "{race.name}"? Esta acción no se puede deshacer.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                disabled={isDeleting}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Eliminando...' : 'Eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

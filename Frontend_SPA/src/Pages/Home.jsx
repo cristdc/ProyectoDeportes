@@ -517,29 +517,7 @@ const Home = () => {
         </svg>
       </button>
 
-      {/* Añade también estas clases al CSS global o en un archivo de estilos */}
-      <style jsx global>{`
-        :root {
-          --bg-primary: #fdf7ed;
-          --text-primary: #333333;
-          --text-secondary: #666666;
-          --accent-light: #9caf88;
-          --accent-hover: #8a9c76;
-        }
-
-        .dark {
-          --bg-primary: #1a1a1a;
-          --text-primary: #ffffff;
-          --text-secondary: #cccccc;
-          --accent-light: #7a8f68;
-          --accent-hover: #6a7f58;
-        }
-
-        /* Transición suave al cambiar de tema */
-        * {
-          transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
-        }
-      `}</style>
+   
     </div>
   );
 };

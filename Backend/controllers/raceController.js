@@ -69,6 +69,27 @@ const dateToTimeString = (date) => {
   return `${hours}:${minutes}:${seconds}`;
 };
 
+// Función auxiliar para verificar y actualizar el estado de la carrera según inscripciones
+const checkAndUpdateRaceStatus = async (raceId) => {
+  try {
+    const race = await Race.findById(raceId);
+    if (!race || race.status !== 'open') return;
+
+    const registrationsCount = await Registration.countDocuments({
+      race: raceId,
+      status: 'registered'
+    });
+
+    if (registrationsCount >= race.maxParticipants) {
+      race.status = 'closed';
+      await race.save();
+      console.log(`Carrera ${race.name} cerrada automáticamente por alcanzar el límite de participantes`);
+    }
+  } catch (error) {
+    console.error('Error al verificar estado de la carrera:', error);
+  }
+};
+
 /**
  * Obtener todas las carreras con paginación
  * @route GET /api/races
@@ -290,6 +311,9 @@ const createRace = async (req, res) => {
     });
 
     await race.save();
+
+    // Verificar si ya hay suficientes inscripciones para cerrar la carrera
+    await checkAndUpdateRaceStatus(race._id);
 
     return res.status(201).json({
       message: "Carrera creada exitosamente",
@@ -973,13 +997,13 @@ const downloadRunnersCSV = async (req, res) => {
     }
 
     // Verificar que la carrera existe
-    const race = await Race.findById(id);
+    const race = await Race.findById(id).populate('createdBy');
     if (!race) {
       return res.status(404).json({ message: "Carrera no encontrada" });
     }
 
-    // Verificar que el usuario es el creador o un admin
-    if (race.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+    // Verificar que el usuario es admin (simplificamos la verificación)
+    if (req.user.role !== "admin") {
       return res.status(403).json({ message: "No tienes permisos para descargar datos de esta carrera" });
     }
     
@@ -989,30 +1013,38 @@ const downloadRunnersCSV = async (req, res) => {
       status: 'registered'
     }).populate('user', 'email name');
     
-    if (registrations.length === 0) {
+    if (!registrations || registrations.length === 0) {
       return res.status(404).json({ message: "No hay inscripciones registradas para esta carrera" });
     }
     
-    // Preparar datos para el CSV
-    const csvData = registrations.map(reg => ({
-      email: reg.user.email,
-      nombre: reg.user.name,
-      dorsal: reg.dorsal || '',
-      tiempo: ''
-    }));
-    
-    // Generar CSV
-    const csvString = Papa.unparse(csvData);
-    
-    // Determinar nombre del archivo
-    const filename = `resultados_${race.name.replace(/\s+/g, '_')}.csv`;
-    
-    // Configurar encabezados para descarga
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    try {
+      // Preparar datos para el CSV
+      const csvData = registrations.map(reg => ({
+        email: reg.user ? reg.user.email : 'N/A',
+        nombre: reg.user ? reg.user.name : 'N/A',
+        dorsal: reg.dorsal || '',
+        tiempo: ''
+      }));
+      
+      // Generar CSV
+      const csvString = Papa.unparse(csvData);
+      
+      // Determinar nombre del archivo
+      const filename = `resultados_${race.name.replace(/\s+/g, '_')}.csv`;
+      
+      // Configurar encabezados para descarga
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 
-    // Enviar el archivo
-    return res.send(csvString);
+      // Enviar el archivo
+      return res.send(csvString);
+    } catch (csvError) {
+      console.error('Error al generar CSV:', csvError);
+      return res.status(500).json({
+        message: "Error al generar el archivo CSV",
+        error: csvError.message
+      });
+    }
   } catch (error) {
     console.error('Error en downloadRunnersCSV:', error);
     return res.status(500).json({
@@ -1457,4 +1489,5 @@ export {
   uploadGPXFile,
   downloadGPXFile,
   deleteGPXFile,
+  uploadResultsCSV,
 };

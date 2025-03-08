@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useRace } from '../Context/RaceContext';
 import { useAuth } from '../hooks/useAuth';
 
@@ -92,20 +92,20 @@ const RaceDetail = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <h1 className="text-3xl font-bold text-gray-800">{race.name}</h1>
           <div className="flex gap-2">
-            <button 
-              onClick={() => navigate(`/admin/races/edit/${id}`)}
+            <Link 
+              to={`/admin/races/edit/${id}`}
               className="px-4 py-2 bg-[#9b9d79] text-white rounded-lg 
-                        hover:bg-[#6b6d54] transition-all duration-1000"
+                        hover:bg-[#6b6d54] transition-all duration-1000 text-center"
             >
               Editar Carrera
-            </button>
-            <button 
-              onClick={() => navigate('/admin/home')}
+            </Link>
+            <Link 
+              to="/admin/home"
               className="px-4 py-2 border border-[#9b9d79] text-[#9b9d79] rounded-lg 
-                        hover:bg-[#9b9d79] hover:text-white transition-all duration-1000"
+                        hover:bg-[#9b9d79] hover:text-white transition-all duration-1000 text-center"
             >
               Volver
-            </button>
+            </Link>
           </div>
         </div>
       </div>

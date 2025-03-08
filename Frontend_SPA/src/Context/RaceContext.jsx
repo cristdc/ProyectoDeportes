@@ -50,12 +50,7 @@ export const RaceProvider = ({ children }) => {
       }
 
       const updatedRace = await response.json();
-      setRaces(prevRaces => ({
-        ...prevRaces,
-        races: prevRaces.races.map(race => 
-          race._id === raceId ? updatedRace : race
-        )
-      }));
+   
 
       return updatedRace;
     } catch (err) {
@@ -79,11 +74,8 @@ export const RaceProvider = ({ children }) => {
         throw new Error('Error al eliminar la carrera');
       }
 
-      setRaces(prevRaces => ({
-        ...prevRaces,
-        races: prevRaces.races.filter(race => race._id !== raceId)
-      }));
-
+      window.location.reload();
+      
       return true;
     } catch (err) {
       setError(err.message);
@@ -97,26 +89,40 @@ export const RaceProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${BACKEND_URL}/races/${raceId}/download-csv`, {
+      
+      const response = await fetch(`${BACKEND_URL}/races/${raceId}/runners-csv`, {
         credentials: 'include'
+      }).then(async (res) => {
+        // Si es 404, lo manejamos silenciosamente
+        if (res.status === 404) {
+          return { notFound: true };
+        }
+        return res;
       });
 
+      // Si no hay inscripciones
+      if (response.notFound) {
+        return { success: false, message: 'No hay inscripciones' };
+      }
+
+      // Si hay otro tipo de error
       if (!response.ok) {
-        throw new Error('Error al descargar el CSV');
+        return { success: false, message: 'Error al descargar el CSV' };
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `carrera-${raceId}.csv`;
+      a.download = `resultados_carrera_${raceId}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      
+      return { success: true };
     } catch (err) {
-      setError(err.message);
-      throw err;
+      return { success: false, message: 'Error al descargar el CSV' };
     } finally {
       setLoading(false);
     }
@@ -160,6 +166,7 @@ export const RaceProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
+
       const response = await fetch(`${BACKEND_URL}/races`, {
         method: 'POST',
         headers: {
@@ -173,13 +180,6 @@ export const RaceProvider = ({ children }) => {
         throw new Error('Error al crear la carrera');
       }
 
-      const newRace = await response.json();
-      setRaces(prevRaces => ({
-        ...prevRaces,
-        races: [...prevRaces.races, newRace]
-      }));
-
-      return newRace;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -196,7 +196,7 @@ export const RaceProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${BACKEND_URL}/api/races/${raceId}`, {
+      const response = await fetch(`${BACKEND_URL}/races/${raceId}`, {
         credentials: 'include'
       });
 
@@ -218,7 +218,7 @@ export const RaceProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${BACKEND_URL}/api/races/${raceId}/results`, {
+      const response = await fetch(`${BACKEND_URL}/races/${raceId}/results`, {
         credentials: 'include'
       });
 

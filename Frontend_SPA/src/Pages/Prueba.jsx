@@ -25,9 +25,6 @@ const Prueba = () => {
 
   const [activeTab, setActiveTab] = useState("login");
 
-  // Configuración de la API - utiliza una ruta relativa
-  const API_URL = "/api";
-
   // Comprobar estado de autenticación al cargar
   useEffect(() => {
     checkAuthStatus();
@@ -44,7 +41,7 @@ const Prueba = () => {
   // Comprobar estado de autenticación
   const checkAuthStatus = async () => {
     try {
-      const response = await fetch(`${API_URL}/users/auth-status`, {
+      const response = await fetch(`users/auth-status`, {
         method: "GET",
         credentials: "include",
       });
@@ -56,7 +53,7 @@ const Prueba = () => {
 
         // Obtener más info del usuario
         try {
-          const profileResponse = await fetch(`${API_URL}/users/profile`, {
+          const profileResponse = await fetch(`users/profile`, {
             method: "GET",
             credentials: "include",
           });
@@ -89,7 +86,7 @@ const Prueba = () => {
     setLoginResponse(null);
 
     try {
-      const response = await fetch(`${API_URL}/users/login`, {
+      const response = await fetch(`/users/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -129,7 +126,7 @@ const Prueba = () => {
     setRegisterResponse(null);
 
     try {
-      const response = await fetch(`${API_URL}/users/register`, {
+      const response = await fetch(`/users/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -163,7 +160,7 @@ const Prueba = () => {
     setCookiesResponse(null);
 
     try {
-      const response = await fetch(`${API_URL}/test-cookies`, {
+      const response = await fetch(`/test-cookies`, {
         method: "GET",
         credentials: "include",
       });
@@ -185,7 +182,7 @@ const Prueba = () => {
     setProfileResponse(null);
 
     try {
-      const response = await fetch(`${API_URL}/users/profile`, {
+      const response = await fetch(`/users/profile`, {
         method: "GET",
         credentials: "include",
       });
@@ -217,7 +214,7 @@ const Prueba = () => {
     setProfileResponse(null);
 
     try {
-      const response = await fetch(`${API_URL}/users/logout`, {
+      const response = await fetch(`/users/logout`, {
         method: "POST",
         credentials: "include",
       });
