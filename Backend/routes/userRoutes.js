@@ -9,6 +9,7 @@ import {
   searchUsersByName,
   getAuthStatus,
   userDownloadGPXFile,
+  checkCookies,
 } from "../controllers/userController.js";
 import { authMiddleware } from "../middlewares/authmiddleware.js";
 
@@ -25,6 +26,8 @@ router.put("/profile", authMiddleware, updateProfile);
 
 // Rutas adicionales para usuarios
 router.get("/search", authMiddleware, searchUsersByName); 
+
+router.get("/check-cookies", checkCookies);
 
 router.get("/check-auth", authMiddleware, (req, res) => {
   

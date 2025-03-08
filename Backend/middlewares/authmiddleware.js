@@ -3,6 +3,9 @@ import jwt from "jsonwebtoken";
 // Middleware para verificar el token JWT
 const authMiddleware = async (req, res, next) => {
   try {
+    console.log("Cookies recibidas:", req.cookies);
+    console.log("Headers de autorización:", req.headers.authorization);
+
     // Obtener token de cookies o headers
     const token =
       req.cookies.token ||
@@ -16,6 +19,7 @@ const authMiddleware = async (req, res, next) => {
         message: "No hay token de autenticación",
         cookiesPresent: Object.keys(req.cookies).length > 0,
         headersPresent: !!req.headers.authorization,
+        allCookies: req.cookies,
       });
     }
 

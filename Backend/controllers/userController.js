@@ -9,6 +9,28 @@ const isValidObjectId = (id) => {
   return mongoose.Types.ObjectId.isValid(id);
 };
 
+const checkCookies = async (req, res) => {
+  // Establecer una cookie de prueba
+  res.cookie("test_cookie", "test_value", {
+    httpOnly: false,
+    secure: false,
+    sameSite: "lax",
+    path: "/",
+  });
+
+  // Devolver información de diagnóstico
+  res.json({
+    cookies_received: req.cookies,
+    headers: {
+      host: req.headers.host,
+      referer: req.headers.referer,
+      origin: req.headers.origin,
+      userAgent: req.headers["user-agent"],
+    },
+    all_headers: req.headers,
+  });
+};
+
 // Iniciar sesión
 const login = async (req, res) => {
   try {
@@ -390,4 +412,5 @@ export {
   searchUsersByName,
   updateProfile,
   userDownloadGPXFile,
+  checkCookies,
 };
