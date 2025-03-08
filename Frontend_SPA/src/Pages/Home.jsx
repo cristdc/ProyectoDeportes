@@ -366,13 +366,13 @@ const Home = () => {
               correr con el espíritu competitivo.
             </p>
             <div className="space-y-3 sm:space-y-4">
-              <button
-                onClick={handleDownload}
+              <Link
+                to="/running/"
                 className="w-full bg-[var(--accent-light)] hover:bg-[var(--accent-hover)] px-4 sm:px-8 py-3 sm:py-4 
-                  rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
-                  flex items-center justify-center group"
+    rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
+    flex items-center justify-center group"
               >
-                <Link to="/running/">Accede a nuestra página Web</Link>
+                <span>Accede a nuestra página Web</span>
                 <svg
                   className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
                   fill="none"
@@ -386,7 +386,7 @@ const Home = () => {
                     d="M17 8l4 4m0 0l-4 4m4-4H3"
                   />
                 </svg>
-              </button>
+              </Link>
               <button
                 onClick={handleDownload}
                 className="w-full bg-transparent border-2 border-[var(--accent-light)] 
