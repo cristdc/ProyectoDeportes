@@ -16,21 +16,39 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      console.log("Verificando autenticación...");
+
       const response = await fetch(`${BACKEND_URL}/users/profile`, {
         method: "GET",
-        credentials: "include",
+        credentials: "include", // Importante para enviar cookies
         headers: {
           Accept: "application/json",
         },
       });
 
+      console.log("Respuesta de autenticación:", response.status);
+
       if (response.ok) {
         const data = await response.json();
-        if (data && data.role === "admin") {
-          setUser(data);
-          setIsAuth(true);
-          return true;
+        console.log("Datos de usuario:", data);
+
+        setUser(data);
+        setIsAuth(true);
+        return true;
+      } else {
+        // Intentar analizar el error
+        let errorText = "";
+        try {
+          const errorData = await response.text();
+          console.error("Error de autenticación:", errorData);
+          errorText = errorData;
+        } catch (e) {
+          console.error("No se pudo leer la respuesta de error");
         }
+
+        console.error(
+          `Error de autenticación: ${response.status} - ${errorText}`
+        );
       }
 
       setUser(null);
@@ -51,6 +69,8 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
+      console.log("Intentando login con:", email);
+
       const response = await fetch(`${BACKEND_URL}/users/login`, {
         method: "POST",
         headers: {
@@ -58,10 +78,13 @@ export const AuthProvider = ({ children }) => {
           Accept: "application/json",
         },
         body: JSON.stringify({ email, password }),
-        credentials: "include",
+        credentials: "include", // Crucial para recibir cookies
       });
 
+      console.log("Respuesta de login:", response.status);
+
       const data = await response.json();
+      console.log("Datos de respuesta:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Error al iniciar sesión");
@@ -78,6 +101,7 @@ export const AuthProvider = ({ children }) => {
 
       return data;
     } catch (err) {
+      console.error("Error en loginAdmin:", err);
       setError(err.message);
       throw err;
     } finally {

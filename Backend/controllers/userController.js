@@ -34,22 +34,24 @@ const login = async (req, res) => {
       { expiresIn: "24h" }
     );
 
+    // res.cookie("token", token, {
+    //   httpOnly: true,
+    //   secure: process.env.COOKIE_SECURE === "true", // Respeta el valor de la variable de entorno
+    //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    //   maxAge: 24 * 60 * 60 * 1000,
+    //   path: "/",
+    // });
+
+    const isSecureConnection =
+      req.secure || req.headers["x-forwarded-proto"] === "https";
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.COOKIE_SECURE === "true", // Respeta el valor de la variable de entorno
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: isSecureConnection, // Automáticamente true para HTTPS, false para HTTP
+      sameSite: isSecureConnection ? "none" : "lax", // "none" para HTTPS, "lax" para HTTP
       maxAge: 24 * 60 * 60 * 1000,
       path: "/",
     });
-
-
-    //res.cookie("token", token, {
-    //  httpOnly: true,
-    //  secure: false, // Cambia a false si estás usando HTTP y no HTTPS
-    //  sameSite: "none", // Esto es crucial para cross-origin
-    //  maxAge: 24 * 60 * 60 * 1000,
-    //  path: "/",
-    //});
 
     res.json({
       message: "Inicio de sesión exitoso",
@@ -131,14 +133,17 @@ const register = async (req, res) => {
 // Cerrar sesión
 const logout = async (req, res) => {
   try {
+    
+    const isSecureConnection =
+      req.secure || req.headers["x-forwarded-proto"] === "https";
 
-   res.cookie("token", "", {
-     httpOnly: true,
-     secure: process.env.COOKIE_SECURE === "true",
-     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-     path: "/",
-     expires: new Date(0),
-   });
+    res.cookie("token", "", {
+      httpOnly: true,
+      secure: isSecureConnection,
+      sameSite: isSecureConnection ? "none" : "lax",
+      path: "/",
+      expires: new Date(0),
+    });
 
     res.json({ message: "Cierre de sesión exitoso" });
   } catch (error) {
