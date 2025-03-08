@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const loginAdmin = async (email, password) => {
+  const login = async (email, password) => {
     try {
       setError(null);
       setLoading(true);
@@ -187,7 +187,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuth,
     error,
-    loginAdmin,
+    login,
     logout,
     register,
     clearError,
