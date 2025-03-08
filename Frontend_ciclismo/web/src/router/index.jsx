@@ -8,6 +8,7 @@ import RootLayout from "../layout/RootLayout";
 import CarrerasDisponibles from "../pages/CarrerasDisponibles";
 import CarrerasHistorial from "../pages/CarrerasHistorial";
 import CarrerasDetail from "../pages/CarrerasDetail";
+import MisCarreras from "../pages/MisCarreras";
 
 export const router = createBrowserRouter([
     {
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
             {
                 path: "profile",
                 element: <ProtectedRoute><Profile /></ProtectedRoute>
+            },
+            {
+                path: "mis-carreras",
+                element: <ProtectedRoute><MisCarreras /></ProtectedRoute>
             }
         ]
     }

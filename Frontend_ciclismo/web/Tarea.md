@@ -1,0 +1,4 @@
+- Cambiar las ips para los fetchs
+- quitar el token del localstprage y isAuthenticated
+- Arregla boton de descargar
+- Si te apuntas a una carrera  y te desapuntas ya no puedes volver a apuntarte

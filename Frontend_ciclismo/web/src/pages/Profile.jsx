@@ -1,17 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { UserCircleIcon } from '@heroicons/react/24/solid';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+
+const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
 
 const Profile = () => {
-    const { user, loading, error, logout } = useAuth();
+    const { user, logout, updateUserData, checkAuth } = useAuth();
+    const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
+    const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
     const [formData, setFormData] = useState({
-        username: user?.username || '',
-        email: user?.email || '',
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+        name: user?.name || '',
+        age: user?.age || '',
+        avatar: user?.avatar || ''
     });
+    const [isLoading, setIsLoading] = useState(true);
+
+    console.log("Datos del usuario en Profile:", user);
+    useEffect(() => {
+        const refreshProfile = async () => {
+            try {
+                setIsLoading(true);
+                await checkAuth();
+            } catch (error) {
+                console.error('Error al actualizar perfil:', error);
+                toast.error('Error al cargar el perfil');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        refreshProfile();
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -23,33 +45,52 @@ const Profile = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Aquí iría la lógica para actualizar el perfil
-        setIsEditing(false);
+        try {
+            toast.loading('Actualizando perfil...');
+            const response = await fetch(`${API_URL}/users/profile`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+            console.log("Respuesta del servidor:", data);
+
+            if (response.ok) {
+                await updateUserData(data.user);
+                setFormData({
+                    name: data.user.name || '',
+                    age: data.user.age || '',
+                    avatar: data.user.avatar || ''
+                });
+                toast.success('¡Perfil actualizado correctamente!');
+                setIsEditing(false);
+            }
+        } catch (error) {
+            toast.error('Error al actualizar el perfil: ' + error.message);
+            setError('Error al actualizar el perfil');
+        }
     };
 
-    if (loading) {
+    const handleAvatarChange = async (e) => {
+        try {
+            toast.loading('Subiendo imagen...');
+            // ... lógica de subida de avatar ...
+            toast.success('¡Imagen de perfil actualizada!');
+        } catch (error) {
+            toast.error('Error al subir la imagen');
+        }
+    };
+
+    if (isLoading) {
         return (
             <div className="min-h-screen bg-[#fdf7ed] flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9B9D79]"></div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="min-h-screen bg-[#fdf7ed] flex items-center justify-center">
-                <div className="bg-red-100 text-red-700 p-6 rounded-lg shadow-md">
-                    <p>{error}</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (!user) {
-  return (
-            <div className="min-h-screen bg-[#fdf7ed] flex items-center justify-center">
-                <div className="bg-yellow-100 text-yellow-700 p-6 rounded-lg shadow-md">
-                    <p>No se ha encontrado información del usuario</p>
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#9B9D79] mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Cargando perfil...</p>
                 </div>
             </div>
         );
@@ -58,19 +99,39 @@ const Profile = () => {
     return (
         <div className="min-h-screen bg-[#fdf7ed] p-4 md:p-8">
             <div className="max-w-4xl mx-auto">
+                {error && (
+                    <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                        {error}
+                    </div>
+                )}
+                {success && (
+                    <div className="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                        {success}
+                    </div>
+                )}
+
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                    {/* Cabecera del perfil */}
                     <div className="bg-[#9B9D79] text-white p-6">
                         <div className="flex items-center space-x-4">
-                            <UserCircleIcon className="h-20 w-20" />
+                            {user?.avatar ? (
+                                <img 
+                                    src={user.avatar} 
+                                    alt="Avatar" 
+                                    className="w-20 h-20 rounded-full object-cover border-2 border-white"
+                                />
+                            ) : (
+                                <div className="w-20 h-20 rounded-full bg-white text-[#9B9D79] flex items-center justify-center text-2xl font-bold">
+                                    {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
+                                </div>
+                            )}
                             <div>
-                                <h1 className="text-2xl font-bold">{user.username}</h1>
-                                <p className="text-white/80">{user.email}</p>
+                                <h1 className="text-2xl font-bold">{user?.name || 'Nombre no especificado'}</h1>
+                                <p className="text-white/80">{user?.email || 'Email no especificado'}</p>
+                                <p className="text-white/80">{user?.age ? `${user.age} años` : 'Edad no especificada'}</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Contenido del perfil */}
                     <div className="p-6">
                         {isEditing ? (
                             <form onSubmit={handleSubmit} className="space-y-6">
@@ -80,27 +141,40 @@ const Profile = () => {
                                     </label>
                                     <input
                                         type="text"
-                                        name="username"
-                                        value={formData.username}
+                                        name="name"
+                                        value={formData.name}
                                         onChange={handleInputChange}
                                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#9B9D79]"
+                                        required
                                     />
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Email
+                                        Edad
                                     </label>
                                     <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
+                                        type="number"
+                                        name="age"
+                                        value={formData.age}
+                                        onChange={handleInputChange}
+                                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#9B9D79]"
+                                        min="0"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Avatar URL
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="avatar"
+                                        value={formData.avatar}
                                         onChange={handleInputChange}
                                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#9B9D79]"
                                     />
                                 </div>
-
-                                
 
                                 <div className="flex justify-end space-x-4">
                                     <button
@@ -114,7 +188,7 @@ const Profile = () => {
                                         type="submit"
                                         className="px-4 py-2 bg-[#9B9D79] text-white rounded-md hover:bg-[#8EAC93] transition-colors"
                                     >
-                                        Guardar cambios
+                                        Actualizar perfil
                                     </button>
                                 </div>
                             </form>
@@ -125,29 +199,15 @@ const Profile = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <p className="text-sm text-gray-600">Nombre de usuario</p>
-                                            <p className="font-medium">{user.username}</p>
+                                            <p className="font-medium">{user?.name || 'No especificado'}</p>
                                         </div>
                                         <div>
                                             <p className="text-sm text-gray-600">Email</p>
-                                            <p className="font-medium">{user.email}</p>
+                                            <p className="font-medium">{user?.email || 'No especificado'}</p>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div className="border-t pt-4">
-                                    <h2 className="text-lg font-semibold mb-4">Estadísticas</h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="bg-gray-50 p-4 rounded-lg">
-                                            <p className="text-sm text-gray-600">Carreras participadas</p>
-                                            <p className="text-2xl font-bold text-[#9B9D79]">0</p>
-                                        </div>
-                                        <div className="bg-gray-50 p-4 rounded-lg">
-                                            <p className="text-sm text-gray-600">Carreras completadas</p>
-                                            <p className="text-2xl font-bold text-[#9B9D79]">0</p>
-                                        </div>
-                                        <div className="bg-gray-50 p-4 rounded-lg">
-                                            <p className="text-sm text-gray-600">Próximas carreras</p>
-                                            <p className="text-2xl font-bold text-[#9B9D79]">0</p>
+                                        <div>
+                                            <p className="text-sm text-gray-600">Edad</p>
+                                            <p className="font-medium">{user?.age || 'No especificada'}</p>
                                         </div>
                                     </div>
                                 </div>
