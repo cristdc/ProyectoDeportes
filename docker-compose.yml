@@ -23,7 +23,7 @@ services:
     environment:
       MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_INITDB_DATABASE}?authSource=admin
       JWT_SECRET: ${JWT_SECRET}
-      FRONTEND_URL: http://localhost
+      FRONTEND_URL: alb-deportes-332363768.us-east-1.elb.amazonaws.com
       COOKIE_SECURE: "false"
       NODE_ENV: development
     volumes:
@@ -32,6 +32,8 @@ services:
       - ./Backend/uploads:/app/uploads
       - ./Backend/uploads/EXE:/app/uploads/EXE
       - ./Backend/uploads/Downloads:/app/uploads/Downloads
+    ports:
+      - "3000:3000"
     networks:
       - deportes_network
 
