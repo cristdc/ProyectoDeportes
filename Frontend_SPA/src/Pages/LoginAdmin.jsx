@@ -27,26 +27,30 @@ const LoginAdmin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
+    console.log("Iniciando proceso de login con:", formData.email);
 
     try {
+      console.log("Llamando a la función login...");
       const data = await login(formData.email, formData.password);
-      
-      if (data.user.role !== 'admin') {
-        // Si no es admin, hacemos logout y mostramos error
+      console.log("Respuesta del login:", data);
+
+      if (data.user.role !== "admin") {
+        console.log("Usuario no es admin, haciendo logout");
         await logout();
-        setError('Acceso denegado. Esta página es solo para administradores.');
+        setError("Acceso denegado. Esta página es solo para administradores.");
         return;
       }
 
-      navigate('/admin/home');
-      
+      console.log("Login exitoso, redirigiendo a /admin/home");
+      navigate("/admin/home");
     } catch (err) {
-      setError(err.message || 'Error en el inicio de sesión');
-      setFormData(prev => ({
+      console.error("Error durante el login:", err);
+      setError(err.message || "Error en el inicio de sesión");
+      setFormData((prev) => ({
         ...prev,
-        password: ''
+        password: "",
       }));
     } finally {
       setLoading(false);

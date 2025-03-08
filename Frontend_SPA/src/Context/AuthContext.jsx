@@ -68,7 +68,6 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       setLoading(true);
-
       console.log("Intentando login con:", email);
 
       const response = await fetch(`${BACKEND_URL}/users/login`, {
@@ -78,28 +77,38 @@ export const AuthProvider = ({ children }) => {
           Accept: "application/json",
         },
         body: JSON.stringify({ email, password }),
-        credentials: "include", // Crucial para recibir cookies
+        credentials: "include",
       });
 
       console.log("Respuesta de login:", response.status);
+      let responseText;
 
-      const data = await response.json();
-      console.log("Datos de respuesta:", data);
+      try {
+        responseText = await response.text();
+        console.log("Texto de respuesta:", responseText);
 
-      if (!response.ok) {
-        throw new Error(data.message || "Error al iniciar sesión");
+        // Intentar convertir a JSON solo si es válido
+        const data = JSON.parse(responseText);
+
+        if (!response.ok) {
+          throw new Error(data.message || "Error al iniciar sesión");
+        }
+
+        if (data.user.role !== "admin") {
+          throw new Error(
+            "Acceso denegado. Esta página es solo para administradores."
+          );
+        }
+
+        setUser(data.user);
+        setIsAuth(true);
+
+        return data;
+      } catch (parseError) {
+        console.error("Error al procesar respuesta:", parseError);
+        console.error("Texto de respuesta recibido:", responseText);
+        throw new Error("Error al procesar la respuesta del servidor");
       }
-
-      if (data.user.role !== "admin") {
-        throw new Error(
-          "Acceso denegado. Esta página es solo para administradores."
-        );
-      }
-
-      setUser(data.user);
-      setIsAuth(true);
-
-      return data;
     } catch (err) {
       console.error("Error en loginAdmin:", err);
       setError(err.message);
