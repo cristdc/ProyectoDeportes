@@ -35,10 +35,10 @@ services:
     networks:
       - deportes_network
 
-  frontend-spa:
+  frontend:
     build:
-      context: .
-      dockerfile: Frontend_SPA/Dockerfile
+      context: ./Frontend_SPA
+      dockerfile: Dockerfile
     container_name: frontend-spa
     depends_on:
       - app
