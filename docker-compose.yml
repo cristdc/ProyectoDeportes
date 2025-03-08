@@ -53,7 +53,7 @@ services:
   frontend-running:
     build:
       context: ./Running/web
-      dockerfile: Running/web/Dockerfile
+      dockerfile: Dockerfile
     container_name: frontend-running
     depends_on:
       - app
