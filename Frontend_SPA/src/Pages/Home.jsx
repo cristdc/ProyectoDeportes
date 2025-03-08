@@ -4,6 +4,7 @@ import carrera3 from "../assets/carrera3.png";
 import logo from "../assets/logo.png";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const navigate = useNavigate();
