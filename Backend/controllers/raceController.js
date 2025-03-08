@@ -69,6 +69,27 @@ const dateToTimeString = (date) => {
   return `${hours}:${minutes}:${seconds}`;
 };
 
+// Función auxiliar para verificar y actualizar el estado de la carrera según inscripciones
+const checkAndUpdateRaceStatus = async (raceId) => {
+  try {
+    const race = await Race.findById(raceId);
+    if (!race || race.status !== 'open') return;
+
+    const registrationsCount = await Registration.countDocuments({
+      race: raceId,
+      status: 'registered'
+    });
+
+    if (registrationsCount >= race.maxParticipants) {
+      race.status = 'closed';
+      await race.save();
+      console.log(`Carrera ${race.name} cerrada automáticamente por alcanzar el límite de participantes`);
+    }
+  } catch (error) {
+    console.error('Error al verificar estado de la carrera:', error);
+  }
+};
+
 /**
  * Obtener todas las carreras con paginación
  * @route GET /api/races
@@ -290,6 +311,9 @@ const createRace = async (req, res) => {
     });
 
     await race.save();
+
+    // Verificar si ya hay suficientes inscripciones para cerrar la carrera
+    await checkAndUpdateRaceStatus(race._id);
 
     return res.status(201).json({
       message: "Carrera creada exitosamente",

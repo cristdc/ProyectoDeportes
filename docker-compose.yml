@@ -25,13 +25,11 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       FRONTEND_URL: alb-deportes-332363768.us-east-1.elb.amazonaws.com
       COOKIE_SECURE: "false"
-      NODE_ENV: development
+      NODE_ENV: production
     volumes:
       - ./Backend:/app
       - /app/node_modules
       - ./Backend/uploads:/app/uploads
-      - ./Backend/uploads/EXE:/app/uploads/EXE
-      - ./Backend/uploads/Downloads:/app/uploads/Downloads
     ports:
       - "3000:3000"
     networks:
@@ -40,18 +38,17 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Frontend_SPA/Dockerfile
     container_name: frontend
     depends_on:
       - app
+    restart: always
     ports:
       - "80:80"
     volumes:
       - ./nginx/frontend.conf:/etc/nginx/conf.d/default.conf
-      - ./Frontend_SPA/dist:/usr/share/nginx/html/spa
-      - ./Running/web/dist:/usr/share/nginx/html/running/web
-      - ./Running/mobile/dist:/usr/share/nginx/html/running/mobile
-      - ./Running/desktop/dist:/usr/share/nginx/html/running/desktop
+      - ./Frontend_SPA/dist:/usr/share/nginx/html/spa  # Montar SPA
+      - ./Running/dist:/usr/share/nginx/html/running  # Montar Running
     networks:
       - deportes_network
 
