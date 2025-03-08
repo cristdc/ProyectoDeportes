@@ -1,51 +1,76 @@
-import { useState } from 'react';
-import { FaEnvelope, FaLock, FaRunning } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; 
-
+import { useState } from "react";
+import { FaEnvelope, FaLock, FaRunning } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { motion } from "framer-motion";
+import { PuffLoader } from "react-spinners";
 
 const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       await login(email, password);
-      navigate('/profile');
+      navigate("/profile");
     } catch (err) {
-      setError(err.message || 'Error al iniciar sesión');
+      setError(err.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-[calc(100vh-160px)] flex items-center justify-center bg-[var(--background)] py-12 px-4">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-[#8D9B6A] rounded-full flex items-center justify-center">
-              <FaRunning className="text-white text-3xl" />
-            </div>
-          </div>
-          <h2 className="text-3xl font-bold text-gray-800">Iniciar Sesión</h2>
-          <p className="mt-2 text-gray-600">Bienvenido de nuevo a Running App</p>
-        </div>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FAF6F1] flex items-center justify-center">
+        <PuffLoader color="#8D9B6A" size={60} />
+      </div>
+    );
+  }
 
-        {/* Form */}
-        <div className="bg-white p-8 rounded-lg shadow-sm">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-gradient-to-b from-[#FAF6F1] to-white flex items-center justify-center px-4"
+    >
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="max-w-md w-full"
+      >
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+          >
+            <h2 className="text-2xl font-bold text-center text-[#5C6744] mb-6">
+              Iniciar Sesión
+            </h2>
+          </motion.div>
+
+          <motion.form
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email:
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FaEnvelope className="text-gray-400" />
@@ -62,7 +87,9 @@ const LoginPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contraseña:
+              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <FaLock className="text-gray-400" />
@@ -80,19 +107,20 @@ const LoginPage = () => {
 
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
               type="submit"
               disabled={loading}
               className={`w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-[#8D9B6A] hover:bg-[#738055] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#8D9B6A] transition-colors ${
-                loading ? 'opacity-50 cursor-not-allowed' : ''
+                loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
             >
-              {loading ? 'Cargando...' : 'Iniciar Sesión'}
-            </button>
-          </form>
+              {loading ? "Cargando..." : "Iniciar Sesión"}
+            </motion.button>
+          </motion.form>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
