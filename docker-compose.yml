@@ -24,7 +24,7 @@ services:
       MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/${MONGO_INITDB_DATABASE}?authSource=admin
       JWT_SECRET: ${JWT_SECRET}
       FRONTEND_URL: alb-deportes-332363768.us-east-1.elb.amazonaws.com
-      COOKIE_SECURE: "false"
+      COOKIE_SECURE: "true"
       NODE_ENV: production
     volumes:
       - ./Backend:/app
