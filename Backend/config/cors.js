@@ -9,6 +9,7 @@ const allowedOrigins = [
   "http://localhost", // Nuevo origen (Docker frontend)
   "http://localhost/prueba", // Nuevo origen específico para la página de prueba
   "http://alb-deportes-332363768.us-east-1.elb.amazonaws.com",
+  "http://35.153.250.116",
 ];
 
 export const corsOptions = {
