@@ -24,6 +24,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors(corsOptions));
 
+connectDB();
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK' });

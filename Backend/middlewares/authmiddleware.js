@@ -6,25 +6,52 @@ const authMiddleware = async (req, res, next) => {
     console.log("Cookies recibidas:", req.cookies);
     console.log("Headers de autorización:", req.headers.authorization);
 
-    // Obtener token de cookies o headers
-    const token =
-      req.cookies.token ||
-      (req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer ")
-        ? req.headers.authorization.split(" ")[1]
-        : null);
+    // Obtener token de cookies o headers de autorización
+    let token = req.cookies.token;
+
+    // Si no hay token en cookies, buscar en el header de autorización
+    if (!token && req.headers.authorization) {
+      const authHeader = req.headers.authorization;
+      if (authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
+      }
+    }
 
     if (!token) {
       return res.status(401).json({
         message: "No hay token de autenticación",
         cookiesPresent: Object.keys(req.cookies).length > 0,
         headersPresent: !!req.headers.authorization,
-        allCookies: req.cookies,
       });
     }
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Si el token está por expirar (menos de 1 hora), renovarlo
+      const timeUntilExpiry = decoded.exp - Math.floor(Date.now() / 1000);
+      if (timeUntilExpiry < 3600) { // menos de 1 hora
+        const newToken = jwt.sign(
+          { id: decoded.id, role: decoded.role },
+          process.env.JWT_SECRET,
+          { expiresIn: "24h" }
+        );
+
+        // Actualizar cookie
+        res.cookie("token", newToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "lax",
+          maxAge: 24 * 60 * 60 * 1000,
+          path: "/",
+          domain: req.headers.host.indexOf(".amazonaws.com") > -1
+            ? ".amazonaws.com"
+            : undefined,
+        });
+
+        // Incluir el nuevo token en la respuesta para actualizar localStorage
+        res.setHeader('X-New-Token', newToken);
+      }
 
       req.user = {
         id: decoded.id,

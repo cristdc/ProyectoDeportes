@@ -9,6 +9,11 @@ const HomeAdmin = () => {
   const [races, setRaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    search: '',
+    sport: '',
+    status: ''
+  });
   const { user } = useAuth(); // Para obtener el usuario actual
   const navigate = useNavigate();
 
@@ -36,6 +41,21 @@ const HomeAdmin = () => {
       setLoading(false);
     }
   };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const filteredRaces = races.races ? races.races.filter(race => {
+    const matchesSearch = race.name.toLowerCase().includes(filters.search.toLowerCase());
+    const matchesSport = !filters.sport || race.sport === filters.sport;
+    const matchesStatus = !filters.status || race.status === filters.status;
+    return matchesSearch && matchesSport && matchesStatus;
+  }) : [];
 
   const handleEdit = async (raceId) => {
     try {
@@ -89,10 +109,7 @@ const HomeAdmin = () => {
   };
 
   const handleUploadResults = async (raceId) => {
-    // Aquí puedes implementar la lógica para subir resultados
-    // Por ejemplo, abrir un modal o navegar a una página de subida
     try {
-      // Por ahora solo navegamos a una ruta hipotética
       navigate(`/admin/races/${raceId}/upload-results`);
     } catch (error) {
       console.error('Error al preparar la subida de resultados:', error);
@@ -139,10 +156,16 @@ const HomeAdmin = () => {
       <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <input
           type="text"
+          name="search"
+          value={filters.search}
+          onChange={handleFilterChange}
           placeholder="Buscar por nombre..."
           className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b9d79]"
         />
         <select 
+          name="sport"
+          value={filters.sport}
+          onChange={handleFilterChange}
           className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b9d79]"
         >
           <option value="">Todos los deportes</option>
@@ -151,6 +174,9 @@ const HomeAdmin = () => {
           <option value="trailRunning">Trail Running</option>
         </select>
         <select 
+          name="status"
+          value={filters.status}
+          onChange={handleFilterChange}
           className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b9d79]"
         >
           <option value="">Todos los estados</option>
@@ -162,7 +188,7 @@ const HomeAdmin = () => {
 
       {/* Grid de carreras */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {races.races && races.races.map(race => (
+        {filteredRaces.map(race => (
           <RaceCard 
             key={race._id}
             race={race}
@@ -175,7 +201,7 @@ const HomeAdmin = () => {
         ))}
       </div>
 
-      {(!races.races || races.races.length === 0) && (
+      {filteredRaces.length === 0 && (
         <div className="text-center text-gray-500 mt-8 p-4 bg-white rounded-lg shadow">
           No hay carreras disponibles
         </div>

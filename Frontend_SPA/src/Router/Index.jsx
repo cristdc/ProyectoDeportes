@@ -12,6 +12,7 @@ import RaceDetail from "../Pages/RaceDetail";
 import EditPage from "../Pages/EditPage";
 import AdminUsers from "../Pages/AdminUsers";
 import Prueba from "../Pages/Prueba";
+import UploadResults from "../Pages/UploadResults";
 
 const router = createBrowserRouter([
   {
@@ -61,6 +62,10 @@ const router = createBrowserRouter([
       {
         path: "races/edit/:id",
         element: <EditPage />,
+      },
+      {
+        path: "races/:id/upload-results",
+        element: <UploadResults />,
       },
       {
         path: "users",

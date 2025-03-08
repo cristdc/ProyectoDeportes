@@ -37,17 +37,13 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Se requiere email y contraseña" });
+      return res.status(400).json({ message: "Se requiere email y contraseña" });
     }
 
     const user = await User.findOne({ email });
 
     if (!user || !(await user.comparePassword(password))) {
-      return res
-        .status(401)
-        .json({ message: "Usuario o contraseña incorrectos" });
+      return res.status(401).json({ message: "Usuario o contraseña incorrectos" });
     }
 
     const token = jwt.sign(
@@ -56,42 +52,47 @@ const login = async (req, res) => {
       { expiresIn: "24h" }
     );
 
-    // res.cookie("token", token, {
-    //   httpOnly: true,
-    //   secure: process.env.COOKIE_SECURE === "true", // Respeta el valor de la variable de entorno
-    //   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    //   maxAge: 24 * 60 * 60 * 1000,
-    //   path: "/",
-    // });
+    // Determinar el dominio para la cookie
+    let cookieDomain;
+    if (req.headers.host.includes('.amazonaws.com')) {
+      cookieDomain = '.amazonaws.com';
+    } else if (req.headers.host.includes('localhost')) {
+      cookieDomain = 'localhost';
+    }
 
-   
-    // En la función login
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: false, // Asegúrate de que esto sea false para HTTP
-      sameSite: "lax", // Cambia a "lax" que es más permisivo que "strict" o "none"
-      maxAge: 24 * 60 * 60 * 1000,
-      path: "/", // Asegúrate de que la cookie esté disponible en toda la aplicación
-      domain:
-        req.headers.host.indexOf(".amazonaws.com") > -1
-          ? ".amazonaws.com"
-          : undefined, // Importante para subdominios
-    });
+    // Intentar establecer la cookie
+    try {
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000,
+        path: "/",
+        domain: cookieDomain
+      });
+      console.log("Cookie establecida exitosamente");
+    } catch (cookieError) {
+      console.error("Error al establecer la cookie:", cookieError);
+      // No lanzamos el error aquí, continuamos para enviar el token en la respuesta
+    }
 
+    // Enviar respuesta con token y datos del usuario
     res.json({
       message: "Inicio de sesión exitoso",
+      token, // Incluir el token solo si la cookie no se pudo establecer
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
       },
+      cookieSet: !cookieError // Indicar al frontend si la cookie se estableció
     });
   } catch (error) {
     console.error("Error en login:", error);
     res.status(500).json({
       message: "Error al iniciar sesión",
-      error: error.message,
+      error: error.message
     });
   }
 };
