@@ -268,15 +268,19 @@ const RaceDetail = () => {
                         <tr key={result.registrationId} className="hover:bg-gray-50">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className="px-2 py-1 text-sm font-medium bg-gray-100 rounded-full">
-                              {result.position}
+                              {result.position || '-'}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{result.user.name}</div>
-                            <div className="text-sm text-gray-500">{result.user.email}</div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {result.user?.name || 'Usuario no disponible'}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {result.user?.email || 'Email no disponible'}
+                            </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
-                            {result.time}
+                            {result.time || '-'}
                           </td>
                         </tr>
                       ))}
