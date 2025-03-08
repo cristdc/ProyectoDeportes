@@ -1,5 +1,5 @@
 # Etapa 1: Construcción del frontend SPA
-FROM node:18 as build-spa
+FROM node:20 as build-spa
 WORKDIR /app/spa
 COPY Frontend_SPA/package*.json ./
 RUN npm install
@@ -7,7 +7,7 @@ COPY Frontend_SPA .
 RUN npm run build
 
 # Etapa 2: Construcción del frontend Running
-FROM node:18 as build-running
+FROM node:20 as build-running
 WORKDIR /app/running
 COPY Running/web/package*.json ./
 RUN npm install
