@@ -14,6 +14,7 @@ import {
   uploadGPXFile,
   downloadGPXFile,
   deleteGPXFile,
+  uploadResultsCSV,
 } from "../controllers/raceController.js";
 import {
   authMiddleware,
@@ -24,20 +25,25 @@ import { csvUpload, gpxUpload } from "../config/multer.js";
 const router = express.Router();
 
 // Rutas públicas para listar carreras
-router.get("/", getAllRaces);                     
-router.get("/date/:date", getRacesByDate);        
-router.get("/location/:location", getRacesByLocation); 
-router.get("/sport/:sport", getRacesBySport);     
-router.get("/:id", getRaceById);                  
+router.get("/", getAllRaces);
+router.get("/date/:date", getRacesByDate);
+router.get("/location/:location", getRacesByLocation);
+router.get("/sport/:sport", getRacesBySport);
+router.get("/:id", getRaceById);
 
 // Rutas protegidas para admins
-router.post("/", authMiddleware, adminMiddleware, createRace);           
-router.put("/:id", authMiddleware, adminMiddleware, updateRace);       
-router.delete("/:id", authMiddleware, adminMiddleware, deleteRace);    
+router.post("/", authMiddleware, adminMiddleware, createRace);
+router.put("/:id", authMiddleware, adminMiddleware, updateRace);
+router.delete("/:id", authMiddleware, adminMiddleware, deleteRace);
 
 // Rutas para resultados
-router.post("/:id/results", authMiddleware, adminMiddleware, registerRaceResults); 
-router.get("/:id/results", getRaceResults);      
+router.post(
+  "/:id/results",
+  authMiddleware,
+  adminMiddleware,
+  registerRaceResults
+);
+router.get("/:id/results", getRaceResults);
 
 // Rutas para carga de archivos CSV
 router.get(
@@ -51,6 +57,7 @@ router.post(
   authMiddleware,
   adminMiddleware,
   csvUpload.single("file"),
+  uploadResultsCSV
 );
 
 // NUEVAS RUTAS PARA ARCHIVOS GPX
@@ -71,11 +78,6 @@ router.get(
 );
 
 // Eliminar archivo GPX (solo admin)
-router.delete(
-  "/:id/gpx",
-  authMiddleware,
-  adminMiddleware,
-  deleteGPXFile
-);
+router.delete("/:id/gpx", authMiddleware, adminMiddleware, deleteGPXFile);
 
 export default router;

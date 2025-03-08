@@ -5,24 +5,13 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    // Intentar recuperar el usuario del localStorage al iniciar
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isAuth, setIsAuth] = useState(() => {
-    // Verificar si hay un usuario guardado
-    return localStorage.getItem("user") !== null;
-  });
+  const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem("user")) {
-      checkAuthStatus();
-    } else {
-      setLoading(false);
-    }
+    checkAuthStatus();
   }, []);
 
   const checkAuthStatus = async () => {
@@ -40,19 +29,15 @@ export const AuthProvider = ({ children }) => {
         if (data && data.role === "admin") {
           setUser(data);
           setIsAuth(true);
-          localStorage.setItem("user", JSON.stringify(data));
           return true;
         }
       }
 
-      // Si no hay usuario válido o no es admin, limpiar todo
-      localStorage.removeItem("user");
       setUser(null);
       setIsAuth(false);
       return false;
     } catch (err) {
       console.error("Error al verificar autenticación:", err);
-      localStorage.removeItem("user");
       setUser(null);
       setIsAuth(false);
       return false;
@@ -88,8 +73,6 @@ export const AuthProvider = ({ children }) => {
         );
       }
 
-      // Guardar el usuario en localStorage
-      localStorage.setItem("user", JSON.stringify(data.user));
       setUser(data.user);
       setIsAuth(true);
 
@@ -150,9 +133,10 @@ export const AuthProvider = ({ children }) => {
         throw new Error(data.message || "Error al cerrar sesión");
       }
 
-      localStorage.removeItem("user");
       setUser(null);
       setIsAuth(false);
+      // Redirigir al login después de cerrar sesión
+      window.location.href = "/admin";
     } catch (err) {
       setError(err.message);
       throw err;

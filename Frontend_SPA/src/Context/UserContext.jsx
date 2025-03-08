@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext } from "react";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -14,13 +14,13 @@ export const UserProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await fetch(`${BACKEND_URL}/admin/users`, {
-        credentials: 'include'
+        credentials: "include",
       });
-      
+
       if (!response.ok) {
-        throw new Error('Error al obtener usuarios');
+        throw new Error("Error al obtener usuarios");
       }
-      
+
       const data = await response.json();
       setUsers(data);
       return data;
@@ -37,15 +37,15 @@ export const UserProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await fetch(`${BACKEND_URL}/admin/users/${userId}`, {
-        method: 'DELETE',
-        credentials: 'include'
+        method: "DELETE",
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Error al eliminar usuario');
+        throw new Error("Error al eliminar usuario");
       }
 
-      setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
+      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
       return true;
     } catch (err) {
       setError(err.message);
@@ -60,23 +60,21 @@ export const UserProvider = ({ children }) => {
       setLoading(true);
       setError(null);
       const response = await fetch(`${BACKEND_URL}/admin/users/change-role`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ userId, role: newRole }),
-        credentials: 'include'
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Error al cambiar el rol del usuario');
+        throw new Error("Error al cambiar el rol del usuario");
       }
 
       const { user: updatedUser } = await response.json();
-      setUsers(prevUsers => 
-        prevUsers.map(user => 
-          user._id === userId ? updatedUser : user
-        )
+      setUsers((prevUsers) =>
+        prevUsers.map((user) => (user._id === userId ? updatedUser : user))
       );
       return updatedUser;
     } catch (err) {
@@ -93,7 +91,7 @@ export const UserProvider = ({ children }) => {
     error,
     getAllUsers,
     deleteUser,
-    changeUserRole
+    changeUserRole,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
@@ -102,7 +100,7 @@ export const UserProvider = ({ children }) => {
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error('useUser debe ser usado dentro de un UserProvider');
+    throw new Error("useUser debe ser usado dentro de un UserProvider");
   }
   return context;
 };

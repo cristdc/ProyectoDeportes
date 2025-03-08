@@ -9,7 +9,6 @@ import Papa from "papaparse";
 const { parse, unparse } = Papa;
 import User from "../models/User.js";
 
-
 // Importaciones para archivos GPX
 import { analyzeGPXFile, validateGPXFile } from "../utils/gpxUtils.js";
 
@@ -73,20 +72,22 @@ const dateToTimeString = (date) => {
 const checkAndUpdateRaceStatus = async (raceId) => {
   try {
     const race = await Race.findById(raceId);
-    if (!race || race.status !== 'open') return;
+    if (!race || race.status !== "open") return;
 
     const registrationsCount = await Registration.countDocuments({
       race: raceId,
-      status: 'registered'
+      status: "registered",
     });
 
     if (registrationsCount >= race.maxParticipants) {
-      race.status = 'closed';
+      race.status = "closed";
       await race.save();
-      console.log(`Carrera ${race.name} cerrada automáticamente por alcanzar el límite de participantes`);
+      console.log(
+        `Carrera ${race.name} cerrada automáticamente por alcanzar el límite de participantes`
+      );
     }
   } catch (error) {
-    console.error('Error al verificar estado de la carrera:', error);
+    console.error("Error al verificar estado de la carrera:", error);
   }
 };
 
@@ -371,8 +372,8 @@ const getRaceById = async (req, res) => {
       gpx: {
         available: race.hasGPXFile,
         fileName: race.gpxFileName || null,
-        uploadedAt: race.gpxFileUploadedAt || null
-      }
+        uploadedAt: race.gpxFileUploadedAt || null,
+      },
     };
 
     return res.status(200).json(raceWithDetails);
@@ -983,7 +984,6 @@ const getRaceResults = async (req, res) => {
   }
 };
 
-
 /**
  * Descargar el CSV con dorsales para rellenar tiempos
  * @route GET /api/races/:id/runners-csv
@@ -991,57 +991,76 @@ const getRaceResults = async (req, res) => {
 const downloadRunnersCSV = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     if (!isValidObjectId(id)) {
       return res.status(400).json({ message: "ID de carrera inválido" });
     }
 
     // Verificar que la carrera existe
-    const race = await Race.findById(id);
+    const race = await Race.findById(id).populate("createdBy");
     if (!race) {
       return res.status(404).json({ message: "Carrera no encontrada" });
     }
 
-    // Verificar que el usuario es el creador o un admin
-    if (race.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
-      return res.status(403).json({ message: "No tienes permisos para descargar datos de esta carrera" });
+    // Verificar que el usuario es admin (simplificamos la verificación)
+    if (req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({
+          message: "No tienes permisos para descargar datos de esta carrera",
+        });
     }
-    
+
     // Obtener todas las inscripciones de la carrera
     const registrations = await Registration.find({
       race: id,
-      status: 'registered'
-    }).populate('user', 'email name');
-    
-    if (registrations.length === 0) {
-      return res.status(404).json({ message: "No hay inscripciones registradas para esta carrera" });
-    }
-    
-    // Preparar datos para el CSV
-    const csvData = registrations.map(reg => ({
-      email: reg.user.email,
-      nombre: reg.user.name,
-      dorsal: reg.dorsal || '',
-      tiempo: ''
-    }));
-    
-    // Generar CSV
-    const csvString = Papa.unparse(csvData);
-    
-    // Determinar nombre del archivo
-    const filename = `resultados_${race.name.replace(/\s+/g, '_')}.csv`;
-    
-    // Configurar encabezados para descarga
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      status: "registered",
+    }).populate("user", "email name");
 
-    // Enviar el archivo
-    return res.send(csvString);
+    if (!registrations || registrations.length === 0) {
+      return res
+        .status(404)
+        .json({
+          message: "No hay inscripciones registradas para esta carrera",
+        });
+    }
+
+    try {
+      // Preparar datos para el CSV
+      const csvData = registrations.map((reg) => ({
+        email: reg.user ? reg.user.email : "N/A",
+        nombre: reg.user ? reg.user.name : "N/A",
+        dorsal: reg.dorsal || "",
+        tiempo: "",
+      }));
+
+      // Generar CSV
+      const csvString = Papa.unparse(csvData);
+
+      // Determinar nombre del archivo
+      const filename = `resultados_${race.name.replace(/\s+/g, "_")}.csv`;
+
+      // Configurar encabezados para descarga
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${filename}"`
+      );
+
+      // Enviar el archivo
+      return res.send(csvString);
+    } catch (csvError) {
+      console.error("Error al generar CSV:", csvError);
+      return res.status(500).json({
+        message: "Error al generar el archivo CSV",
+        error: csvError.message,
+      });
+    }
   } catch (error) {
-    console.error('Error en downloadRunnersCSV:', error);
+    console.error("Error en downloadRunnersCSV:", error);
     return res.status(500).json({
       message: "Error al descargar datos para resultados",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -1053,9 +1072,11 @@ const downloadRunnersCSV = async (req, res) => {
 const uploadResultsCSV = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     if (!req.file) {
-      return res.status(400).json({ message: "No se ha subido ningún archivo" });
+      return res
+        .status(400)
+        .json({ message: "No se ha subido ningún archivo" });
     }
 
     if (!isValidObjectId(id)) {
@@ -1071,32 +1092,47 @@ const uploadResultsCSV = async (req, res) => {
     }
 
     // Verificar que el usuario es el creador o un admin
-    if (race.createdBy.toString() !== req.user.id && req.user.role !== "admin") {
+    if (
+      race.createdBy.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
       fs.unlinkSync(req.file.path);
-      return res.status(403).json({ message: "No tienes permisos para subir resultados a esta carrera" });
+      return res
+        .status(403)
+        .json({
+          message: "No tienes permisos para subir resultados a esta carrera",
+        });
     }
 
     // Procesar el CSV
-    const fileContent = fs.readFileSync(req.file.path, 'utf8');
+    const fileContent = fs.readFileSync(req.file.path, "utf8");
     const csvData = Papa.parse(fileContent, {
       header: true,
-      skipEmptyLines: true
+      skipEmptyLines: true,
     });
 
     // Validar estructura del CSV
     if (!csvData.data.length) {
       fs.unlinkSync(req.file.path);
-      return res.status(400).json({ message: "El archivo CSV está vacío o tiene un formato incorrecto" });
+      return res
+        .status(400)
+        .json({
+          message: "El archivo CSV está vacío o tiene un formato incorrecto",
+        });
     }
 
     // Verificar que todas las columnas necesarias existen
-    const requiredColumns = ['email', 'dorsal', 'tiempo'];
-    const missingColumns = requiredColumns.filter(col => !csvData.meta.fields.includes(col));
-    
+    const requiredColumns = ["email", "dorsal", "tiempo"];
+    const missingColumns = requiredColumns.filter(
+      (col) => !csvData.meta.fields.includes(col)
+    );
+
     if (missingColumns.length > 0) {
       fs.unlinkSync(req.file.path);
-      return res.status(400).json({ 
-        message: `El CSV no tiene las columnas requeridas: ${missingColumns.join(', ')}` 
+      return res.status(400).json({
+        message: `El CSV no tiene las columnas requeridas: ${missingColumns.join(
+          ", "
+        )}`,
       });
     }
 
@@ -1104,68 +1140,89 @@ const uploadResultsCSV = async (req, res) => {
     const errors = [];
     const results = [];
     const timeRegex = /^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
-    
+
     for (let i = 0; i < csvData.data.length; i++) {
       const row = csvData.data[i];
-      
+
       // Solo procesar si tiene tiempo
-      if (row.tiempo && row.tiempo.trim() !== '') {
+      if (row.tiempo && row.tiempo.trim() !== "") {
         // Validar formato de tiempo
         if (!timeRegex.test(row.tiempo)) {
-          errors.push(`Fila ${i+1}: Formato de tiempo inválido (${row.tiempo}). Use formato HH:mm:ss`);
+          errors.push(
+            `Fila ${i + 1}: Formato de tiempo inválido (${
+              row.tiempo
+            }). Use formato HH:mm:ss`
+          );
           continue;
         }
-        
+
         // Buscar usuario por email
         const user = await User.findOne({ email: row.email });
-        
+
         if (!user) {
-          errors.push(`Fila ${i+1}: No se encontró ningún usuario con el email ${row.email}`);
+          errors.push(
+            `Fila ${i + 1}: No se encontró ningún usuario con el email ${
+              row.email
+            }`
+          );
           continue;
         }
-        
+
         // Verificar si está inscrito
-        const registration = await Registration.findOne({ 
+        const registration = await Registration.findOne({
           user: user._id,
           race: race._id,
-          status: 'registered'
+          status: "registered",
         });
-        
+
         if (!registration) {
-          errors.push(`Fila ${i+1}: El usuario ${row.email} no está inscrito en esta carrera`);
+          errors.push(
+            `Fila ${i + 1}: El usuario ${
+              row.email
+            } no está inscrito en esta carrera`
+          );
           continue;
         }
-        
+
         // Verificar que el dorsal coincide
-        if (registration.dorsal && registration.dorsal.toString() !== row.dorsal) {
-          errors.push(`Fila ${i+1}: El dorsal ${row.dorsal} no coincide con el asignado (${registration.dorsal}) al usuario ${row.email}`);
+        if (
+          registration.dorsal &&
+          registration.dorsal.toString() !== row.dorsal
+        ) {
+          errors.push(
+            `Fila ${i + 1}: El dorsal ${
+              row.dorsal
+            } no coincide con el asignado (${registration.dorsal}) al usuario ${
+              row.email
+            }`
+          );
           continue;
         }
-        
+
         // Añadir a la lista de resultados
         results.push({
           userId: user._id.toString(),
           time: row.tiempo,
           position: i + 1, // Posición basada en el orden del CSV
-          dorsal: parseInt(row.dorsal)
+          dorsal: parseInt(row.dorsal),
         });
       }
     }
-    
+
     // Si hay errores, no continuar
     if (errors.length > 0) {
       fs.unlinkSync(req.file.path);
-      return res.status(400).json({ 
-        message: "El CSV contiene errores", 
-        errors 
+      return res.status(400).json({
+        message: "El CSV contiene errores",
+        errors,
       });
     }
-    
+
     // Si no hay resultados con tiempo
     if (results.length === 0) {
       fs.unlinkSync(req.file.path);
-      return res.status(400).json({ 
-        message: "No se encontraron tiempos válidos en el CSV" 
+      return res.status(400).json({
+        message: "No se encontraron tiempos válidos en el CSV",
       });
     }
 
@@ -1177,13 +1234,13 @@ const uploadResultsCSV = async (req, res) => {
     for (const result of results) {
       await Registration.updateOne(
         { race: id, user: result.userId },
-        { 
-          $set: { 
+        {
+          $set: {
             time: result.time,
             position: result.position,
             status: "finished",
-            dorsal: result.dorsal
-          } 
+            dorsal: result.dorsal,
+          },
         }
       );
     }
@@ -1192,7 +1249,7 @@ const uploadResultsCSV = async (req, res) => {
     if (race.runnersCSVPath && fs.existsSync(race.runnersCSVPath)) {
       fs.unlinkSync(race.runnersCSVPath);
     }
-    
+
     // Almacenar el nuevo CSV
     race.runnersCSVPath = req.file.path;
     race.lastCSVUpdate = new Date();
@@ -1201,49 +1258,56 @@ const uploadResultsCSV = async (req, res) => {
     const sendEmails = async () => {
       let successCount = 0;
       let errorCount = 0;
-      
+
       for (const result of results) {
         try {
           const user = await User.findById(result.userId);
           if (user && user.email) {
             const success = await sendRaceResultsEmail(user, race, {
               time: result.time,
-              position: result.position
+              position: result.position,
             });
-            
+
             if (success) successCount++;
             else errorCount++;
           }
         } catch (emailError) {
-          console.error(`Error al enviar email al usuario ${result.userId}:`, emailError);
+          console.error(
+            `Error al enviar email al usuario ${result.userId}:`,
+            emailError
+          );
           errorCount++;
         }
       }
-      
-      console.log(`Envío de emails completado: ${successCount} exitosos, ${errorCount} fallidos`);
+
+      console.log(
+        `Envío de emails completado: ${successCount} exitosos, ${errorCount} fallidos`
+      );
     };
-    
+
     // Iniciar proceso de envío de emails sin bloquear
-    sendEmails().catch(e => console.error('Error en proceso de envío de emails:', e));
+    sendEmails().catch((e) =>
+      console.error("Error en proceso de envío de emails:", e)
+    );
 
     return res.status(200).json({
       message: "Resultados procesados correctamente",
       raceId: id,
       raceName: race.name,
       totalResults: results.length,
-      emailsScheduled: true
+      emailsScheduled: true,
     });
   } catch (error) {
-    console.error('Error en uploadResultsCSV:', error);
-    
+    console.error("Error en uploadResultsCSV:", error);
+
     // Eliminar archivo si existe
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
-    
+
     return res.status(500).json({
       message: "Error al procesar el CSV de resultados",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -1256,10 +1320,12 @@ const uploadGPXFile = async (req, res) => {
   try {
     const { id } = req.params;
     const { updateRaceInfo } = req.body; // Flag para indicar si actualizar información de la carrera
-    
+
     // Verificar si hay un archivo
     if (!req.file) {
-      return res.status(400).json({ message: "No se ha subido ningún archivo GPX" });
+      return res
+        .status(400)
+        .json({ message: "No se ha subido ningún archivo GPX" });
     }
 
     // Validar ID de carrera
@@ -1287,8 +1353,8 @@ const uploadGPXFile = async (req, res) => {
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
-      return res.status(403).json({ 
-        message: "No tienes permisos para subir archivos GPX"
+      return res.status(403).json({
+        message: "No tienes permisos para subir archivos GPX",
       });
     }
 
@@ -1301,7 +1367,7 @@ const uploadGPXFile = async (req, res) => {
       fs.unlinkSync(req.file.path);
       return res.status(400).json({
         message: "El archivo GPX no es válido o está corrupto",
-        error: gpxError.message
+        error: gpxError.message,
       });
     }
 
@@ -1315,24 +1381,24 @@ const uploadGPXFile = async (req, res) => {
     race.gpxFilePath = req.file.path;
     race.gpxFileUploadedAt = new Date();
     race.gpxFileName = req.file.originalname || path.basename(req.file.path);
-    
+
     // Si se solicitó actualizar la información de la carrera basada en el GPX
-    if (updateRaceInfo === 'true' && gpxInfo) {
+    if (updateRaceInfo === "true" && gpxInfo) {
       // Solo actualizar campos si los valores del GPX son razonables
       if (gpxInfo.totalDistance > 0) {
         race.distance = gpxInfo.totalDistance;
       }
-      
+
       if (gpxInfo.elevationGain > 0) {
         race.unevenness = gpxInfo.elevationGain;
       }
-      
+
       // Actualizar el campo 'tour' si tiene un nombre en el GPX
-      if (gpxInfo.name && gpxInfo.name !== 'Sin nombre') {
+      if (gpxInfo.name && gpxInfo.name !== "Sin nombre") {
         race.tour = gpxInfo.name;
       }
     }
-    
+
     await race.save();
 
     return res.status(200).json({
@@ -1341,21 +1407,21 @@ const uploadGPXFile = async (req, res) => {
         id: race._id,
         name: race.name,
         gpxFileName: race.gpxFileName,
-        gpxFileUploadedAt: race.gpxFileUploadedAt
+        gpxFileUploadedAt: race.gpxFileUploadedAt,
       },
-      gpxInfo: gpxInfo // Devolver la información extraída del GPX
+      gpxInfo: gpxInfo, // Devolver la información extraída del GPX
     });
   } catch (error) {
     console.error("Error en uploadGPXFile:", error);
-    
+
     // Eliminar archivo si existe y hay un error
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
-    
+
     return res.status(500).json({
       message: "Error al subir el archivo GPX",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -1367,7 +1433,7 @@ const uploadGPXFile = async (req, res) => {
 const downloadGPXFile = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Validar ID de carrera
     if (!isValidObjectId(id)) {
       return res.status(400).json({ message: "ID de carrera inválido" });
@@ -1381,20 +1447,25 @@ const downloadGPXFile = async (req, res) => {
 
     // Verificar si la carrera tiene un archivo GPX
     if (!race.hasGPXFile || !race.gpxFilePath) {
-      return res.status(404).json({ message: "Esta carrera no tiene archivo GPX disponible" });
+      return res
+        .status(404)
+        .json({ message: "Esta carrera no tiene archivo GPX disponible" });
     }
 
     // Verificar que el archivo existe en el sistema de archivos
     if (!fs.existsSync(race.gpxFilePath)) {
-      return res.status(404).json({ message: "El archivo GPX no se encuentra disponible" });
+      return res
+        .status(404)
+        .json({ message: "El archivo GPX no se encuentra disponible" });
     }
 
     // Nombre del archivo para la descarga (usar el nombre original si está disponible)
-    const fileName = race.gpxFileName || `route-${race.name.replace(/\s+/g, '_')}.gpx`;
+    const fileName =
+      race.gpxFileName || `route-${race.name.replace(/\s+/g, "_")}.gpx`;
 
     // Configurar los encabezados para la descarga
-    res.setHeader('Content-Type', 'application/gpx+xml');
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+    res.setHeader("Content-Type", "application/gpx+xml");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
 
     // Crear un stream de lectura y enviarlo como respuesta
     const fileStream = fs.createReadStream(race.gpxFilePath);
@@ -1403,7 +1474,7 @@ const downloadGPXFile = async (req, res) => {
     console.error("Error en downloadGPXFile:", error);
     return res.status(500).json({
       message: "Error al descargar el archivo GPX",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -1415,7 +1486,7 @@ const downloadGPXFile = async (req, res) => {
 const deleteGPXFile = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Validar ID de carrera
     if (!isValidObjectId(id)) {
       return res.status(400).json({ message: "ID de carrera inválido" });
@@ -1429,14 +1500,16 @@ const deleteGPXFile = async (req, res) => {
 
     // Verificar permisos (si el usuario es un admin)
     if (req.user.role !== "admin") {
-      return res.status(403).json({ 
-        message: "No tienes permisos para eliminar archivos GPX" 
+      return res.status(403).json({
+        message: "No tienes permisos para eliminar archivos GPX",
       });
     }
 
     // Verificar si la carrera tiene un archivo GPX
     if (!race.hasGPXFile || !race.gpxFilePath) {
-      return res.status(404).json({ message: "Esta carrera no tiene archivo GPX para eliminar" });
+      return res
+        .status(404)
+        .json({ message: "Esta carrera no tiene archivo GPX para eliminar" });
     }
 
     // Eliminar el archivo del sistema de archivos
@@ -1449,22 +1522,21 @@ const deleteGPXFile = async (req, res) => {
     race.gpxFilePath = null;
     race.gpxFileUploadedAt = null;
     race.gpxFileName = null;
-    
+
     await race.save();
 
     return res.status(200).json({
       message: "Archivo GPX eliminado correctamente",
-      raceId: race._id
+      raceId: race._id,
     });
   } catch (error) {
     console.error("Error en deleteGPXFile:", error);
     return res.status(500).json({
       message: "Error al eliminar el archivo GPX",
-      error: error.message
+      error: error.message,
     });
   }
 };
-
 
 export {
   getAllRaces,
@@ -1481,4 +1553,5 @@ export {
   uploadGPXFile,
   downloadGPXFile,
   deleteGPXFile,
+  uploadResultsCSV,
 };
