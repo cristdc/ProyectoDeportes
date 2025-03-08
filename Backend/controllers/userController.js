@@ -64,15 +64,18 @@ const login = async (req, res) => {
     //   path: "/",
     // });
 
-    const isSecureConnection =
-      req.secure || req.headers["x-forwarded-proto"] === "https";
-
+   
+    // En la función login
     res.cookie("token", token, {
       httpOnly: true,
-      secure: isSecureConnection, // Automáticamente true para HTTPS, false para HTTP
-      sameSite: isSecureConnection ? "none" : "lax", // "none" para HTTPS, "lax" para HTTP
+      secure: false, // Asegúrate de que esto sea false para HTTP
+      sameSite: "lax", // Cambia a "lax" que es más permisivo que "strict" o "none"
       maxAge: 24 * 60 * 60 * 1000,
-      path: "/",
+      path: "/", // Asegúrate de que la cookie esté disponible en toda la aplicación
+      domain:
+        req.headers.host.indexOf(".amazonaws.com") > -1
+          ? ".amazonaws.com"
+          : undefined, // Importante para subdominios
     });
 
     res.json({

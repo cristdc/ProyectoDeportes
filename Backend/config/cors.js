@@ -14,21 +14,19 @@ const allowedOrigins = [
   "https://35.153.250.116",
 ];
 
+// En cors.js
 export const corsOptions = {
   origin: function (origin, callback) {
-    // Permitir peticiones sin origin en desarrollo
-    if (!origin && process.env.NODE_ENV !== "production") {
-      return callback(null, true);
-    }
-
+    // Permitir solicitudes desde tu dominio
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log(`Origen bloqueado por CORS: ${origin}`);
       callback(new Error("No permitido por CORS"));
     }
   },
-  credentials: true, // Esto es crucial
+  credentials: true, // Esto es crucial para cookies
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  exposedHeaders: ["set-cookie"],
+  exposedHeaders: ["set-cookie"], // Importante para exponer las cookies al cliente
 };
