@@ -133,6 +133,8 @@ export const AuthProvider = ({ children }) => {
 
       setUser(null);
       setIsAuth(false);
+      // Redirigir al login después de cerrar sesión
+      window.location.href = '/admin';
     } catch (err) {
       setError(err.message);
       throw err;

@@ -12,6 +12,7 @@ import RaceDetail from "../Pages/RaceDetail";
 import EditPage from "../Pages/EditPage";
 import AdminUsers from "../Pages/AdminUsers";
 import Prueba from "../Pages/Prueba";
+import Registrations from "../Pages/Registrations";
 
 const router = createBrowserRouter([
   {
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
       {
         path: "users",
         element: <AdminUsers />,
+      },
+      {
+        path: "registations/:id",
+        element: <Registrations />,
       },
     ],
   },

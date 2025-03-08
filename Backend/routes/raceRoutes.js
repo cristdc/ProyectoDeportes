@@ -14,6 +14,7 @@ import {
   uploadGPXFile,
   downloadGPXFile,
   deleteGPXFile,
+  uploadResultsCSV,
 } from "../controllers/raceController.js";
 import {
   authMiddleware,
@@ -51,6 +52,7 @@ router.post(
   authMiddleware,
   adminMiddleware,
   csvUpload.single("file"),
+  uploadResultsCSV
 );
 
 // NUEVAS RUTAS PARA ARCHIVOS GPX

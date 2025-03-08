@@ -4,10 +4,11 @@ import { useAuth } from '../hooks/useAuth';
 import { useRace } from '../Context/RaceContext';
 import RaceCard from '../Components/RaceCard';
 
+
 const HomeAdmin = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { races, loading, error, fetchRaces, deleteRace, downloadCSV } = useRace();
+  const { races, loading, error, fetchRaces, deleteRace, downloadCSV, uploadResults, getRaces } = useRace();
   const [errorState, setErrorState] = useState(null);
 
   const [nameFilter, setNameFilter] = useState('');
@@ -38,6 +39,20 @@ const HomeAdmin = () => {
     setNameFilter('');
     setSportFilter('');
     setStatusFilter('');
+  };
+
+  const handleUploadGpx = async (raceId, file) => {
+    // Esta función se pasaría como prop a RaceCard
+    // Puedes implementar lógica adicional aquí si es necesario
+  };
+
+  const handleRaceUpdate = async () => {
+    try {
+      await fetchRaces();
+    } catch (error) {
+      console.error('Error al actualizar las carreras:', error);
+      toast.error('Error al actualizar la lista de carreras');
+    }
   };
 
   if (loading) {
@@ -139,6 +154,8 @@ const HomeAdmin = () => {
               }
             }}
             onDownloadCSV={downloadCSV}
+            onUploadResults={uploadResults}
+            onRaceUpdate={handleRaceUpdate}
           />
         ))}
       </div>

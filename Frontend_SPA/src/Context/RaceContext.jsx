@@ -93,7 +93,6 @@ export const RaceProvider = ({ children }) => {
       const response = await fetch(`${BACKEND_URL}/races/${raceId}/runners-csv`, {
         credentials: 'include'
       }).then(async (res) => {
-        // Si es 404, lo manejamos silenciosamente
         if (res.status === 404) {
           return { notFound: true };
         }
@@ -105,7 +104,6 @@ export const RaceProvider = ({ children }) => {
         return { success: false, message: 'No hay inscripciones' };
       }
 
-      // Si hay otro tipo de error
       if (!response.ok) {
         return { success: false, message: 'Error al descargar el CSV' };
       }
@@ -128,35 +126,41 @@ export const RaceProvider = ({ children }) => {
     }
   };
 
-  const uploadResults = async (raceId, resultsFile) => {
+  const uploadResults = async (raceId, file) => {
     try {
       setLoading(true);
       setError(null);
-      const formData = new FormData();
-      formData.append('results', resultsFile);
 
-      const response = await fetch(`${BACKEND_URL}/races/${raceId}/upload-results`, {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch(`${BACKEND_URL}/races/${raceId}/results-csv`, {
         method: 'POST',
-        body: formData,
-        credentials: 'include'
+        credentials: 'include',
+        body: formData
       });
 
+      const data = await response.json();
+      console.log('Respuesta del servidor:', data);
+
       if (!response.ok) {
-        throw new Error('Error al subir los resultados');
+        return {
+          success: false,
+          message: data.message,
+          errors: data.errors || []
+        };
       }
 
-      const updatedRace = await response.json();
-      setRaces(prevRaces => ({
-        ...prevRaces,
-        races: prevRaces.races.map(race => 
-          race._id === raceId ? updatedRace : race
-        )
-      }));
-
-      return updatedRace;
+      return {
+        success: true,
+        data
+      };
     } catch (err) {
-      setError(err.message);
-      throw err;
+      return {
+        success: false,
+        message: 'Error al subir los resultados',
+        errors: []
+      };
     } finally {
       setLoading(false);
     }
@@ -236,6 +240,53 @@ export const RaceProvider = ({ children }) => {
     }
   };
 
+  const uploadRaceGpx = async (raceId, file) => {
+    try {
+      // Verificar solo la extensión del archivo
+      if (!file.name.toLowerCase().endsWith('.gpx')) {
+        throw new Error('El archivo debe tener extensión .gpx');
+      }
+
+      // Crear un nuevo Blob con el tipo MIME correcto
+      const gpxBlob = new Blob([file], { 
+        type: 'application/gpx+xml' 
+      });
+
+      // Crear un nuevo File con el tipo MIME correcto
+      const gpxFile = new File([gpxBlob], file.name, { 
+        type: 'application/gpx+xml'
+      });
+
+      const formData = new FormData();
+      formData.append('gpxFile', gpxFile);
+
+      const response = await fetch(`${BACKEND_URL}/races/${raceId}/gpx`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+
+      // Intentar obtener el mensaje de error incluso si la respuesta no es ok
+      let data;
+      try {
+        const textResponse = await response.text();
+        data = textResponse ? JSON.parse(textResponse) : {};
+      } catch (e) {
+        console.error('Error al parsear respuesta:', e);
+        data = { message: 'Error al procesar la respuesta del servidor' };
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Error al subir el archivo GPX');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error en uploadRaceGpx:', error);
+      throw error;
+    }
+  };
+
   const value = {
     races,
     loading,
@@ -248,7 +299,8 @@ export const RaceProvider = ({ children }) => {
     createRace,
     clearError,
     getRaceById,
-    getRaceResults
+    getRaceResults,
+    uploadRaceGpx
   };
 
   return <RaceContext.Provider value={value}>{children}</RaceContext.Provider>;

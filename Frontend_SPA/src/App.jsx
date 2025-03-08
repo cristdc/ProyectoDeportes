@@ -4,11 +4,13 @@ import { UserProvider } from './Context/UserContext';
 import { RaceProvider } from './Context/RaceContext';
 import { RouterProvider } from 'react-router-dom';
 import router from './Router/Index';
+import { RegistrationProvider } from './Context/RegistrationContext';
 
 function App() {
   return (
     <AuthProvider>
-      <UserProvider>
+      <UserProvider> 
+        <RegistrationProvider>
         <RaceProvider>
           <RouterProvider router={router} />  
           <Toaster
@@ -24,6 +26,7 @@ function App() {
             theme="light"
           />
         </RaceProvider>
+        </RegistrationProvider>
       </UserProvider>
     </AuthProvider>
   );
