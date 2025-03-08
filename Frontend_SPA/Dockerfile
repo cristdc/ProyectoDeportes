@@ -1,23 +1,29 @@
-# Etapa 1: Construcción del frontend SPA
-FROM node:20 as build-spa
-WORKDIR /app/spa
-COPY Frontend_SPA/package*.json ./
+# Etapa de construcción
+FROM node:20-alpine as builder
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar archivos de dependencias
+COPY package*.json ./
+
+# Instalar dependencias
 RUN npm install
-COPY Frontend_SPA ./
+
+# Copiar código fuente
+COPY . .
+
+# Construir la aplicación
 RUN npm run build
 
-# Etapa 2: Construcción del frontend Running
-FROM node:20 as build-running
-WORKDIR /app/running
-COPY Running/web/package*.json ./
-RUN npm install
-COPY Running/web ./
-RUN npm run build
+# Etapa de producción
+FROM nginx:alpine
 
-# Etapa 3: Servir ambos frontends con Nginx
-FROM nginx:latest
-COPY --from=build-spa /app/spa/dist /usr/share/nginx/html/spa
-COPY --from=build-running /app/running/dist /usr/share/nginx/html/running
-COPY ./nginx/frontend.conf /etc/nginx/conf.d/default.conf
+# Copiar los archivos construidos desde la etapa anterior
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Exponer puerto 80
 EXPOSE 80
+
+# Comando para iniciar nginx
 CMD ["nginx", "-g", "daemon off;"]
