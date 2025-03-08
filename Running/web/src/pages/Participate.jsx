@@ -1,193 +1,300 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
-import { FaMedal, FaRunning, FaClock, FaSearch, FaFilter } from 'react-icons/fa';
+import { FaSearch, FaMedal, FaRunning, FaClock, FaTimes, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaFilter } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PuffLoader } from 'react-spinners';
 
 export default function Participate() {
+  const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Mantenemos los estados para filtros y búsqueda
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('date');
-  const [sortOrder, setSortOrder] = useState('desc');
+  const [filters, setFilters] = useState({
+    status: '',
+    sport: '',
+    date: '',
+    search: ''
+  });
+
+  const fetchRegistrations = async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.getParticipations(filters);
+      setRegistrations(data);
+      setError(null);
+    } catch (err) {
+      setError('Error al cargar las participaciones');
+      console.error('Error fetching registrations:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchRegistrations = async () => {
-      try {
-        const data = await apiService.getParticipations();
-        console.log('Datos recibidos:', data);
-        setRegistrations(data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error al cargar el historial:', err);
-        setError('Error al cargar el historial de carreras');
-        setLoading(false);
-      }
-    };
-
     fetchRegistrations();
-  }, []);
+  }, [filters]);
 
-  // Función de filtrado
-  const filteredRegistrations = registrations.filter(registration => {
-    const matchesSearch = registration.raceId?.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === 'all' || registration.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+  // Prevenir el comportamiento por defecto del formulario
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  };
 
-  // Función de ordenamiento
-  const sortedRegistrations = [...filteredRegistrations].sort((a, b) => {
-    switch (sortBy) {
-      case 'date':
-        return sortOrder === 'asc' 
-          ? new Date(a.registeredAt) - new Date(b.registeredAt)
-          : new Date(b.registeredAt) - new Date(a.registeredAt);
-      case 'name':
-        return sortOrder === 'asc'
-          ? a.raceId?.name.localeCompare(b.raceId?.name)
-          : b.raceId?.name.localeCompare(a.raceId?.name);
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Función para navegar a los detalles de la carrera
+  const handleViewRaceDetails = (raceId) => {
+    navigate(`/races/${raceId}`);
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'registered':
+        return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">Inscrito</span>;
+      case 'finished':
+        return <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">Completada</span>;
+      case 'cancelled':
+        return <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm">Cancelada</span>;
       default:
-        return 0;
+        return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-sm">{status}</span>;
     }
-  });
+  };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-xl">Cargando historial...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-red-600 text-xl">{error}</div>
+      <div className="min-h-screen bg-[#FAF6F1] flex items-center justify-center">
+        <PuffLoader color="#8D9B6A" size={60} />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6">Historial de Carreras</h2>
-
-      {/* Controles de búsqueda y filtrado */}
-      <div className="mb-6 space-y-4">
-        <div className="flex flex-wrap gap-4">
-          <div className="flex-1 min-w-[200px]">
-            <div className="relative">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar por nombre de carrera..."
-                className="w-full pl-10 pr-4 py-2 border rounded-lg"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="min-h-screen bg-gradient-to-b from-[#FAF6F1] to-white py-8"
+      >
+        <div className="max-w-7xl mx-auto px-4">
+          {/* Header con animación */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="bg-gradient-to-r from-[#8D9B6A] to-[#D4A373] rounded-2xl shadow-lg p-8 mb-8"
+          >
+            <div className="max-w-3xl">
+              <h1 className="text-3xl font-bold mb-3 flex items-center">
+                <FaRunning className="mr-4 text-2xl" />
+                Mi Historial de Participaciones
+              </h1>
+              <p className="text-white/80">
+                Consulta y gestiona tus inscripciones en carreras
+              </p>
             </div>
-          </div>
-          
-          <select
-            className="px-4 py-2 border rounded-lg"
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-          >
-            <option value="all">Todos los estados</option>
-            <option value="registered">Inscritos</option>
-            <option value="finished">Completadas</option>
-            <option value="cancelled">Canceladas</option>
-          </select>
+          </motion.div>
 
-          <select
-            className="px-4 py-2 border rounded-lg"
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-          >
-            <option value="date">Ordenar por fecha</option>
-            <option value="name">Ordenar por nombre</option>
-          </select>
+          {/* Panel de filtros mejorado */}
+          <div className="bg-white rounded-2xl shadow-lg mb-8 overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-[#5C6744] flex items-center">
+                <FaFilter className="mr-2 text-[#8D9B6A]" />
+                Filtros de búsqueda
+              </h2>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {/* Búsqueda */}
+                <div>
+                  <label className="block text-sm font-medium text-[#5C6744] mb-2">
+                    Buscar carrera
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="search"
+                      value={filters.search}
+                      onChange={handleFilterChange}
+                      placeholder="Nombre de la carrera..."
+                      className="w-full pl-10 pr-4 py-3 border-2 border-[#CCD5AE] rounded-xl focus:ring-2 focus:ring-[#8D9B6A] focus:border-[#8D9B6A] transition-all placeholder-gray-400"
+                    />
+                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8D9B6A]" />
+                  </div>
+                </div>
 
-          <button
-            className="px-4 py-2 border rounded-lg"
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-          >
-            {sortOrder === 'asc' ? '↑' : '↓'}
-          </button>
-        </div>
-      </div>
+                {/* Estado */}
+                <div>
+                  <label className="block text-sm font-medium text-[#5C6744] mb-2">Estado</label>
+                  <div className="relative">
+                    <select
+                      name="status"
+                      value={filters.status}
+                      onChange={handleFilterChange}
+                      className="w-full py-3 px-4 border-2 border-[#CCD5AE] rounded-xl focus:ring-2 focus:ring-[#8D9B6A] focus:border-[#8D9B6A] transition-all appearance-none bg-white"
+                    >
+                      <option value="">Todos los estados</option>
+                      <option value="registered">Inscrito</option>
+                      <option value="finished">Completada</option>
+                      <option value="cancelled">Cancelada</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="w-4 h-4 text-[#8D9B6A]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
 
-      {/* Lista de registros */}
-      {sortedRegistrations.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600 mb-4">No se encontraron registros que coincidan con los filtros</p>
-          {registrations.length === 0 && (
-            <Link
-              to="/races"
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Ver carreras disponibles
-            </Link>
-          )}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedRegistrations.map((registration) => (
-            <div 
-              key={registration._id} 
-              className="bg-white rounded-lg shadow-lg overflow-hidden"
-            >
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2">
-                  {registration.raceId?.name || 'Carrera no disponible'}
-                </h3>
-                <div className="space-y-2 text-gray-600">
-                  <p className="flex items-center">
-                    <FaRunning className="mr-2" />
-                    Estado: {registration.status === 'finished' ? 'Completada' : 
-                            registration.status === 'registered' ? 'Inscrito' : 
-                            registration.status === 'cancelled' ? 'Cancelada' : 
-                            registration.status}
-                  </p>
-                  {registration.dorsal && (
-                    <p className="flex items-center">
-                      <span className="mr-2">#</span>
-                      Dorsal: {registration.dorsal}
-                    </p>
-                  )}
-                  {registration.time && (
-                    <p className="flex items-center">
-                      <FaClock className="mr-2" />
-                      Tiempo: {registration.time}
-                    </p>
-                  )}
-                  {registration.position && (
-                    <p className="flex items-center">
-                      <FaMedal className="mr-2" />
-                      Posición: {registration.position}º
-                    </p>
-                  )}
-                  <p className="text-sm text-gray-500">
-                    Fecha de inscripción: {new Date(registration.registeredAt).toLocaleDateString()}
-                  </p>
+                {/* Deporte */}
+                <div>
+                  <label className="block text-sm font-medium text-[#5C6744] mb-2">Deporte</label>
+                  <div className="relative">
+                    <select
+                      name="sport"
+                      value={filters.sport}
+                      onChange={handleFilterChange}
+                      className="w-full py-3 px-4 border-2 border-[#CCD5AE] rounded-xl focus:ring-2 focus:ring-[#8D9B6A] focus:border-[#8D9B6A] transition-all appearance-none bg-white"
+                    >
+                      <option value="">Todos los deportes</option>
+                      <option value="running">Running</option>
+                      <option value="cycling">Ciclismo</option>
+                      <option value="swimming">Natación</option>
+                      <option value="triathlon">Triatlón</option>
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="w-4 h-4 text-[#8D9B6A]" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fecha */}
+                <div>
+                  <label className="block text-sm font-medium text-[#5C6744] mb-2">Fecha</label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      name="date"
+                      value={filters.date}
+                      onChange={handleFilterChange}
+                      className="w-full py-3 px-4 border-2 border-[#CCD5AE] rounded-xl focus:ring-2 focus:ring-[#8D9B6A] focus:border-[#8D9B6A] transition-all"
+                    />
+                    <FaCalendarAlt className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8D9B6A]" />
+                  </div>
                 </div>
               </div>
-              {registration.raceId && (
-                <div className="px-6 py-4 bg-gray-50 border-t">
-                  <Link
-                    to={`/races/${registration.raceId._id}`}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    Ver detalles de la carrera →
-                  </Link>
-                </div>
-              )}
-            </div>
-          ))}
+            </form>
+          </div>
+
+          {/* Lista de participaciones con animaciones */}
+          <motion.div
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+            initial="hidden"
+            animate="show"
+            className="space-y-6"
+          >
+            {registrations.map((registration, index) => (
+              <motion.div
+                key={registration._id}
+                variants={{
+                  hidden: { opacity: 0, x: -20 },
+                  show: { opacity: 1, x: 0 }
+                }}
+              >
+                <motion.div
+                  whileHover={{ scale: 1.01 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden"
+                >
+                  <div className="p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-grow">
+                        <div className="flex items-center mb-4">
+                          {getStatusBadge(registration.status)}
+                          <span className="ml-3 text-sm text-[#8D9B6A] bg-[#F3E9D9] px-3 py-1 rounded-full">
+                            Dorsal: {registration.dorsal || 'No asignado'}
+                          </span>
+                        </div>
+                        <h3 className="text-xl font-bold text-[#5C6744] mb-3 group-hover:text-[#8D9B6A] transition-colors">
+                          {registration.race.name}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <p className="text-[#8D9B6A] flex items-center">
+                              <FaCalendarAlt className="mr-2" />
+                              {new Date(registration.race.date).toLocaleDateString('es-ES', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </p>
+                            <p className="text-gray-600 flex items-center">
+                              <FaMapMarkerAlt className="mr-2 text-[#D4A373]" />
+                              {registration.race.location}
+                            </p>
+                          </div>
+                          {(registration.time || registration.position) && (
+                            <div className="space-y-2">
+                              {registration.time && (
+                                <p className="text-gray-600 flex items-center">
+                                  <FaClock className="mr-2 text-[#D4A373]" />
+                                  Tiempo: {registration.time}
+                                </p>
+                              )}
+                              {registration.position && (
+                                <p className="text-gray-600 flex items-center">
+                                  <FaMedal className="mr-2 text-[#D4A373]" />
+                                  Posición: {registration.position}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleViewRaceDetails(registration.race._id)}
+                        className="flex items-center px-6 py-3 text-white bg-[#8D9B6A] rounded-xl hover:bg-[#7A8759] transition-all duration-300 shadow-sm hover:shadow group-hover:scale-105"
+                      >
+                        <FaEye className="mr-2" />
+                        Ver detalles
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Mensaje de no participaciones con animación */}
+          {registrations.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-12"
+            >
+              <p className="text-gray-600 text-lg">
+                Aún no te has inscrito en ninguna carrera
+              </p>
+            </motion.div>
+          )}
         </div>
-      )}
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }

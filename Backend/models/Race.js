@@ -46,6 +46,10 @@ const raceSchema = mongoose.Schema({
     lastCSVUpdate: {
         type: Date,
         default: null
+    },
+    coordinates: {
+        type: [Number], // [latitud, longitud]
+        default: [40.4168, -3.7038] // Coordenadas por defecto (Madrid)
     }
 });
 
