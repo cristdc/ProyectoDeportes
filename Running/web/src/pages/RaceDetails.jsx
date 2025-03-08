@@ -25,6 +25,8 @@ import { MapContainer, TileLayer, Polyline, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
 import { apiService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { PuffLoader } from 'react-spinners';
 
 // Coordenadas por defecto (Madrid)
 const DEFAULT_COORDINATES = [40.4168, -3.7038];
@@ -247,11 +249,8 @@ export default function RaceDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#FAF6F1] to-white flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8D9B6A]"></div>
-          <div className="text-xl text-[#5C6744]">Cargando detalles de la carrera...</div>
-        </div>
+      <div className="min-h-screen bg-[#FAF6F1] flex items-center justify-center">
+        <PuffLoader color="#8D9B6A" size={60} />
       </div>
     );
   }
@@ -309,10 +308,19 @@ export default function RaceDetails() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FAF6F1] to-white py-8">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen bg-gradient-to-b from-[#FAF6F1] to-white py-8"
+    >
       <div className="max-w-7xl mx-auto px-4">
-        {/* Header con información principal */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8"
+        >
           <div className="bg-gradient-to-r from-[#8D9B6A] via-[#CCD5AE] to-[#D4A373] px-8 py-12 relative">
             <div className="absolute inset-0 bg-black/10"></div>
             <div className="relative">
@@ -324,7 +332,12 @@ export default function RaceDetails() {
             </div>
           </div>
           
-          <div className="p-8">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="p-8"
+          >
             {/* Estado de la carrera */}
             <div className="mb-8">
               <div className={`inline-flex items-center px-6 py-3 rounded-full font-medium text-lg
@@ -341,7 +354,12 @@ export default function RaceDetails() {
             </div>
 
             {/* Grid de detalles */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
+            >
               <div className="bg-[#FAEDCD]/30 rounded-2xl p-6 transform hover:scale-105 transition-transform">
                 <div className="flex items-center text-[#D4A373] mb-3">
                   <FaCalendarAlt className="text-2xl mr-3" />
@@ -397,7 +415,7 @@ export default function RaceDetails() {
                 </div>
                 <p className="text-gray-700 text-lg">{race.category || 'General'}</p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Mensajes de estado */}
             {message && (
@@ -412,16 +430,28 @@ export default function RaceDetails() {
             )}
 
             {/* Botón de inscripción */}
-            {race.status === 'open' && (
-              <div className="max-w-4xl mx-auto px-4 mt-8">
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+              className="mt-8"
+            >
+              <div className="max-w-4xl mx-auto px-4">
                 {renderRegistrationButton()}
               </div>
-            )}
-          </div>
-        </div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
 
         {/* Renderizar el mapa */}
-        {renderMap()}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 1, duration: 0.5 }}
+          className="bg-white rounded-2xl shadow-lg p-6"
+        >
+          {renderMap()}
+        </motion.div>
 
         {/* Descripción */}
         {race.description && (
@@ -436,6 +466,6 @@ export default function RaceDetails() {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 } 
