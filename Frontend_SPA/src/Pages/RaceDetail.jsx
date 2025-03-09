@@ -110,7 +110,7 @@ const RaceDetail = () => {
               {/* Botones de acción */}
               <div className="flex flex-wrap w-full sm:w-auto gap-2 sm:gap-3">
                 <Link
-                  to={`/admin/registations/${id}`}
+                  to={`/admin/registrations/${id}`}
                   className="flex-1 sm:flex-none px-4 py-2 bg-[#9b9d79] text-white rounded-lg hover:bg-[#6b6d54] transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <svg
