@@ -334,6 +334,7 @@ export const apiService = {
   },
 
   toggleRaceRegistration: async (raceId) => {
+    //Comentario de control
     try {
       const data = await fetchWithAuth(`/registrations/${raceId}`, {
         method: 'POST'
