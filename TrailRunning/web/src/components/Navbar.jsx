@@ -20,25 +20,23 @@ const Navbar = ( { user } ) => {
         {/* Logo */}
         <a href="/trailRunning/home">
           <div className="flex transition-all duration-300 hover:opacity-80">
-            
-            <img 
-            src="../../img/logo.png" 
-            alt="Logo Trail" 
-            className="h-12 mr-[-30px]"
+            <img
+              src="/public/img/logo.png"
+              alt="Logo Trail"
+              className="h-12 mr-[-30px]"
             />
-            <img 
-            src="../../img/nombre.png" 
-            alt="Logo Trail" 
-            className="h-12"
+            <img
+              src="/public/img/nombre.png"
+              alt="Logo Trail"
+              className="h-12"
             />
           </div>
         </a>
 
-        <div className="hidden sm:flex flex-1 justify-center">
-        </div>
+        <div className="hidden sm:flex flex-1 justify-center"></div>
 
         {/* Botón Hamburguesa en pantallas menores a 480px */}
-        <button 
+        <button
           className="sm:hidden text-text hover:text-accent transition-all duration-300"
           onClick={() => setIsOpen(!isOpen)}
         >
@@ -47,39 +45,68 @@ const Navbar = ( { user } ) => {
 
         {/* Menú en pantallas grandes (480px en adelante) */}
         <div className="hidden sm:flex space-x-3 ">
-          <Link to="/trailRunning/user" className="text-text hover:text-accent transition-all duration-300">
+          <Link
+            to="/trailRunning/user"
+            className="text-text hover:text-accent transition-all duration-300"
+          >
             {user ? user.name : ""}
           </Link>
           {user ? (
             <>
-            <Link to="/trailRunning/races" className="pr-3 text-text  hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
-            <Link to="/trailRunning/racesuser" className="pr-3 text-text  hover:text-accent transition-all duration-300">Historial de Carreras</Link>
-            <button
-              onClick={handleLogout}
-              className="text-text hover:text-accent transition-all duration-300"
-            >
-              Cerrar sesión
-            </button>
+              <Link
+                to="/trailRunning/races"
+                className="pr-3 text-text  hover:text-accent transition-all duration-300"
+              >
+                Carreras Disponibles
+              </Link>
+              <Link
+                to="/trailRunning/racesuser"
+                className="pr-3 text-text  hover:text-accent transition-all duration-300"
+              >
+                Historial de Carreras
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-text hover:text-accent transition-all duration-300"
+              >
+                Cerrar sesión
+              </button>
             </>
           ) : (
-            <Link to="/" className="text-text hover:text-accent transition-all duration-300">
+            <Link
+              to="/"
+              className="text-text hover:text-accent transition-all duration-300"
+            >
               Iniciar Sesion
             </Link>
           )}
         </div>
       </div>
 
-      <div 
+      <div
         className={`sm:hidden flex flex-col bg-background text-white py-3 space-y-2 
         transition-all duration-300 ${isOpen ? "block" : "hidden"}`}
       >
-        <Link to="/trailRunning/user" className="text-text text-center hover:text-accent transition-all duration-300">
-            {user ? user.name : ""}
-          </Link>
-          {user ? (
-            <>
-            <Link to="/trailRunning/races" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Carreras Disponibles</Link>
-            <Link to="/trailRunning/racesuser" className="pr-3 text-text text-center hover:text-accent transition-all duration-300">Historial de Carreras</Link>
+        <Link
+          to="/trailRunning/user"
+          className="text-text text-center hover:text-accent transition-all duration-300"
+        >
+          {user ? user.name : ""}
+        </Link>
+        {user ? (
+          <>
+            <Link
+              to="/trailRunning/races"
+              className="pr-3 text-text text-center hover:text-accent transition-all duration-300"
+            >
+              Carreras Disponibles
+            </Link>
+            <Link
+              to="/trailRunning/racesuser"
+              className="pr-3 text-text text-center hover:text-accent transition-all duration-300"
+            >
+              Historial de Carreras
+            </Link>
 
             <button
               onClick={async () => logout()}
@@ -87,12 +114,15 @@ const Navbar = ( { user } ) => {
             >
               Cerrar sesión
             </button>
-            </>
-          ) : (
-            <Link to="/" className="text-text text-center hover:text-accent transition-all duration-300">
-              Iniciar Sesion
-            </Link>
-          )}
+          </>
+        ) : (
+          <Link
+            to="/"
+            className="text-text text-center hover:text-accent transition-all duration-300"
+          >
+            Iniciar Sesion
+          </Link>
+        )}
       </div>
     </>
   );

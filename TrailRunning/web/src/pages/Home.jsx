@@ -39,7 +39,7 @@ const Home = () => {
   return (
     <div className="flex flex-col md:flex-row h-auto min-h-screen">
       {/* Sección de imagen y cita - adaptativo para móvil */}
-      <div className="w-full md:w-1/2 h-64 md:h-auto bg-[url('img/mountain.jpg')] bg-cover bg-center flex items-center justify-center text-center p-6">
+      <div className="w-full md:w-1/2 h-64 md:h-auto bg-[url('/public/img/mountain.jpg')] bg-cover bg-center flex items-center justify-center text-center p-6">
         <h3 className="text-white text-2xl md:text-3xl lg:text-4xl font-bold drop-shadow-lg italic">
           "El dolor es temporal, <br /> pero la satisfacción es para siempre."
         </h3>
