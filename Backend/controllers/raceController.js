@@ -1153,7 +1153,7 @@ const uploadResultsCSV = async (req, res) => {
     }
 
     // Verificar que todas las columnas necesarias existen
-    const requiredColumns = ["email", "dorsal", "tiempo"];
+    const requiredColumns = ["email", "nombre", "dorsal", "tiempo"];
     const missingColumns = requiredColumns.filter(
       (col) => !csvData.meta.fields.includes(col)
     );

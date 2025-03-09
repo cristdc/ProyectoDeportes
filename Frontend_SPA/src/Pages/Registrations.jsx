@@ -125,7 +125,8 @@ const RaceRegistrations = () => {
   // Función para volver atrás
   const handleGoBack = () => {
     navigate(-1); // Esto navega a la página anterior en el historial
-  };
+    };
+    
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Botón Volver */}

@@ -24,13 +24,13 @@ const UploadResults = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
-      setError('Por favor, selecciona un archivo CSV');
+      setError("Por favor, selecciona un archivo CSV");
       return;
     }
 
     setLoading(true);
     const formData = new FormData();
-    formData.append('results', file);
+    formData.append("file", file); 
 
     try {
       const headers = {};
@@ -40,8 +40,9 @@ const UploadResults = () => {
         headers["Authorization"] = `Bearer ${storedToken}`;
       }
 
+      
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/races/${id}/results`,
+        `${import.meta.env.VITE_BACKEND_URL}/races/${id}/results-csv`,
         {
           method: "POST",
           credentials: "include",
@@ -51,11 +52,13 @@ const UploadResults = () => {
       );
 
       if (!response.ok) {
-        throw new Error('Error al subir los resultados');
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al subir los resultados");
       }
 
       navigate(`/admin/races/${id}`);
     } catch (err) {
+      console.error("Error completo:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -92,7 +95,7 @@ const UploadResults = () => {
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9b9d79] focus:border-transparent"
             />
             <p className="mt-2 text-sm text-gray-500">
-              El archivo debe ser un CSV con las columnas: posición, dorsal, tiempo, etc.
+              El archivo debe ser un CSV con las columnas: email, dorsal, tiempo.
             </p>
           </div>
 
@@ -101,10 +104,14 @@ const UploadResults = () => {
               type="submit"
               disabled={loading || !file}
               className={`flex-1 bg-[#9b9d79] text-white py-2 px-4 rounded-lg 
-                ${loading || !file ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#6b6d54]'}
+                ${
+                  loading || !file
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#6b6d54]"
+                }
                 transition-all duration-300`}
             >
-              {loading ? 'Subiendo...' : 'Subir Resultados'}
+              {loading ? "Subiendo..." : "Subir Resultados"}
             </button>
             <button
               type="button"
