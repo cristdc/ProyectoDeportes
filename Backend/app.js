@@ -11,7 +11,7 @@ import adminRoutes from "./routes/adminRoutes.js";
 import raceRoutes from "./routes/raceRoutes.js";
 import registrationRoutes from "./routes/registrationRoutes.js";
 import fileRoutes from "./routes/fileRoutes.js";
-import downloadRoutes from "./routes/download.js";
+import downloadRoutes from "./routes/downloadRoutes.js";
 
 dotenv.config();
 
@@ -38,11 +38,8 @@ app.use("/api/races", raceRoutes);
 app.use("/api/registrations", registrationRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/download", downloadRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/races', raceRoutes);
 app.use('/api/registrations', registrationRoutes);
-app.use('/api/files', fileRoutes);
+
 
 
 app.get("/api/test-cookies", (req, res) => {

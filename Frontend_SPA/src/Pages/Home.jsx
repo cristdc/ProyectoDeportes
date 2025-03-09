@@ -101,7 +101,7 @@ const Home = () => {
 
       const toastId = toast.loading(`Preparando la descarga de ${fileName}...`);
       
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download/${fileName}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download/exe/${fileName}`);
 
       if (!response.ok) {
         throw new Error(`Error al descargar ${fileName}: ${response.statusText}`);
@@ -150,7 +150,7 @@ const Home = () => {
 
       const toastId = toast.loading(`Preparando la descarga de ${fileName}...`);
       
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download/${fileName}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download/apk/${fileName}`);
 
       if (!response.ok) {
         throw new Error(`Error al descargar ${fileName}: ${response.statusText}`);
