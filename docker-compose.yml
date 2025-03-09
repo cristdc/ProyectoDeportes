@@ -66,6 +66,21 @@ services:
       - ./nginx/frontendRunning.conf:/etc/nginx/conf.d/default.conf
     networks:
       - deportes_network
+      
+  frontend-cycling:
+    build:
+      context: ./Cycling/web
+      dockerfile: Dockerfile
+    container_name: frontend-cycling
+    depends_on:
+      - app
+    restart: always
+    ports:
+      - "8083:80"
+    volumes:
+      - ./nginx/frontendCycling.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - deportes_network
 
   mongo-express:
     image: mongo-express
