@@ -1,14 +1,21 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // Deberás crear este contexto
+import { Navigate, useLocation } from "react-router-dom"; // Añadir useLocation
+import { useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
+  const location = useLocation(); // Obtener la ubicación actual
 
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-    }
+  // Determinar si estamos en la ruta con prefijo /cycling
+  const isCyclingRoute = location.pathname.startsWith("/cycling");
 
-    return children;
+  if (!isAuthenticated) {
+    // Redirigir a /login o /cycling/login según corresponda
+    return (
+      <Navigate to={isCyclingRoute ? "/cycling/login" : "/login"} replace />
+    );
+  }
+
+  return children;
 };
 
-export default ProtectedRoute; 
+export default ProtectedRoute;

@@ -12,9 +12,11 @@ const Login = () => {
     e.preventDefault();
     const success = await login({ email, password });
     if (success) {
-      navigate("/");
+      navigate(
+        window.location.pathname.startsWith("/cycling") ? "/cycling" : "/"
+      );
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fdf7ed]">
