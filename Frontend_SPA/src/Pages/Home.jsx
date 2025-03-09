@@ -101,7 +101,7 @@ const Home = () => {
 
       const toastId = toast.loading(`Preparando la descarga de ${fileName}...`);
       
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download/exe/${fileName}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/${fileName}`);
 
       if (!response.ok) {
         throw new Error(`Error al descargar ${fileName}: ${response.statusText}`);
@@ -142,7 +142,7 @@ const Home = () => {
           fileName = "Running.apk";
           break;
         case "trail":
-          fileName = "Running.apk"; // Usando el mismo que running para trail
+          fileName = "Running.apk"; 
           break;
         default:
           throw new Error("Tipo de deporte no válido");
@@ -150,7 +150,7 @@ const Home = () => {
 
       const toastId = toast.loading(`Preparando la descarga de ${fileName}...`);
       
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download/apk/${fileName}`);
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/${fileName}`);
 
       if (!response.ok) {
         throw new Error(`Error al descargar ${fileName}: ${response.statusText}`);
