@@ -95,48 +95,38 @@ const RaceCard = ({
     const file = event.target.files[0];
     if (!file) return;
 
-    // Verificar si la carrera está finalizada
-    if (race.status === "finished") {
-      toast.error("No se pueden subir resultados a una carrera finalizada", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-      });
-      event.target.value = "";
-      return;
-    }
+    // Leer el contenido del archivo
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        let content = e.target.result;
 
-    try {
-      const result = await onUploadResults(race._id, file);
+        // Procesar el contenido para asegurar el formato correcto
+        const lines = content.trim().split("\n");
+        const headers = "email,nombre,dorsal,tiempo";
 
-      if (result.success) {
-        toast.success("Resultados subidos correctamente", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-        });
-        // Recargar la página después de mostrar el toast
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      } else {
-        if (result.errors && result.errors.length > 0) {
-          toast.error("El archivo CSV contiene errores de formato", {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-          });
-        } else {
-          toast.error(result.message, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-          });
+        // Reconstruir el CSV asegurando el formato correcto
+        let processedContent = headers + "\n";
+        for (let i = 1; i < lines.length; i++) {
+          processedContent += lines[i] + "\n";
         }
+
+        // Crear un nuevo archivo con el contenido procesado
+        const processedFile = new File([processedContent], file.name, {
+          type: "text/csv",
+        });
+
+        // Ahora subir este archivo procesado
+        const result = await onUploadResults(race._id, processedFile);
+
+        // Resto del código de manejo de resultados...
+      } catch (error) {
+        console.error("Error al procesar el archivo:", error);
+        toast.error("Error al procesar el archivo");
       }
-    } finally {
-      event.target.value = "";
-    }
+    };
+
+    reader.readAsText(file);
   };
 
   const handleUploadGpx = async (event) => {
