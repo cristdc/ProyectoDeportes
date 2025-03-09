@@ -1,3 +1,5 @@
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import carrera1 from "../assets/carrera1.png";
 import carrera2 from "../assets/carrera2.png";
 import carrera3 from "../assets/carrera3.png";
@@ -5,6 +7,7 @@ import logo from "../assets/logo.png";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -93,15 +96,16 @@ const Home = () => {
           fileName = "Management.exe";
           break;
         default:
-          fileName = "Cycling.exe";
+          throw new Error("Tipo de deporte no válido");
       }
 
-      toast.loading(`Preparando la descarga de ${fileName}...`);
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/download/${fileName}`
-      );
+      const toastId = toast.loading(`Preparando la descarga de ${fileName}...`);
+      
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download/${fileName}`);
 
-      if (!response.ok) throw new Error(`Error al descargar ${fileName}`);
+      if (!response.ok) {
+        throw new Error(`Error al descargar ${fileName}: ${response.statusText}`);
+      }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -112,7 +116,13 @@ const Home = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success(`¡${fileName} descargado correctamente!`);
+      
+      toast.update(toastId, {
+        render: `¡${fileName} descargado correctamente!`,
+        type: "success",
+        isLoading: false,
+        autoClose: 3000
+      });
     } catch (error) {
       console.error("Error:", error);
       toast.error(`Error al descargar el archivo: ${error.message}`);
@@ -132,19 +142,19 @@ const Home = () => {
           fileName = "Running.apk";
           break;
         case "trail":
-          // Si no hay un archivo específico para trail, podemos usar uno genérico o el de running
-          fileName = "Running.apk"; // o "TrailRunning.apk" si existe
+          fileName = "Running.apk"; // Usando el mismo que running para trail
           break;
         default:
-          fileName = "Cycling.apk";
+          throw new Error("Tipo de deporte no válido");
       }
 
-      toast.loading(`Preparando la descarga de ${fileName}...`);
-      const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/download/${fileName}`
-      );
+      const toastId = toast.loading(`Preparando la descarga de ${fileName}...`);
+      
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/download/${fileName}`);
 
-      if (!response.ok) throw new Error(`Error al descargar ${fileName}`);
+      if (!response.ok) {
+        throw new Error(`Error al descargar ${fileName}: ${response.statusText}`);
+      }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -155,7 +165,13 @@ const Home = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      toast.success(`¡${fileName} descargado correctamente!`);
+      
+      toast.update(toastId, {
+        render: `¡${fileName} descargado correctamente!`,
+        type: "success",
+        isLoading: false,
+        autoClose: 3000
+      });
     } catch (error) {
       console.error("Error:", error);
       toast.error(`Error al descargar el archivo: ${error.message}`);
@@ -192,6 +208,20 @@ const Home = () => {
 
   return (
     <div className="flex flex-col w-full relative">
+      {/* Añadir ToastContainer para las notificaciones */}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme={isDark ? "dark" : "light"}
+      />
+
       {/* Botón de tema */}
       <button
         onClick={toggleTheme}
