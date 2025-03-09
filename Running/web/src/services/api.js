@@ -335,7 +335,7 @@ export const apiService = {
 
   toggleRaceRegistration: async (raceId) => {
     try {
-      const data = await fetchWithAuth(`/registrations/toggle/${raceId}`, {
+      const data = await fetchWithAuth(`/registrations/${raceId}`, {
         method: 'POST'
       });
       return data;
