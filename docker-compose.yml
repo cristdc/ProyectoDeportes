@@ -82,6 +82,21 @@ services:
     networks:
       - deportes_network
 
+  frontend-trailRunning:
+    build:
+      context: ./TrailRunning/web
+      dockerfile: Dockerfile
+    container_name: frontend-trailRunning
+    depends_on:
+      - app
+    restart: always
+    ports:
+      - "8084:80"
+    volumes:
+      - ./nginx/frontendTrailRunning.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - deportes_network
+
   mongo-express:
     image: mongo-express
     container_name: mongo-express
