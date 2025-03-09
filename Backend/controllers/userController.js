@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Race from "../models/Race.js";
 import User from "../models/User.js";
-import { sendWelcomeEmail } from "../utils/email.js";
+import { sendWelcomeEmail } from "../config/email.js";
 
 // Validar formato de ID de MongoDB
 const isValidObjectId = (id) => {
