@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-
+import UserAvatar from "./UserAvatar"; // Importamos el componente UserAvatar
 import { toast } from "sonner";
 import { useAuth } from "../hooks/useAuth";
 
@@ -98,29 +98,9 @@ const UserCard = ({ user, onDelete, onChangeRole }) => {
       {/* Contenido del usuario */}
       <div className="p-6">
         <div className="flex items-center space-x-4">
-          {/* Avatar */}
-          <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-            {user.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              <svg
-                className="w-8 h-8 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            )}
+          {/* Avatar con el nuevo componente */}
+          <div className="w-16 h-16 rounded-full overflow-hidden">
+            <UserAvatar user={user} />
           </div>
 
           {/* Información del usuario */}

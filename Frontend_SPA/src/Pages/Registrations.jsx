@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useRegistration } from "../Context/RegistrationContext";
+import { useRace } from "../Context/RaceContext"; // Importamos el contexto de carrera para obtener el máximo de participantes
 import { toast } from "sonner";
 
 const RaceRegistrations = () => {
@@ -13,6 +14,8 @@ const RaceRegistrations = () => {
     updateRegistration,
     cancelRegistration,
   } = useRegistration();
+  const { getRaceById } = useRace(); // Para obtener los detalles de la carrera
+  const [raceDetails, setRaceDetails] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({
@@ -25,6 +28,20 @@ const RaceRegistrations = () => {
     time: "",
     position: "",
   });
+
+  // Cargar detalles de la carrera
+  useEffect(() => {
+    const loadRaceDetails = async () => {
+      try {
+        const raceData = await getRaceById(id);
+        setRaceDetails(raceData);
+      } catch (error) {
+        console.error("Error al cargar detalles de la carrera:", error);
+      }
+    };
+
+    loadRaceDetails();
+  }, [id, getRaceById]);
 
   const fetchRegistrations = async () => {
     try {
@@ -53,31 +70,75 @@ const RaceRegistrations = () => {
 
   const handleUpdateTime = async (registrationId, time, position) => {
     try {
+      // Validar el formato del tiempo
+      if (
+        time &&
+        !/^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/.test(time)
+      ) {
+        toast.error("El formato del tiempo debe ser HH:MM:SS");
+        return;
+      }
+
+      // Validar que la posición sea un número positivo
+      if (position && (isNaN(position) || parseInt(position) <= 0)) {
+        toast.error("La posición debe ser un número positivo");
+        return;
+      }
+
+      // Convertir position a número para comparaciones
+      const positionNum = parseInt(position);
+
+      // Validar que la posición no exceda el máximo de participantes
+      if (raceDetails && positionNum > raceDetails.maxParticipants) {
+        toast.error(
+          `La posición no puede exceder el máximo de participantes (${raceDetails.maxParticipants})`
+        );
+        return;
+      }
+
+      // Validar que la posición sea única
+      const existingPosition = registrations.find(
+        (reg) =>
+          reg._id !== registrationId &&
+          reg.position === positionNum &&
+          reg.status === "finished"
+      );
+
+      if (existingPosition) {
+        toast.error(
+          `La posición ${positionNum} ya está asignada a otro participante`
+        );
+        return;
+      }
+
+      // Llamar al método de actualización
       await updateRegistrationTime(registrationId, time, position, id);
-      toast.success("Tiempo actualizado correctamente", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-      });
-      // Recargar los datos de la tabla
-      await getRaceRegistrations(id, currentPage);
+
+      // Mostrar notificación de éxito
+      toast.success("Tiempo actualizado correctamente");
+
+      // Importante: cerrar el modo de edición
+      setEditingId(null);
+
+      // Recargar los datos
+      await fetchRegistrations();
     } catch (error) {
-      toast.error(error.message || "Error al actualizar el tiempo", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-      });
+      toast.error(error.message || "Error al actualizar el tiempo");
     }
   };
 
   const handleCancelRegistration = async (registrationId) => {
-    try {
-      await cancelRegistration(registrationId);
-      toast.success("Inscripción cancelada exitosamente");
-      // Recargar los datos
-      await getRaceRegistrations(id, currentPage);
-    } catch (error) {
-      toast.error(error.message);
+    if (
+      window.confirm("¿Estás seguro de que deseas cancelar esta inscripción?")
+    ) {
+      try {
+        await cancelRegistration(registrationId);
+        toast.success("Inscripción cancelada exitosamente");
+        // Recargar los datos
+        await fetchRegistrations();
+      } catch (error) {
+        toast.error(error.message || "Error al cancelar la inscripción");
+      }
     }
   };
 
@@ -151,6 +212,7 @@ const RaceRegistrations = () => {
                           }
                           className="border rounded px-2 py-1"
                           placeholder="HH:mm:ss"
+                          pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}"
                         />
                       ) : (
                         registration.time || "-"
@@ -168,6 +230,8 @@ const RaceRegistrations = () => {
                             })
                           }
                           className="border rounded px-2 py-1 w-20"
+                          min="1"
+                          max={raceDetails?.maxParticipants || 9999}
                         />
                       ) : (
                         registration.position || "-"
