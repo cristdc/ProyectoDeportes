@@ -12,6 +12,10 @@ const allowedOrigins = [
   "https://alb-deportes-332363768.us-east-1.elb.amazonaws.com",
   "http://35.153.250.116",
   "https://35.153.250.116",
+  "http://alb-deportes-332363768.us-east-1.elb.amazonaws.com/running/",
+  "https://alb-deportes-332363768.us-east-1.elb.amazonaws.com/running/",
+  "http://35.153.250.116/running/",
+  "https://35.153.250.116/running/",
 ];
 
 // En cors.js
