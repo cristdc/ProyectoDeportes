@@ -142,7 +142,7 @@ const Home = () => {
           fileName = "Running.apk";
           break;
         case "trail":
-          fileName = "Running.apk"; 
+          fileName = "TrailRunning.apk"; 
           break;
         default:
           throw new Error("Tipo de deporte no válido");
