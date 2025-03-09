@@ -82,11 +82,11 @@ services:
     networks:
       - deportes_network
 
-  frontend-trailRunning:
+  frontend-trailrunning:
     build:
       context: ./TrailRunning/web
       dockerfile: Dockerfile
-    container_name: frontend-trailRunning
+    container_name: frontend-trailrunning
     depends_on:
       - app
     restart: always
