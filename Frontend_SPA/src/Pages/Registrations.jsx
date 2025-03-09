@@ -70,7 +70,7 @@ const RaceRegistrations = () => {
 
   const handleUpdateTime = async (registrationId, time, position) => {
     try {
-      // Validar el formato del tiempo
+      // Validaciones
       if (
         time &&
         !/^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/.test(time)
@@ -79,49 +79,21 @@ const RaceRegistrations = () => {
         return;
       }
 
-      // Validar que la posición sea un número positivo
       if (position && (isNaN(position) || parseInt(position) <= 0)) {
         toast.error("La posición debe ser un número positivo");
         return;
       }
 
-      // Convertir position a número para comparaciones
-      const positionNum = parseInt(position);
-
-      // Validar que la posición no exceda el máximo de participantes
-      if (raceDetails && positionNum > raceDetails.maxParticipants) {
-        toast.error(
-          `La posición no puede exceder el máximo de participantes (${raceDetails.maxParticipants})`
-        );
-        return;
-      }
-
-      // Validar que la posición sea única
-      const existingPosition = registrations.find(
-        (reg) =>
-          reg._id !== registrationId &&
-          reg.position === positionNum &&
-          reg.status === "finished"
-      );
-
-      if (existingPosition) {
-        toast.error(
-          `La posición ${positionNum} ya está asignada a otro participante`
-        );
-        return;
-      }
-
-      // Llamar al método de actualización
-      await updateRegistrationTime(registrationId, time, position, id);
-
-      // Mostrar notificación de éxito
-      toast.success("Tiempo actualizado correctamente");
-
-      // Importante: cerrar el modo de edición
+      // Desactiva el modo de edición antes de la actualización
       setEditingId(null);
 
-      // Recargar los datos
-      await fetchRegistrations();
+      // Llama a la función sin actualizar el estado de la carrera
+      await updateRegistrationTime(registrationId, time, position, id, false);
+
+      toast.success("Tiempo actualizado correctamente");
+
+      // No necesitamos recargar los datos completos porque ya actualizamos el estado local
+      // await fetchRegistrations();
     } catch (error) {
       toast.error(error.message || "Error al actualizar el tiempo");
     }

@@ -43,22 +43,28 @@ export const RegistrationProvider = ({ children }) => {
     registrationId,
     time,
     position,
-    raceId
+    raceId,
+    updateRaceStatus = false // Añadimos un parámetro opcional
   ) => {
     try {
-      // 1. Primero actualizamos el estado de la carrera a "finished"
-      const raceResponse = await apiRequest(`${BACKEND_URL}/races/${raceId}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          status: "finished",
-        }),
-      });
+      // Solo actualizamos el estado de la carrera si explícitamente se solicita
+      if (updateRaceStatus) {
+        const raceResponse = await apiRequest(
+          `${BACKEND_URL}/races/${raceId}`,
+          {
+            method: "PUT",
+            body: JSON.stringify({
+              status: "finished",
+            }),
+          }
+        );
 
-      if (!raceResponse.ok) {
-        throw new Error("Error al actualizar el estado de la carrera");
+        if (!raceResponse.ok) {
+          throw new Error("Error al actualizar el estado de la carrera");
+        }
       }
 
-      // 2. Ahora actualizamos el tiempo de la inscripción
+      // Actualizamos el tiempo de la inscripción
       const timeResponse = await apiRequest(
         `${BACKEND_URL}/registrations/${registrationId}/time`,
         {
@@ -76,13 +82,22 @@ export const RegistrationProvider = ({ children }) => {
       }
 
       const updatedData = await timeResponse.json();
+
+      // Actualizamos el estado local para reflejar los cambios sin necesidad de recargar
+      setRegistrations((prevRegistrations) =>
+        prevRegistrations.map((reg) =>
+          reg._id === registrationId
+            ? { ...reg, time, position, status: "finished" }
+            : reg
+        )
+      );
+
       return updatedData;
     } catch (error) {
       console.error("Error al actualizar tiempo:", error);
       throw error;
     }
   };
-
   // Actualizar una inscripción (cualquier campo)
   const updateRegistration = async (registrationId, registrationData) => {
     try {
