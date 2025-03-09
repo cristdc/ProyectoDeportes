@@ -100,10 +100,6 @@ const HomeAdmin = () => {
 
   const handleDownloadCSV = async (raceId) => {
     try {
-      console.log(
-        "URL de descarga CSV:",
-        `${import.meta.env.VITE_BACKEND_URL}/races/${raceId}/runners-csv`
-      );
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/races/${raceId}/runners-csv`,
         

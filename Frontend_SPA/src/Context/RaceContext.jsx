@@ -32,25 +32,37 @@ export const RaceProvider = ({ children }) => {
     }
   };
 
-  const editRace = async (raceId, raceData) => {
-    try {
-      setLoading(true);
-      setError(null);
+  const editRace = async (id, data) => {
+    setLoading(true);
 
-      const response = await apiRequest(`${BACKEND_URL}/races/${raceId}`, {
-        method: "PUT",
-        body: JSON.stringify(raceData),
-      });
+    try {
+      console.log("Datos que se envían al servidor:", data);
+
+      const response = await apiRequest(
+        `${import.meta.env.VITE_BACKEND_URL}/races/${id}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(data),
+        }
+      );
+
+      const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error("Error al editar la carrera");
+        console.error("Error del servidor:", responseData);
+        throw new Error(responseData.message || "Error al editar la carrera");
       }
 
-      const updatedRace = await response.json();
-      return updatedRace;
-    } catch (err) {
-      setError(err.message);
-      throw err;
+      setRaces((prevRaces) =>
+        prevRaces.map((race) =>
+          race._id === id ? { ...race, ...responseData.race } : race
+        )
+      );
+
+      return responseData.race;
+    } catch (error) {
+      console.error("Error completo:", error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -121,55 +133,57 @@ export const RaceProvider = ({ children }) => {
   };
 
   const uploadResults = async (raceId, file) => {
-  try {
-    setLoading(true);
-    setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-    const formData = new FormData();
-    formData.append("file", file);
+      const formData = new FormData();
+      formData.append("file", file);
 
-    // Para FormData no configuramos Content-Type, el navegador lo establece automáticamente
-    const headers = {};
-    
-    // Añadir token si existe
-    const storedToken = localStorage.getItem('authToken');
-    if (storedToken) {
-      headers['Authorization'] = `Bearer ${storedToken}`;
-    }
-    
-    const response = await fetch(`${BACKEND_URL}/races/${raceId}/results-csv`, {
-      method: "POST",
-      credentials: "include",
-      headers,
-      body: formData,
-    });
+      // Para FormData no configuramos Content-Type, el navegador lo establece automáticamente
+      const headers = {};
 
-    const data = await response.json();
-    console.log("Respuesta del servidor:", data);
+      // Añadir token si existe
+      const storedToken = localStorage.getItem("authToken");
+      if (storedToken) {
+        headers["Authorization"] = `Bearer ${storedToken}`;
+      }
 
-    if (!response.ok) {
+      const response = await fetch(
+        `${BACKEND_URL}/races/${raceId}/results-csv`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers,
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      console.log("Respuesta del servidor:", data);
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message,
+          errors: data.errors || [],
+        };
+      }
+
+      return {
+        success: true,
+        data,
+      };
+    } catch (err) {
       return {
         success: false,
-        message: data.message,
-        errors: data.errors || [],
+        message: "Error al subir los resultados",
+        errors: [],
       };
+    } finally {
+      setLoading(false);
     }
-
-    return {
-      success: true,
-      data,
-    };
-  } catch (err) {
-    return {
-      success: false,
-      message: "Error al subir los resultados",
-      errors: [],
-    };
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const createRace = async (raceData) => {
     try {
@@ -243,61 +257,61 @@ export const RaceProvider = ({ children }) => {
   };
 
   const uploadRaceGpx = async (raceId, file) => {
-  try {
-    // Verificar solo la extensión del archivo
-    if (!file.name.toLowerCase().endsWith(".gpx")) {
-      throw new Error("El archivo debe tener extensión .gpx");
-    }
-
-    // Crear un nuevo Blob con el tipo MIME correcto
-    const gpxBlob = new Blob([file], {
-      type: "application/gpx+xml",
-    });
-
-    // Crear un nuevo File con el tipo MIME correcto
-    const gpxFile = new File([gpxBlob], file.name, {
-      type: "application/gpx+xml",
-    });
-
-    const formData = new FormData();
-    formData.append("gpxFile", gpxFile);
-
-    // Para FormData no configuramos Content-Type
-    const headers = {};
-    
-    // Añadir token si existe
-    const storedToken = localStorage.getItem('authToken');
-    if (storedToken) {
-      headers['Authorization'] = `Bearer ${storedToken}`;
-    }
-    
-    const response = await fetch(`${BACKEND_URL}/races/${raceId}/gpx`, {
-      method: "POST",
-      credentials: "include",
-      headers,
-      body: formData,
-    });
-
-    // Intentar obtener el mensaje de error incluso si la respuesta no es ok
-    let data;
     try {
-      const textResponse = await response.text();
-      data = textResponse ? JSON.parse(textResponse) : {};
-    } catch (e) {
-      console.error("Error al parsear respuesta:", e);
-      data = { message: "Error al procesar la respuesta del servidor" };
-    }
+      // Verificar solo la extensión del archivo
+      if (!file.name.toLowerCase().endsWith(".gpx")) {
+        throw new Error("El archivo debe tener extensión .gpx");
+      }
 
-    if (!response.ok) {
-      throw new Error(data.message || "Error al subir el archivo GPX");
-    }
+      // Crear un nuevo Blob con el tipo MIME correcto
+      const gpxBlob = new Blob([file], {
+        type: "application/gpx+xml",
+      });
 
-    return data;
-  } catch (error) {
-    console.error("Error en uploadRaceGpx:", error);
-    throw error;
-  }
-};
+      // Crear un nuevo File con el tipo MIME correcto
+      const gpxFile = new File([gpxBlob], file.name, {
+        type: "application/gpx+xml",
+      });
+
+      const formData = new FormData();
+      formData.append("gpxFile", gpxFile);
+
+      // Para FormData no configuramos Content-Type
+      const headers = {};
+
+      // Añadir token si existe
+      const storedToken = localStorage.getItem("authToken");
+      if (storedToken) {
+        headers["Authorization"] = `Bearer ${storedToken}`;
+      }
+
+      const response = await fetch(`${BACKEND_URL}/races/${raceId}/gpx`, {
+        method: "POST",
+        credentials: "include",
+        headers,
+        body: formData,
+      });
+
+      // Intentar obtener el mensaje de error incluso si la respuesta no es ok
+      let data;
+      try {
+        const textResponse = await response.text();
+        data = textResponse ? JSON.parse(textResponse) : {};
+      } catch (e) {
+        console.error("Error al parsear respuesta:", e);
+        data = { message: "Error al procesar la respuesta del servidor" };
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Error al subir el archivo GPX");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error en uploadRaceGpx:", error);
+      throw error;
+    }
+  };
 
   const value = {
     races,
