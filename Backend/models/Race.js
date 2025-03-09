@@ -7,7 +7,7 @@ const raceSchema = mongoose.Schema({
     location: {type: String, required: true, trim: true},
     distance: {type: Number, required: true},
     maxParticipants: {type: Number, required: true},
-    unevenness: {type: Number,required: true},
+    unevenness: {type: Number, required: true},
     tour: {type: String, required: true},
     qualifyingTime: {type: String, required: true},
     classification: [{
@@ -16,9 +16,9 @@ const raceSchema = mongoose.Schema({
             required: true
         },
         mark: {
-            type: Number,
+            type: String,  
             required: true
-        }
+        },
     }],
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
@@ -28,7 +28,7 @@ const raceSchema = mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['open', 'closed', 'finished', 'deleted'],
+        enum: ['open', 'closed', 'finished', 'cancelled', 'deleted'], 
         default: 'open'
     },
     createdAt: {

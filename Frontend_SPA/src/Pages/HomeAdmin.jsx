@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 import { useAuth } from "../hooks/useAuth";
 import RaceCard from "../Components/RaceCard";
@@ -107,6 +108,22 @@ const HomeAdmin = () => {
       );
 
       if (!response.ok) {
+        // Si la respuesta no es exitosa, verificamos si es un problema de "no hay inscripciones"
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          console.error("Error del servidor:", errorData);
+
+          toast.error(errorData.message || "Error al descargar el CSV", {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+          return;
+        }
         throw new Error("Error al descargar el CSV");
       }
 
@@ -121,6 +138,16 @@ const HomeAdmin = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Error al descargar el CSV:", error);
+
+      // Notificación para errores generales
+      toast.error("Error al descargar el CSV. Inténtalo de nuevo más tarde.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 

@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Race from "../models/Race.js";
 import User from "../models/User.js";
+import { sendWelcomeEmail } from "../utils/email.js";
 
 // Validar formato de ID de MongoDB
 const isValidObjectId = (id) => {
@@ -135,6 +136,12 @@ const register = async (req, res) => {
 
     await user.save();
 
+    // Enviar email de bienvenida (sin bloquear la respuesta)
+    sendWelcomeEmail(user).catch((error) => {
+      console.error("Error al enviar email de bienvenida:", error);
+      // No afecta a la respuesta, solo se registra el error
+    });
+
     res.status(201).json({
       message: "Usuario registrado exitosamente",
       user: {
@@ -154,6 +161,7 @@ const register = async (req, res) => {
       .json({ message: "Error al registrar usuario", error: error.message });
   }
 };
+
 
 // Cerrar sesión
 const logout = async (req, res) => {

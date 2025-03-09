@@ -1229,6 +1229,7 @@ const uploadResultsCSV = async (req, res) => {
           time: row.tiempo,
           position: i + 1, // Posición basada en el orden del CSV
           dorsal: parseInt(row.dorsal),
+          userName: user.name || user.email
         });
       }
     }
@@ -1252,6 +1253,13 @@ const uploadResultsCSV = async (req, res) => {
 
     // Marcar la carrera como finalizada
     race.status = "finished";
+    
+    // Actualizar la clasificación de la carrera con los IDs de usuario como identificadores
+    race.classification = results.map(result => ({
+      runner: result.userId, // Usar el ID del usuario como identificador
+      mark: result.time      // Guardar el tiempo en formato HH:MM:SS
+    }));
+    
     await race.save();
 
     // Actualizar las inscripciones con los resultados
@@ -1335,6 +1343,7 @@ const uploadResultsCSV = async (req, res) => {
     });
   }
 };
+
 
 /**
  * Carga un archivo GPX para una carrera específica y extrae información

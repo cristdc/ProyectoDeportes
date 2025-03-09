@@ -77,29 +77,17 @@ const RaceCard = ({
   };
 
   const handleDownloadCSV = async () => {
-    const result = await onDownloadCSV(race._id);
-
-    if (!result.success) {
-      if (result.message === "No hay inscripciones") {
-        toast.info("No hay inscripciones registradas para esta carrera", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-      } else {
-        toast.error(result.message, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-      }
-      return;
+    try {
+      await onDownloadCSV(race._id);
+    } catch (error) {
+      toast.error("Error al descargar el archivo CSV", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
