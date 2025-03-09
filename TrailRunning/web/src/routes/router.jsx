@@ -16,7 +16,7 @@ export const router = createBrowserRouter([
         path: ROUTES.LOGIN,
         element: <RootLayout />,
         errorElement: (
-        <Navigate to="/404" replace={true} />
+        <Navigate to="/trailRunning/404" replace={true} />
         ),
         children: [
             {

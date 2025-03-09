@@ -21,7 +21,7 @@ const Navbar = ( { user } ) => {
         <a href="/trailRunning/home">
           <div className="flex transition-all duration-300 hover:opacity-80">
             <img
-              src="/public/img/logo.png"
+              src="url('/public/img/logo.png')"
               alt="Logo Trail"
               className="h-12 mr-[-30px]"
             />
