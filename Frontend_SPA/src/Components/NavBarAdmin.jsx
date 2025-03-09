@@ -1,14 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logo from "../assets/logo.png";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 const NavBarAdmin = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout, isAuth } = useAuth();
+  const [isUsersPage, setIsUsersPage] = useState(false);
 
-  const handleManageUsers = () => {
-    navigate("/admin/users");
+  // Detectar si estamos en la página de administración de usuarios
+  useEffect(() => {
+    const currentPath = location.pathname;
+    setIsUsersPage(currentPath.includes("/admin/users"));
+  }, [location.pathname]);
+
+  const handleToggleManagement = () => {
+    if (isUsersPage) {
+      // Si estamos en la página de usuarios, ir a carreras
+      navigate("/admin/home");
+    } else {
+      // Si no, ir a usuarios
+      navigate("/admin/users");
+    }
   };
 
   return (
@@ -32,12 +46,12 @@ const NavBarAdmin = () => {
           {isAuth && (
             <>
               <button
-                onClick={handleManageUsers}
+                onClick={handleToggleManagement}
                 className="px-4 py-2 bg-white text-[#9b9d79] rounded-lg 
                           hover:bg-[#6b6d54] hover:text-white
                           transition-all duration-1000 ease-in-out"
               >
-                Administrar usuarios
+                {isUsersPage ? "Administrar carreras" : "Administrar usuarios"}
               </button>
 
               <button
