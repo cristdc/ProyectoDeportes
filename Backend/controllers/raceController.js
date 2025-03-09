@@ -455,20 +455,20 @@ const updateRace = async (req, res) => {
         });
       }
       updateFields.date = dateValidation.date;
+    
+      // Añadir validación de fecha actual
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0); // Resetea horas, minutos, segundos para comparar solo fechas
+
+      if (dateValidation.date < currentDate) {
+        return res.status(400).json({
+          message:
+            "La fecha de la carrera no puede ser anterior a la fecha actual",
+        });
+      }
+
+      updateFields.date = dateValidation.date;
     }
-
-    // Añadir validación de fecha actual
-    const currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0); // Resetea horas, minutos, segundos para comparar solo fechas
-
-    if (dateValidation.date < currentDate) {
-      return res.status(400).json({
-        message:
-          "La fecha de la carrera no puede ser anterior a la fecha actual",
-      });
-    }
-
-    updateFields.date = dateValidation.date;
 
     // Validar tiempo de calificación si se está actualizando
     if (
@@ -489,15 +489,22 @@ const updateRace = async (req, res) => {
       }
 
       const isValid = updateFields.classification.every(
-        (item) => item.runner && item.mark && typeof item.mark === "number"
+        (item) => item.runner && item.mark && 
+        (typeof item.mark === "string" || typeof item.mark === "number")
       );
 
       if (!isValid) {
         return res.status(400).json({
           message:
-            "classification debe contener 'runner' y 'mark' (número) en todos los elementos",
+            "classification debe contener 'runner' y 'mark' (tiempo en formato HH:MM:SS o número) en todos los elementos",
         });
       }
+      
+      // Convertir todos los mark a string si son números
+      updateFields.classification = updateFields.classification.map(item => ({
+        ...item,
+        mark: typeof item.mark === 'number' ? item.mark.toString() : item.mark
+      }));
     }
 
     // Verificar si la carrera existe
