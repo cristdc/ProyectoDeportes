@@ -74,14 +74,34 @@ const Home = () => {
       "background-image 1s ease-in-out, background-color 0.3s ease-in-out",
   };
 
-  const handleDownload = async () => {
+  // Función actualizada para manejar descargas de archivos EXE según la modalidad
+  const handleExeDownload = async (sportType) => {
     try {
-      const fileName = isMobile ? "ADIOS.exe" : "HOLA.exe";
+      // Determinar qué archivo descargar según el deporte
+      let fileName;
+      switch (sportType) {
+        case "cycling":
+          fileName = "Cycling.exe";
+          break;
+        case "running":
+          fileName = "Running.exe";
+          break;
+        case "trail":
+          fileName = "TrailRunning.exe";
+          break;
+        case "management":
+          fileName = "Management.exe";
+          break;
+        default:
+          fileName = "Cycling.exe";
+      }
+
+      toast.loading(`Preparando la descarga de ${fileName}...`);
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/download/${fileName}`
       );
 
-      if (!response.ok) throw new Error("Error al descargar el archivo");
+      if (!response.ok) throw new Error(`Error al descargar ${fileName}`);
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -92,9 +112,53 @@ const Home = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      toast.success(`¡${fileName} descargado correctamente!`);
     } catch (error) {
       console.error("Error:", error);
-      alert("Error al descargar el archivo");
+      toast.error(`Error al descargar el archivo: ${error.message}`);
+    }
+  };
+
+  // Nueva función para manejar descargas de archivos APK
+  const handleApkDownload = async (sportType) => {
+    try {
+      // Determinar qué archivo APK descargar según el deporte
+      let fileName;
+      switch (sportType) {
+        case "cycling":
+          fileName = "Cycling.apk";
+          break;
+        case "running":
+          fileName = "Running.apk";
+          break;
+        case "trail":
+          // Si no hay un archivo específico para trail, podemos usar uno genérico o el de running
+          fileName = "Running.apk"; // o "TrailRunning.apk" si existe
+          break;
+        default:
+          fileName = "Cycling.apk";
+      }
+
+      toast.loading(`Preparando la descarga de ${fileName}...`);
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/download/${fileName}`
+      );
+
+      if (!response.ok) throw new Error(`Error al descargar ${fileName}`);
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success(`¡${fileName} descargado correctamente!`);
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error(`Error al descargar el archivo: ${error.message}`);
     }
   };
 
@@ -290,13 +354,13 @@ const Home = () => {
               ruedas. Desde cicloturismo hasta competiciones de mountain bike.
             </p>
             <div className="space-y-3 sm:space-y-4">
-              <button
-                onClick={handleDownload}
+              <Link
+                to="/cycling/"
                 className="w-full bg-[var(--accent-light)] hover:bg-[var(--accent-hover)] px-4 sm:px-8 py-3 sm:py-4 
-                  rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
-                  flex items-center justify-center group"
+          rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
+          flex items-center justify-center group"
               >
-                <span>Accede a nuestra pagina Web</span>
+                <span>Accede a nuestra página Web</span>
                 <svg
                   className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
                   fill="none"
@@ -310,17 +374,18 @@ const Home = () => {
                     d="M17 8l4 4m0 0l-4 4m4-4H3"
                   />
                 </svg>
-              </button>
+              </Link>
+
+              {/* Botón de descarga EXE */}
               <button
-                onClick={handleDownload}
+                onClick={() => handleExeDownload("cycling")}
                 className="w-full bg-transparent border-2 border-[var(--accent-light)] 
-                  hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
-                  transition-all duration-300 text-[var(--accent-light)]
-                  text-base sm:text-lg flex items-center justify-center group"
+            hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
+            transition-all duration-300 text-[var(--accent-light)]
+            text-base sm:text-lg flex items-center justify-center group"
               >
-                <span>Descarga nuestra App</span>
                 <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -329,15 +394,39 @@ const Home = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
+                <span>Descarga para Windows</span>
+              </button>
+
+              {/* Botón de descarga APK */}
+              <button
+                onClick={() => handleApkDownload("cycling")}
+                className="w-full bg-transparent border-2 border-[var(--accent-light)] 
+            hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
+            transition-all duration-300 text-[var(--accent-light)]
+            text-base sm:text-lg flex items-center justify-center group"
+              >
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 18l-6-6h4V4h4v8h4l-6 6z"
+                  />
+                </svg>
+                <span>Descarga para Android</span>
               </button>
             </div>
           </div>
         </div>
       </div>
-
       {/* Running */}
       <div
         id="running"
@@ -369,8 +458,8 @@ const Home = () => {
               <Link
                 to="/running/"
                 className="w-full bg-[var(--accent-light)] hover:bg-[var(--accent-hover)] px-4 sm:px-8 py-3 sm:py-4 
-    rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
-    flex items-center justify-center group"
+          rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
+          flex items-center justify-center group cursor-pointer"
               >
                 <span>Accede a nuestra página Web</span>
                 <svg
@@ -387,16 +476,17 @@ const Home = () => {
                   />
                 </svg>
               </Link>
+
+              {/* Botón de descarga EXE */}
               <button
-                onClick={handleDownload}
+                onClick={() => handleExeDownload("running")}
                 className="w-full bg-transparent border-2 border-[var(--accent-light)] 
-                  hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
-                  transition-all duration-300 text-[var(--accent-light)]
-                  text-base sm:text-lg flex items-center justify-center group"
+            hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
+            transition-all duration-300 text-[var(--accent-light)]
+            text-base sm:text-lg flex items-center justify-center group"
               >
-                <span>Descarga nuestra App</span>
                 <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -405,9 +495,34 @@ const Home = () => {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
+                <span>Descarga para Windows</span>
+              </button>
+
+              {/* Botón de descarga APK */}
+              <button
+                onClick={() => handleApkDownload("running")}
+                className="w-full bg-transparent border-2 border-[var(--accent-light)] 
+            hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
+            transition-all duration-300 text-[var(--accent-light)]
+            text-base sm:text-lg flex items-center justify-center group"
+              >
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 18l-6-6h4V4h4v8h4l-6 6z"
+                  />
+                </svg>
+                <span>Descarga para Android</span>
               </button>
             </div>
           </div>
@@ -442,13 +557,13 @@ const Home = () => {
               montañas, bosques y terrenos técnicos.
             </p>
             <div className="space-y-3 sm:space-y-4">
-              <button
-                onClick={handleDownload}
+              <Link
+                to="/trailRunning/"
                 className="w-full bg-[var(--accent-light)] hover:bg-[var(--accent-hover)] px-4 sm:px-8 py-3 sm:py-4 
-                  rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
-                  flex items-center justify-center group"
+          rounded-lg shadow-lg transition-all duration-300 text-white text-base sm:text-lg 
+          flex items-center justify-center group cursor-pointer"
               >
-                <span>Accede a nuestra pagina Web</span>
+                <span>Accede a nuestra página Web</span>
                 <svg
                   className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
                   fill="none"
@@ -462,17 +577,97 @@ const Home = () => {
                     d="M17 8l4 4m0 0l-4 4m4-4H3"
                   />
                 </svg>
-              </button>
+              </Link>
+
+              {/* Botón de descarga EXE */}
               <button
-                onClick={handleDownload}
+                onClick={() => handleExeDownload("trail")}
                 className="w-full bg-transparent border-2 border-[var(--accent-light)] 
-                  hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
-                  transition-all duration-300 text-[var(--accent-light)]
-                  text-base sm:text-lg flex items-center justify-center group"
+            hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
+            transition-all duration-300 text-[var(--accent-light)]
+            text-base sm:text-lg flex items-center justify-center group"
               >
-                <span>Descarga nuestra App</span>
                 <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform"
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <span>Descarga para Windows</span>
+              </button>
+
+              {/* Botón de descarga APK */}
+              <button
+                onClick={() => handleApkDownload("trail")}
+                className="w-full bg-transparent border-2 border-[var(--accent-light)] 
+            hover:bg-[var(--accent-light)]/10 px-4 sm:px-8 py-3 sm:py-4 rounded-lg 
+            transition-all duration-300 text-[var(--accent-light)]
+            text-base sm:text-lg flex items-center justify-center group"
+              >
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 18l-6-6h4V4h4v8h4l-6 6z"
+                  />
+                </svg>
+                <span>Descarga para Android</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sección para Administradores */}
+      <div className="w-full bg-[var(--bg-primary)] py-16 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-[var(--accent-light)]/10 p-6 sm:p-8 rounded-xl border border-[var(--accent-light)]/30">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-3">
+                <h3 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)]">
+                  ¿Eres administrador?
+                </h3>
+                <p className="text-[var(--text-secondary)] max-w-xl">
+                  Accede a nuestra aplicación de escritorio para gestionar
+                  eventos, participantes y resultados de todas las modalidades
+                  deportivas.
+                </p>
+              </div>
+
+              <button
+                onClick={() => handleExeDownload("management")}
+                className="flex items-center gap-3 bg-[var(--accent-light)] hover:bg-[var(--accent-hover)] px-6 py-4 
+            rounded-lg shadow-lg transition-all duration-300 text-white text-lg group whitespace-nowrap"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span>Descargar aplicación de Administración</span>
+                <svg
+                  className="w-5 h-5 group-hover:translate-x-1 transition-transform"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
