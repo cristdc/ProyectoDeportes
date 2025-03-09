@@ -136,11 +136,23 @@ const register = async (req, res) => {
 
     await user.save();
 
-    // Enviar email de bienvenida (sin bloquear la respuesta)
-    sendWelcomeEmail(user).catch((error) => {
-      console.error("Error al enviar email de bienvenida:", error);
-      // No afecta a la respuesta, solo se registra el error
-    });
+    // Enviar email de bienvenida con más información de depuración
+    try {
+      const emailResult = await sendWelcomeEmail(user);
+      console.log("Resultado del envío de email:", emailResult);
+    } catch (emailError) {
+      console.error(
+        "Error detallado al enviar email de bienvenida:",
+        emailError
+      );
+      // Registrar más detalles sobre el error
+      if (emailError.response) {
+        console.error(
+          "Detalles de la respuesta de error:",
+          emailError.response.body
+        );
+      }
+    }
 
     res.status(201).json({
       message: "Usuario registrado exitosamente",
