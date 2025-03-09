@@ -1065,8 +1065,16 @@ const downloadRunnersCSV = async (req, res) => {
         tiempo: "",
       }));
 
-      // Generar CSV
-      const csvString = Papa.unparse(csvData);
+      // Generar CSV con formato de una sola columna (más compatible con editores)
+      const formattedCSVData = csvData.map(row => 
+        `${row.email},${row.nombre},${row.dorsal},${row.tiempo}`
+      );
+      
+      // Agregar el encabezado
+      formattedCSVData.unshift("email,nombre,dorsal,tiempo");
+      
+      // Unir todo en un string
+      const csvString = formattedCSVData.join('\n');
 
       // Determinar nombre del archivo
       const filename = `resultados_${race.name.replace(/\s+/g, "_")}.csv`;
@@ -1095,7 +1103,6 @@ const downloadRunnersCSV = async (req, res) => {
     });
   }
 };
-
 /**
  * Subir CSV con tiempos de los corredores
  * @route POST /api/races/:id/results-csv
@@ -1137,10 +1144,13 @@ const uploadResultsCSV = async (req, res) => {
 
     // Procesar el CSV
     const fileContent = fs.readFileSync(req.file.path, "utf8");
+    
+    // Intentar detectar el delimitador automáticamente
     const csvData = Papa.parse(fileContent, {
       header: true,
       skipEmptyLines: true,
-      delimiter: ",",
+      delimiter: "", // Auto-detectar delimitador
+      delimitersToGuess: [',', ';', '\t', '|']
     });
 
     // Validar estructura del CSV
@@ -1153,49 +1163,65 @@ const uploadResultsCSV = async (req, res) => {
         });
     }
 
-    // Verificar que todas las columnas necesarias existen
-    const requiredColumns = ["email", "nombre", "dorsal", "tiempo"];
-    const missingColumns = requiredColumns.filter(
-      (col) => !csvData.meta.fields.includes(col)
-    );
+    // Obtener las columnas disponibles
+    const availableColumns = csvData.meta.fields;
+    console.log("Columnas disponibles:", availableColumns);
 
-    if (missingColumns.length > 0) {
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({
-        message: `El CSV no tiene las columnas requeridas: ${missingColumns.join(
-          ", "
-        )}`,
-      });
+    // Verificar si tenemos una sola columna que contiene todos los datos
+    let combinedColumn = null;
+    if (availableColumns.length === 1) {
+      // La columna posiblemente contiene "email,nombre,dorsal,tiempo" como un texto completo
+      combinedColumn = availableColumns[0];
+      console.log("Detectada una sola columna:", combinedColumn);
     }
 
-    // Validar tiempos y dorsales
-    const errors = [];
+    // Procesar los datos según el formato detectado
     const results = [];
+    const errors = [];
     const timeRegex = /^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
 
     for (let i = 0; i < csvData.data.length; i++) {
       const row = csvData.data[i];
+      
+      // Variables para almacenar los datos extraídos
+      let email, nombre, dorsal, tiempo;
+      
+      if (combinedColumn) {
+        // Caso de una sola columna: dividirla en partes
+        const parts = row[combinedColumn].split(',');
+        if (parts.length >= 4) {
+          email = parts[0].trim();
+          nombre = parts[1].trim();
+          dorsal = parts[2].trim();
+          tiempo = parts[3].trim();
+        } else {
+          errors.push(`Fila ${i + 1}: Formato incorrecto. No se pueden extraer todos los campos.`);
+          continue;
+        }
+      } else {
+        // Caso de múltiples columnas
+        email = row.email;
+        nombre = row.nombre;
+        dorsal = row.dorsal;
+        tiempo = row.tiempo;
+      }
 
       // Solo procesar si tiene tiempo
-      if (row.tiempo && row.tiempo.trim() !== "") {
+      if (tiempo && tiempo.trim() !== "") {
         // Validar formato de tiempo
-        if (!timeRegex.test(row.tiempo)) {
+        if (!timeRegex.test(tiempo)) {
           errors.push(
-            `Fila ${i + 1}: Formato de tiempo inválido (${
-              row.tiempo
-            }). Use formato HH:mm:ss`
+            `Fila ${i + 1}: Formato de tiempo inválido (${tiempo}). Use formato HH:mm:ss`
           );
           continue;
         }
 
         // Buscar usuario por email
-        const user = await User.findOne({ email: row.email });
+        const user = await User.findOne({ email: email });
 
         if (!user) {
           errors.push(
-            `Fila ${i + 1}: No se encontró ningún usuario con el email ${
-              row.email
-            }`
+            `Fila ${i + 1}: No se encontró ningún usuario con el email ${email}`
           );
           continue;
         }
@@ -1209,9 +1235,7 @@ const uploadResultsCSV = async (req, res) => {
 
         if (!registration) {
           errors.push(
-            `Fila ${i + 1}: El usuario ${
-              row.email
-            } no está inscrito en esta carrera`
+            `Fila ${i + 1}: El usuario ${email} no está inscrito en esta carrera`
           );
           continue;
         }
@@ -1219,14 +1243,10 @@ const uploadResultsCSV = async (req, res) => {
         // Verificar que el dorsal coincide
         if (
           registration.dorsal &&
-          registration.dorsal.toString() !== row.dorsal
+          registration.dorsal.toString() !== dorsal
         ) {
           errors.push(
-            `Fila ${i + 1}: El dorsal ${
-              row.dorsal
-            } no coincide con el asignado (${registration.dorsal}) al usuario ${
-              row.email
-            }`
+            `Fila ${i + 1}: El dorsal ${dorsal} no coincide con el asignado (${registration.dorsal}) al usuario ${email}`
           );
           continue;
         }
@@ -1234,9 +1254,9 @@ const uploadResultsCSV = async (req, res) => {
         // Añadir a la lista de resultados
         results.push({
           userId: user._id.toString(),
-          time: row.tiempo,
+          time: tiempo,
           position: i + 1, // Posición basada en el orden del CSV
-          dorsal: parseInt(row.dorsal),
+          dorsal: parseInt(dorsal),
           userName: user.name || user.email
         });
       }
@@ -1351,7 +1371,6 @@ const uploadResultsCSV = async (req, res) => {
     });
   }
 };
-
 
 /**
  * Carga un archivo GPX para una carrera específica y extrae información
