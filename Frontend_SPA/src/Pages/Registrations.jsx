@@ -131,7 +131,7 @@ const RaceRegistrations = () => {
       {/* Botón Volver */}
       <div className="mb-6">
         <button
-          onClick={handleGoBack}
+          onClick={() => navigate(`/admin/races/${id}`)}
           className="inline-flex items-center text-[#9b9d79] hover:text-[#6b6d54] transition-colors duration-300"
         >
           <svg
