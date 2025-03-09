@@ -13,6 +13,7 @@ import EditPage from "../Pages/EditPage";
 import AdminUsers from "../Pages/AdminUsers";
 import Prueba from "../Pages/Prueba";
 import UploadResults from "../Pages/UploadResults";
+import Registrations from "../Pages/Registrations";
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
       {
         path: "users",
         element: <AdminUsers />,
+      },
+      {
+        path: "registations/:id",
+        element: <Registrations />,
       },
     ],
   },
