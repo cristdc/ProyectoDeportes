@@ -37,7 +37,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/races", raceRoutes);
 app.use("/api/registrations", registrationRoutes);
 app.use("/api/files", fileRoutes);
-app.use("/", downloadRoutes);
+app.use("/api/download", downloadRoutes);
 app.use('/api/registrations', registrationRoutes);
 
 
