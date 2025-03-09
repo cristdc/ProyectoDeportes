@@ -46,7 +46,7 @@ class InicioFragment : Fragment() {
                 }
             }
         }
-        binding.web.loadUrl("https://www.ieshlanz.es/")
+        binding.web.loadUrl("http://alb-deportes-332363768.us-east-1.elb.amazonaws.com/running/")
     }
 
 
