@@ -4,8 +4,8 @@ import { Menu, X } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import.meta.glob('/img/*.{png,jpg,jpeg,svg}', { eager: true });
 
-import logoImg from "../public/img/logo.png";
-import nombreImg from "../public/img/nombre.png";
+import logoImg from "../../public/img/logo.png";
+import nombreImg from "../../public/img/nombre.png";
 const Navbar = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { logout } = useAuth();
