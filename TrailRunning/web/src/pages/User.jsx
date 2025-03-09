@@ -3,7 +3,7 @@ import { fetchRacesUserNumber, profile, fetchKmUser } from "../helpers/fetch"; /
 import { ROUTES } from "../routes/paths";
 import { Link } from "react-router-dom";
 import Chart from "../components/Chart";
-
+import.meta.glob('/img/*.{png,jpg,jpeg,svg}', { eager: true });
 const User = () => {
     const [user, setUser] = useState({});
     const [races, setRaces] = useState({});
@@ -44,7 +44,7 @@ const User = () => {
             <div className="w-32 h-32 mb-6 rounded-full border-4 border-primary flex items-center justify-center">
               {user.avatar ? (
                 <img
-                  src={"/public/img/default.jpg"}
+                  src="/img/default.jpg"
                   alt="Avatar del usuario"
                   className="w-full h-full rounded-full object-cover"
                 />

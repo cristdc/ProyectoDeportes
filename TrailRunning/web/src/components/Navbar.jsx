@@ -2,17 +2,17 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import useAuth from "../hooks/useAuth";
+import.meta.glob('/img/*.{png,jpg,jpeg,svg}', { eager: true });
 
-
-const Navbar = ( { user } ) => {
+const Navbar = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = async() =>{
+  const handleLogout = async () => {
     await logout();
-    navigate("/")
-  }
+    navigate("/");
+  };
 
   return (
     <>
@@ -21,15 +21,14 @@ const Navbar = ( { user } ) => {
         <a href="/trailRunning/home">
           <div className="flex transition-all duration-300 hover:opacity-80">
             <img
-              src="url('/public/img/logo.png')"
+              src="/img/logo.png"
               alt="Logo Trail"
               className="h-12 mr-[-30px]"
             />
             <img
-              src="/public/img/nombre.png"
+              src="/img/nombre.png"
               alt="Logo Trail"
-              className="h-12"
-            />
+              className="h-12" />
           </div>
         </a>
 
