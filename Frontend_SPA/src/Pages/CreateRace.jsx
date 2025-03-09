@@ -33,6 +33,20 @@ const CreateRace = () => {
     setError("");
     setLoading(true);
 
+    // Validar que la fecha no sea anterior a hoy
+    const raceDate = new Date(formData.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Resetear horas para comparar solo fechas
+
+    if (raceDate < today) {
+      setError(
+        "La fecha de la carrera no puede ser anterior a la fecha actual"
+      );
+      return;
+    }
+
+    setLoading(true);
+
     try {
       await createRace(formData);
       navigate("/admin/home");
@@ -110,6 +124,7 @@ const CreateRace = () => {
                   name="date"
                   id="date"
                   required
+                  min={new Date().toISOString().split("T")[0]} // Establece mínimo a la fecha actual
                   value={formData.date}
                   onChange={handleChange}
                   className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9b9d79]"

@@ -260,6 +260,16 @@ const createRace = async (req, res) => {
       });
     }
 
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Resetea horas, minutos, segundos para comparar solo fechas
+
+    if (dateValidation.date < currentDate) {
+      return res.status(400).json({
+        message:
+          "La fecha de la carrera no puede ser anterior a la fecha actual",
+      });
+    }
+
     // Validar deporte
     if (!isValidSport(sport)) {
       return res.status(400).json({
@@ -282,6 +292,7 @@ const createRace = async (req, res) => {
       });
     }
 
+    
     // Verificar si ya existe una carrera con el mismo nombre y fecha
     const existingRace = await Race.findOne({
       name,
@@ -445,6 +456,19 @@ const updateRace = async (req, res) => {
       }
       updateFields.date = dateValidation.date;
     }
+
+    // Añadir validación de fecha actual
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0); // Resetea horas, minutos, segundos para comparar solo fechas
+
+    if (dateValidation.date < currentDate) {
+      return res.status(400).json({
+        message:
+          "La fecha de la carrera no puede ser anterior a la fecha actual",
+      });
+    }
+
+    updateFields.date = dateValidation.date;
 
     // Validar tiempo de calificación si se está actualizando
     if (
