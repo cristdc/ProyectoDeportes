@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useRegistration } from "../Context/RegistrationContext";
 import { useRace } from "../Context/RaceContext"; // Importamos el contexto de carrera para obtener el máximo de participantes
 import { toast } from "sonner";
 
 const RaceRegistrations = () => {
   const { id } = useParams();
+  const navigate = useNavigate(); 
   const {
     registrations,
     loading,
@@ -121,13 +122,16 @@ const RaceRegistrations = () => {
       </div>
     );
   }
-
+  // Función para volver atrás
+  const handleGoBack = () => {
+    navigate(-1); // Esto navega a la página anterior en el historial
+  };
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Botón Volver */}
       <div className="mb-6">
-        <Link
-          to={`/admin/races/${id}`}
+        <button
+          onClick={handleGoBack}
           className="inline-flex items-center text-[#9b9d79] hover:text-[#6b6d54] transition-colors duration-300"
         >
           <svg
@@ -144,7 +148,7 @@ const RaceRegistrations = () => {
             />
           </svg>
           Volver
-        </Link>
+        </button>
       </div>
 
       <h1 className="text-2xl font-bold mb-6">Inscripciones de la Carrera</h1>
