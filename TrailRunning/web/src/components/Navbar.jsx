@@ -4,6 +4,8 @@ import { Menu, X } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import.meta.glob('/img/*.{png,jpg,jpeg,svg}', { eager: true });
 
+import logoImg from "../public/img/logo.png";
+import nombreImg from "../public/img/nombre.png";
 const Navbar = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { logout } = useAuth();
@@ -20,15 +22,8 @@ const Navbar = ({ user }) => {
         {/* Logo */}
         <a href="/trailRunning/home">
           <div className="flex transition-all duration-300 hover:opacity-80">
-            <img
-              src="/img/logo.png"
-              alt="Logo Trail"
-              className="h-12 mr-[-30px]"
-            />
-            <img
-              src="/img/nombre.png"
-              alt="Logo Trail"
-              className="h-12" />
+            <img src={logoImg} alt="Logo Trail" className="h-12 mr-[-30px]" />
+            <img src={nombreImg} alt="Logo Trail" className="h-12" />
           </div>
         </a>
 

@@ -44,7 +44,7 @@ const User = () => {
             <div className="w-32 h-32 mb-6 rounded-full border-4 border-primary flex items-center justify-center">
               {user.avatar ? (
                 <img
-                  src="/img/default.jpg"
+                  src={import.meta.env.BASE_URL + "img/default.jpg"}
                   alt="Avatar del usuario"
                   className="w-full h-full rounded-full object-cover"
                 />
