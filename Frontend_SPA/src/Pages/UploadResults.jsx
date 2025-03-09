@@ -95,7 +95,7 @@ const UploadResults = () => {
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#9b9d79] focus:border-transparent"
             />
             <p className="mt-2 text-sm text-gray-500">
-              El archivo debe ser un CSV con las columnas: email, dorsal, tiempo.
+              El archivo debe ser un CSV con las columnas: email, nombre, dorsal, tiempo.
             </p>
           </div>
 

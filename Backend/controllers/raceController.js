@@ -1140,6 +1140,7 @@ const uploadResultsCSV = async (req, res) => {
     const csvData = Papa.parse(fileContent, {
       header: true,
       skipEmptyLines: true,
+      delimiter: ",",
     });
 
     // Validar estructura del CSV
