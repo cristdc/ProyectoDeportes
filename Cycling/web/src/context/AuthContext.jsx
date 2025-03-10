@@ -60,7 +60,15 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
-            checkAuth();
+            checkAuth().catch(error => {
+                console.error('Error en checkAuth:', error);
+                // Si falla la verificación, limpiar el localStorage
+                localStorage.removeItem('token');
+                localStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('user');
+                setIsAuthenticated(false);
+                setUser(null);
+            });
         }
     }, []);
 
@@ -77,15 +85,15 @@ export const AuthProvider = ({ children }) => {
 
             if (response.ok) {
                 const data = await response.json();
-                // Veamos qué contiene la respuesta
-                console.log('Respuesta completa:', data);
-                console.log('Cookies disponibles:', document.cookie);
-
-                setIsAuthenticated(true);   
-                setUser(data.user);
+                // Primero guardar el token
+                localStorage.setItem('token', data.token);
+                // Luego establecer la autenticación y datos del usuario
                 localStorage.setItem('isAuthenticated', 'true');
                 localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('token', data.token);
+                
+                // Actualizar el estado después de asegurar que todo está en localStorage
+                setIsAuthenticated(true);   
+                setUser(data.user);
                 setError(null);
                 await fetchRegistrations();
                 return true;
