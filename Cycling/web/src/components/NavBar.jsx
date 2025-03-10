@@ -80,7 +80,7 @@ function NavBar() {
                   <span className="text-[#1a1204] text-sm">
                     Hola,
                     <Link
-                      to={"/cycling/profile"}
+                      to={"/profile"}
                       className="text-gray-500 hover:text-[#8EAC93] hover:font-bold transition-all duration-150"
                     >
                       {user?.name}
