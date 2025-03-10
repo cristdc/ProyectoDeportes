@@ -97,25 +97,21 @@ export const apiService = {
     try {
       const response = await fetchWithAuth('/registrations', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ raceId })
       });
       
-      const data = await response.json();
+      // Actualizar localStorage solo si la petición fue exitosa
+      if (response && !response.error) {
+        updateLocalRegistrations(raceId, true);
+        return { success: true, message: 'Inscripción realizada con éxito', ...response };
+      }
       
-      // Actualizar localStorage
-      const localRegistrations = JSON.parse(localStorage.getItem('userRegistrations')) || {};
-      localRegistrations[raceId] = true;
-      localStorage.setItem('userRegistrations', JSON.stringify(localRegistrations));
-      
-      return { success: true, message: 'Inscripción realizada con éxito', ...data };
+      throw new Error(response.message || 'Error en la inscripción');
     } catch (error) {
+      console.error('Error registering for race:', error);
+      // Si el error indica que ya está inscrito, actualizar localStorage
       if (error.message.includes('ya está inscrito')) {
-        const localRegistrations = JSON.parse(localStorage.getItem('userRegistrations')) || {};
-        localRegistrations[raceId] = true;
-        localStorage.setItem('userRegistrations', JSON.stringify(localRegistrations));
+        updateLocalRegistrations(raceId, true);
         return { success: false, isRegistered: true, message: 'Ya estás inscrito en esta carrera' };
       }
       throw error;
@@ -191,8 +187,22 @@ export const apiService = {
 
   checkRegistrationStatus: async (raceId) => {
     try {
-      const data = await fetchWithAuth(`/registrations/status/${raceId}`);
-      return data;
+      // Primero intentar obtener del localStorage
+      const localRegistrations = JSON.parse(localStorage.getItem('userRegistrations')) || {};
+      if (localRegistrations[raceId]) {
+        return { isRegistered: true };
+      }
+
+      // Si no está en localStorage, consultar al servidor
+      const registrations = await apiService.getParticipations();
+      const isRegistered = registrations.some(
+        reg => reg.race._id === raceId && reg.status === 'registered'
+      );
+
+      // Actualizar localStorage
+      updateLocalRegistrations(raceId, isRegistered);
+      
+      return { isRegistered };
     } catch (error) {
       console.error('Error checking registration status:', error);
       return { isRegistered: false };
@@ -335,13 +345,57 @@ export const apiService = {
 
   toggleRaceRegistration: async (raceId) => {
     try {
-      const data = await fetchWithAuth(`/registrations/toggle/${raceId}`, {
-        method: 'POST'
-      });
-      return data;
+      // Primero verificar el estado actual de la inscripción
+      const registrations = await apiService.getParticipations();
+      const existingRegistration = registrations.find(reg => 
+        reg.race._id === raceId && reg.status === 'registered'
+      );
+
+      if (existingRegistration) {
+        // Si está inscrito, cancelar la inscripción
+        const response = await fetchWithAuth(`/registrations/${existingRegistration._id}/cancel`, {
+          method: 'PUT'
+        });
+
+        if (!response) {
+          throw new Error('Error al cancelar la inscripción');
+        }
+
+        updateLocalRegistrations(raceId, false);
+        return {
+          isRegistered: false,
+          message: 'Inscripción cancelada con éxito',
+          success: true
+        };
+      } else {
+        // Si no está inscrito, crear nueva inscripción
+        const response = await fetchWithAuth('/registrations', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ raceId })
+        });
+
+        if (!response) {
+          throw new Error('Error al realizar la inscripción');
+        }
+
+        updateLocalRegistrations(raceId, true);
+        return {
+          isRegistered: true,
+          message: 'Inscripción realizada con éxito',
+          success: true
+        };
+      }
     } catch (error) {
-      console.error('Error toggling registration:', error);
-      throw error;
+      console.error('Error en toggleRaceRegistration:', error);
+      // Devolver un objeto de error estructurado
+      return {
+        success: false,
+        isRegistered: null,
+        message: error.message || 'Error al procesar la inscripción'
+      };
     }
   },
 };
