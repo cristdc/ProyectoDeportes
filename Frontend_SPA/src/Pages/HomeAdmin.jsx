@@ -1,28 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from 'chart.js';
-import { Bar, Pie } from 'react-chartjs-2';
-
-// Registrar los componentes de Chart.js
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
 
 import { useAuth } from "../hooks/useAuth";
 import RaceCard from "../Components/RaceCard";
@@ -39,7 +17,6 @@ const HomeAdmin = () => {
   });
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [systemStats, setSystemStats] = useState(null);
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
@@ -67,26 +44,6 @@ const HomeAdmin = () => {
       setLoading(false);
     }
   };
-
-  const fetchSystemStats = async () => {
-    try {
-      const response = await apiRequest(
-        `${import.meta.env.VITE_BACKEND_URL}/admin/stats`
-      );
-      if (!response.ok) {
-        throw new Error("Error al cargar las estadísticas");
-      }
-      const data = await response.json();
-      setSystemStats(data);
-    } catch (err) {
-      console.error("Error al obtener estadísticas:", err);
-      toast.error("Error al cargar las estadísticas");
-    }
-  };
-
-  useEffect(() => {
-    fetchSystemStats();
-  }, []);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -203,79 +160,6 @@ const HomeAdmin = () => {
     }
   };
 
-  // Configuración de las gráficas
-  const racesByStatusChart = {
-    labels: ['Abiertas', 'Finalizadas', 'Eliminadas'],
-    datasets: [
-      {
-        data: systemStats ? [
-          systemStats.races.byStatus.open,
-          systemStats.races.byStatus.finished,
-          systemStats.races.byStatus.deleted
-        ] : [],
-        backgroundColor: [
-          'rgba(155, 157, 121, 0.8)',
-          'rgba(142, 172, 147, 0.8)',
-          'rgba(180, 199, 178, 0.8)'
-        ],
-        borderColor: [
-          'rgba(155, 157, 121, 1)',
-          'rgba(142, 172, 147, 1)',
-          'rgba(180, 199, 178, 1)'
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const racesBySportChart = {
-    labels: ['Running', 'Trail Running', 'Cycling'],
-    datasets: [
-      {
-        label: 'Carreras por Deporte',
-        data: systemStats ? [
-          systemStats.races.bySport.running,
-          systemStats.races.bySport.trailRunning,
-          systemStats.races.bySport.cycling
-        ] : [],
-        backgroundColor: [
-          'rgba(155, 157, 121, 0.8)',
-          'rgba(142, 172, 147, 0.8)',
-          'rgba(180, 199, 178, 0.8)'
-        ],
-      },
-    ],
-  };
-
-  const registrationsChart = {
-    labels: ['Registradas', 'Finalizadas', 'Canceladas'],
-    datasets: [
-      {
-        label: 'Estado de Inscripciones',
-        data: systemStats ? [
-          systemStats.registrations.registered,
-          systemStats.registrations.finished,
-          systemStats.registrations.cancelled
-        ] : [],
-        backgroundColor: [
-          'rgba(155, 157, 121, 0.8)',
-          'rgba(142, 172, 147, 0.8)',
-          'rgba(180, 199, 178, 0.8)'
-        ],
-      },
-    ],
-  };
-
-  // Opciones comunes para las gráficas
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-    },
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -298,53 +182,6 @@ const HomeAdmin = () => {
 
   return (
     <div className="container mx-auto px-4 py-4 sm:py-8">
-      {/* Panel de Estadísticas */}
-      {systemStats && (
-        <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Estado de Carreras</h3>
-            <Pie data={racesByStatusChart} options={chartOptions} />
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Carreras por Deporte</h3>
-            <Bar data={racesBySportChart} options={chartOptions} />
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Estado de Inscripciones</h3>
-            <Pie data={registrationsChart} options={chartOptions} />
-          </div>
-
-          {/* Resumen numérico */}
-          <div className="bg-white p-6 rounded-lg shadow-md lg:col-span-3">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800">Resumen del Sistema</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-[#9b9d79]">{systemStats.users.total}</p>
-                <p className="text-gray-600">Usuarios Totales</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-[#9b9d79]">
-                  {systemStats.races.bySport.running + 
-                   systemStats.races.bySport.trailRunning + 
-                   systemStats.races.bySport.cycling}
-                </p>
-                <p className="text-gray-600">Carreras Totales</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-[#9b9d79]">{systemStats.registrations.total}</p>
-                <p className="text-gray-600">Inscripciones Totales</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-[#9b9d79]">{systemStats.races.byStatus.open}</p>
-                <p className="text-gray-600">Carreras Activas</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header con título y botón */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
