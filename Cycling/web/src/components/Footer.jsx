@@ -24,7 +24,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <Link
-                  to={"/cycling" }
+                  to={"/"}
                   className="text-[#1a1204] opacity-75 hover:opacity-100 transition-opacity"
                 >
                   Inicio
@@ -32,7 +32,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to={"/cycling/carreras-disponibles" }
+                  to={"/carreras-disponibles"}
                   className="text-[#1a1204] opacity-75 hover:opacity-100 transition-opacity"
                 >
                   Carreras Disponibles
@@ -41,7 +41,7 @@ const Footer = () => {
               <li>
                 <Link
                   to={
-                     "/cycling/carreras-historial"
+                     "/carreras-historial"
                   }
                   className="text-[#1a1204] opacity-75 hover:opacity-100 transition-opacity"
                 >
@@ -50,7 +50,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to={  "/cycling/profile" }
+                  to={  "/profile" }
                   className="text-[#1a1204] opacity-75 hover:opacity-100 transition-opacity"
                 >
                   Mi Perfil

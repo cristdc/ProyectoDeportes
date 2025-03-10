@@ -20,7 +20,7 @@ function NavBar() {
         <div className="flex justify-between h-16">
           {/* Logo o Nombre del sitio */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to={"/cycling"} className="text-2xl font-bold text-[#1a1204]">
+            <Link to={"/"} className="text-2xl font-bold text-[#1a1204]">
               CicloApp
             </Link>
           </div>
@@ -29,7 +29,7 @@ function NavBar() {
           <div className="flex items-center">
             <div className="hidden md:flex space-x-8">
               <Link
-                to={"/cycling"}
+                to={"/"}
                 className={`${
                   isActiveRoute("/") || isActiveRoute("/cycling")
                     ? "text-[#9B9D79] border-b-2 border-[#9B9D79]"
@@ -39,7 +39,7 @@ function NavBar() {
                 Inicio
               </Link>
               <Link
-                to={"/cycling/carreras-disponibles"}
+                to={"/carreras-disponibles"}
                 className={`${
                   isActiveRoute("/carreras-disponibles") ||
                   isActiveRoute("/cycling/carreras-disponibles")
@@ -50,7 +50,7 @@ function NavBar() {
                 Carreras Disponibles
               </Link>
               <Link
-                to={"/cycling/carreras-historial"}
+                to={"/carreras-historial"}
                 className={`${
                   isActiveRoute("/carreras-historial") ||
                   isActiveRoute("/cycling/carreras-historial")
@@ -61,7 +61,7 @@ function NavBar() {
                 Historial de Carreras
               </Link>
               <Link
-                to={"/cycling/mis-carreras"}
+                to={"/mis-carreras"}
                 className={`${
                   isActiveRoute("/mis-carreras") ||
                   isActiveRoute("/cycling/mis-carreras")
@@ -129,20 +129,20 @@ function NavBar() {
       <div className="hidden md:hidden">
         <div className="px-2 pt-2 pb-3 space-y-1">
           <Link
-            to={ "/cycling" }
+            to={ "/" }
             className="block px-3 py-2 text-[#1a1204] hover:text-[#8EAC93]"
           >
             Inicio
           </Link>
           <Link
-            to={ "/cycling/carreras-disponibles"
+            to={ "/carreras-disponibles"
             }
             className="block px-3 py-2 text-[#1a1204] hover:text-[#8EAC93]"
           >
             Carreras Disponibles
           </Link>
           <Link
-            to={"/cycling/carreras-historial"}
+            to={"/carreras-historial"}
             className="block px-3 py-2 text-[#1a1204] hover:text-[#8EAC93]"
           >
             Historial de Carreras

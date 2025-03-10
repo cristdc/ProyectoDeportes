@@ -180,9 +180,7 @@ const CardRace = ({ race }) => {
             : "Inscribirme"}
         </button>
         <Link
-          to={
-            `/cycling/carrerasDetail/${race._id}`
-          }
+          to={`/carrerasDetail/${race._id}`}
           className="..."
         >
           Ver detalles
