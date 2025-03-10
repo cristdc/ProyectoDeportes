@@ -24,6 +24,7 @@ const hashPassword = async (password) => {
   return await bcrypt.hash(password, salt);
 };
 
+
 // Datos de ejemplo ampliados con 10 usuarios, 10 carreras y más inscripciones
 const exampleData = {
   users: [
@@ -855,40 +856,50 @@ const exampleData = {
     },
   ],
 }
-const seedDatabase = async () => {
-  try {
-    await mongoose.connect(getMongoURI(), {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
 
-    console.log("🔥 Conectado a MongoDB. Poblando la base de datos...");
+
+// Función para seedear la base de datos
+async function seedDatabase() {
+  try {
+    const mongoURI = getMongoURI();
+    console.log("Conectando a:", mongoURI);
+
+    await mongoose.connect(mongoURI, {
+      socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 45000,
+    });
+    console.log("Conexión a MongoDB establecida");
 
     await User.deleteMany({});
     await Race.deleteMany({});
     await Registration.deleteMany({});
 
-    console.log("🧹 Datos previos eliminados.");
+    console.log("Colecciones limpiadas");
 
-    // Hashear la contraseña "123456" una vez y reutilizarla para todos los usuarios
-    const hashedPassword = await hashPassword("123456");
+    // Hashear todas las contraseñas con bcrypt
+    const hashedUsers = await Promise.all(
+      exampleData.users.map(async (user) => {
+        const hashedPassword = await hashPassword("123456");
+        return { ...user, password: hashedPassword };
+      })
+    );
 
-    for (let user of exampleData.users) {
-      user.password = hashedPassword; // Asigna la contraseña hasheada a cada usuario
-      await User.create(user);
-    }
+    await User.insertMany(hashedUsers);
+    console.log("Usuarios insertados con contraseñas hasheadas");
 
     await Race.insertMany(exampleData.races);
+    console.log("Carreras insertadas");
+
     await Registration.insertMany(exampleData.registrations);
+    console.log("Inscripciones insertadas");
 
-    console.log(
-      "✅ Base de datos poblada correctamente con contraseñas '123456' hasheadas."
-    );
-    mongoose.connection.close();
+    console.log("Base de datos inicializada correctamente");
   } catch (error) {
-    console.error("❌ Error al poblar la base de datos:", error);
-    mongoose.connection.close();
+    console.error("Error al seedear la base de datos:", error);
+  } finally {
+    await mongoose.connection.close();
   }
-};
+}
 
+// Ejecutar la función de seedeo
 seedDatabase();
