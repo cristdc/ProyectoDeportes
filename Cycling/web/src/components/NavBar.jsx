@@ -78,7 +78,7 @@ function NavBar() {
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
                   <span className="text-[#1a1204] text-sm">
-                    Hola,{" "}
+                    Hola,{user?.name}
                     <Link
                       to={"/cycling/profile"}
                       className="text-gray-500 hover:text-[#8EAC93] hover:font-bold transition-all duration-150"
