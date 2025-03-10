@@ -855,3 +855,40 @@ const exampleData = {
     },
   ],
 }
+const seedDatabase = async () => {
+  try {
+    await mongoose.connect(getMongoURI(), {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    console.log("🔥 Conectado a MongoDB. Poblando la base de datos...");
+
+    await User.deleteMany({});
+    await Race.deleteMany({});
+    await Registration.deleteMany({});
+
+    console.log("🧹 Datos previos eliminados.");
+
+    // Hashear la contraseña "123456" una vez y reutilizarla para todos los usuarios
+    const hashedPassword = await hashPassword("123456");
+
+    for (let user of exampleData.users) {
+      user.password = hashedPassword; // Asigna la contraseña hasheada a cada usuario
+      await User.create(user);
+    }
+
+    await Race.insertMany(exampleData.races);
+    await Registration.insertMany(exampleData.registrations);
+
+    console.log(
+      "✅ Base de datos poblada correctamente con contraseñas '123456' hasheadas."
+    );
+    mongoose.connection.close();
+  } catch (error) {
+    console.error("❌ Error al poblar la base de datos:", error);
+    mongoose.connection.close();
+  }
+};
+
+seedDatabase();
