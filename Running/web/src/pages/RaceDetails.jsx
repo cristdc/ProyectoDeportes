@@ -161,14 +161,37 @@ export default function RaceDetails() {
       setError(null);
       setMessage(null);
 
-      const response = await apiService.toggleRaceRegistration(id);
-      
-      setIsRegistered(response.isRegistered);
-      setMessage(response.message);
-      
+      if (isRegistered) {
+        // Si está registrado, primero obtenemos las inscripciones para encontrar el ID
+        const registrations = await apiService.getParticipations();
+        const registration = registrations.find(reg => 
+          reg.raceId === id && reg.status === 'registered'
+        );
+
+        if (registration) {
+          const response = await apiService.unregisterFromRace(registration._id);
+          if (response.success) {
+            setIsRegistered(false);
+            setMessage('Inscripción cancelada con éxito');
+          } else {
+            setError(response.message);
+          }
+        } else {
+          setError('No se encontró la inscripción activa');
+        }
+      } else {
+        // Si no está registrado, crear nueva inscripción
+        const response = await apiService.registerForRace(id);
+        if (response.success) {
+          setIsRegistered(true);
+          setMessage('Inscripción realizada con éxito');
+        } else {
+          setError(response.message);
+        }
+      }
     } catch (err) {
-      console.error('Error toggling registration:', err);
-      setError(err.message || 'Error al procesar la inscripción');
+      console.error('Error en la operación:', err);
+      setError(err.message || 'Error al procesar la solicitud');
     } finally {
       setLoading(false);
     }
