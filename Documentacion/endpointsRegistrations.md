@@ -44,7 +44,19 @@ Requiere cookie con token JWT.
       "email": "corredor@example.com"
     },
     "registeredAt": "2025-03-10T08:30:15.421Z",
-    "status": "registered"
+    "status": "registered",
+    "dorsal": null,
+    "hasUserGpx": false,
+    "userGpxPath": null,
+    "userGpxData": {
+      "totalDistance": null,
+      "elevationGain": null,
+      "elevationLoss": null,
+      "movingTime": null,
+      "totalTime": null,
+      "avgSpeed": null,
+      "maxSpeed": null
+    }
   }
 }
 ```
@@ -94,7 +106,19 @@ Requiere cookie con token JWT.
         "distance": 42.2
       },
       "registeredAt": "2025-03-10T08:30:15.421Z",
-      "status": "registered"
+      "status": "registered",
+      "dorsal": 123,
+      "hasUserGpx": false,
+      "userGpxPath": null,
+      "userGpxData": {
+        "totalDistance": null,
+        "elevationGain": null,
+        "elevationLoss": null,
+        "movingTime": null,
+        "totalTime": null,
+        "avgSpeed": null,
+        "maxSpeed": null
+      }
     },
     {
       "_id": "67c5f1baa3b5234796ec1800",
@@ -339,7 +363,8 @@ Requiere cookie con token JWT de un usuario con rol "admin".
 {
   "status": "finished",
   "time": "03:45:22",
-  "position": 12
+  "position": 12,
+  "dorsal": 123
 }
 ```
 
@@ -356,7 +381,19 @@ Requiere cookie con token JWT de un usuario con rol "admin".
   "registeredAt": "2025-03-10T08:30:15.421Z",
   "status": "finished",
   "time": "03:45:22",
-  "position": 12
+  "position": 12,
+  "dorsal": 123,
+  "hasUserGpx": false,
+  "userGpxPath": null,
+  "userGpxData": {
+    "totalDistance": null,
+    "elevationGain": null,
+    "elevationLoss": null,
+    "movingTime": null,
+    "totalTime": null,
+    "avgSpeed": null,
+    "maxSpeed": null
+  }
 }
 ```
 
@@ -459,5 +496,55 @@ Requiere cookie con token JWT.
 - `409`: "No se puede cancelar una inscripción ya finalizada o cancelada"
 - `409`: "No se puede cancelar una inscripción cuando la carrera ya pasó"
 - `500`: "Error al cancelar la inscripción"
+
+---
+
+## 🔹 **9. Subir archivo GPX de usuario**
+
+### **📌 POST /registrations/:id/gpx**
+
+📌 **Descripción:** Permite a un usuario subir su archivo GPX para una inscripción específica.
+
+�� **URL Completa:**
+```
+http://localhost:3000/api/registrations/67c5f1baa3b5234796ec17ff/gpx
+```
+
+🔹 **Autenticación:**
+Requiere cookie con token JWT.
+
+🔹 **Ejemplo de Respuesta (200 - OK):**
+```json
+{
+  "message": "Archivo GPX subido exitosamente",
+  "registration": {
+    "_id": "67c5f1baa3b5234796ec17ff",
+    "race": {
+      "_id": "67c5f0baa3b5234796ec17ee",
+      "name": "Maratón de Primavera"
+    },
+    "user": "663f1b4667d0d8992e610c86",
+    "registeredAt": "2025-03-10T08:30:15.421Z",
+    "status": "registered",
+    "hasUserGpx": true,
+    "userGpxPath": "path/to/gpx/file.gpx",
+    "userGpxData": {
+      "totalDistance": 42.2,
+      "elevationGain": 1000,
+      "elevationLoss": 500,
+      "movingTime": "03:45:22",
+      "totalTime": "03:45:22",
+      "avgSpeed": 10.0,
+      "maxSpeed": 15.0
+    }
+  }
+}
+```
+
+�� **Errores posibles:**
+- `400`: "ID de inscripción no válido"
+- `401`: "No hay token de autenticación" o "Token inválido"
+- `404`: "Inscripción no encontrada"
+- `500`: "Error al subir el archivo GPX"
 
 ---

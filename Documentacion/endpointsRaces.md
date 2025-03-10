@@ -36,8 +36,17 @@ http://localhost:3000/api/races
       "unevenness": 120,
       "tour": "Parque Central - Avenida Principal - Costanera - Parque Central",
       "qualifyingTime": "04:00:00",
+      "classification": [],
       "status": "open",
-      "createdAt": "2025-03-05T14:35:20.123Z"
+      "createdAt": "2025-03-05T14:35:20.123Z",
+      "createdBy": "663f1b4667d0d8992e610c85",
+      "hasRunnersCSV": false,
+      "runnersCSVPath": null,
+      "lastCSVUpdate": null,
+      "hasGPXFile": false,
+      "gpxFilePath": null,
+      "gpxFileUploadedAt": null,
+      "gpxFileName": null
     },
     {
       "_id": "67c5f0baa3b5234796ec17ef",
@@ -50,8 +59,17 @@ http://localhost:3000/api/races
       "unevenness": 1500,
       "tour": "Montaña Alta - Valle - Colina - Montaña Alta",
       "qualifyingTime": "06:00:00",
+      "classification": [],
       "status": "open",
-      "createdAt": "2025-03-10T11:20:15.456Z"
+      "createdAt": "2025-03-10T11:20:15.456Z",
+      "createdBy": "663f1b4667d0d8992e610c85",
+      "hasRunnersCSV": false,
+      "runnersCSVPath": null,
+      "lastCSVUpdate": null,
+      "hasGPXFile": false,
+      "gpxFilePath": null,
+      "gpxFileUploadedAt": null,
+      "gpxFileName": null
     }
   ],
   "pagination": {
@@ -99,6 +117,7 @@ http://localhost:3000/api/races/date/2025-05-15
       "location": "Parque Central",
       "distance": 42.2,
       "maxParticipants": 500,
+      "classification": [],
       "status": "open"
     }
   ],
@@ -150,6 +169,7 @@ http://localhost:3000/api/races/location/Parque
       "location": "Parque Central",
       "distance": 42.2,
       "maxParticipants": 500,
+      "classification": [],
       "status": "open"
     },
     {
@@ -160,6 +180,7 @@ http://localhost:3000/api/races/location/Parque
       "location": "Parque Forestal",
       "distance": 10,
       "maxParticipants": 1000,
+      "classification": [],
       "status": "open"
     }
   ],
@@ -211,6 +232,7 @@ http://localhost:3000/api/races/sport/running
       "location": "Parque Central",
       "distance": 42.2,
       "maxParticipants": 500,
+      "classification": [],
       "status": "open"
     },
     {
@@ -221,6 +243,7 @@ http://localhost:3000/api/races/sport/running
       "location": "Parque Forestal",
       "distance": 10,
       "maxParticipants": 1000,
+      "classification": [],
       "status": "open"
     }
   ],
@@ -265,6 +288,7 @@ http://localhost:3000/api/races/67c5f0baa3b5234796ec17ee
   "unevenness": 120,
   "tour": "Parque Central - Avenida Principal - Costanera - Parque Central",
   "qualifyingTime": "04:00:00",
+  "classification": [],
   "createdBy": {
     "_id": "663f1b4667d0d8992e610c85",
     "name": "Admin Usuario",
@@ -274,11 +298,13 @@ http://localhost:3000/api/races/67c5f0baa3b5234796ec17ee
   "createdAt": "2025-03-05T14:35:20.123Z",
   "registrationsCount": 120,
   "availableSlots": 380,
-  "gpx": {
-    "available": true,
-    "fileName": "ruta_maraton_primavera.gpx",
-    "uploadedAt": "2025-03-10T11:20:15.456Z"
-  }
+  "hasRunnersCSV": false,
+  "runnersCSVPath": null,
+  "lastCSVUpdate": null,
+  "hasGPXFile": false,
+  "gpxFilePath": null,
+  "gpxFileUploadedAt": null,
+  "gpxFileName": null
 }
 ```
 
@@ -314,7 +340,8 @@ Requiere cookie con token JWT de un usuario con rol "admin".
   "maxParticipants": 500,
   "unevenness": 120,
   "tour": "Parque Central - Avenida Principal - Costanera - Parque Central",
-  "qualifyingTime": "04:00:00"
+  "qualifyingTime": "04:00:00",
+  "classification": []
 }
 ```
 
@@ -333,6 +360,7 @@ Requiere cookie con token JWT de un usuario con rol "admin".
     "unevenness": 120,
     "tour": "Parque Central - Avenida Principal - Costanera - Parque Central",
     "qualifyingTime": "04:00:00",
+    "classification": [],
     "createdBy": "663f1b4667d0d8992e610c85",
     "status": "open",
     "createdAt": "2025-03-05T14:35:20.123Z"
@@ -391,6 +419,7 @@ Requiere cookie con token JWT de un usuario con rol "admin".
     "unevenness": 120,
     "tour": "Parque Central - Avenida Principal - Costanera - Parque Central",
     "qualifyingTime": "04:00:00",
+    "classification": [],
     "createdBy": "663f1b4667d0d8992e610c85",
     "status": "closed",
     "createdAt": "2025-03-05T14:35:20.123Z"
@@ -708,6 +737,47 @@ Requiere cookie con token JWT de un usuario con rol "admin".
 - `404`: "Carrera no encontrada"
 - `404`: "Esta carrera no tiene archivo GPX para eliminar"
 - `500`: "Error al eliminar el archivo GPX"
+
+---
+
+## 🔹 **14. Subir Archivo CSV de Participantes (Admin)**
+
+### **📌 POST /races/:id/runners-csv**
+
+📌 **Descripción:** Permite a un administrador subir un archivo CSV con la lista de participantes.
+
+�� **URL Completa:**
+```
+http://localhost:3000/api/races/67c5f0baa3b5234796ec17ee/runners-csv
+```
+
+🔹 **Autenticación:**
+Requiere cookie con token JWT de un usuario con rol "admin".
+
+🔹 **Body (FormData):**
+- `csvFile`: Archivo CSV (máximo 20MB)
+
+🔹 **Ejemplo de Respuesta (200 - OK):**
+```json
+{
+  "message": "Archivo CSV subido correctamente",
+  "race": {
+    "id": "67c5f0baa3b5234796ec17ee",
+    "name": "Maratón de Primavera",
+    "csvFileName": "participantes_maraton_primavera.csv",
+    "csvFileUploadedAt": "2025-03-10T11:20:15.456Z"
+  }
+}
+```
+
+�� **Errores posibles:**
+- `400`: "No se ha subido ningún archivo CSV"
+- `400`: "ID de carrera inválido"
+- `400`: "El archivo CSV no es válido o está corrupto"
+- `401`: "No hay token de autenticación" o "Token inválido"
+- `403`: "No tienes permisos para subir archivos CSV"
+- `404`: "Carrera no encontrada"
+- `500`: "Error al subir el archivo CSV"
 
 ---
 
