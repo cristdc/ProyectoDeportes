@@ -1,3 +1,27 @@
+import mongoose from 'mongoose';
+
+// Primero importamos los modelos
+import '../models/User.js';
+import '../models/Race.js';
+import '../models/Registration.js';
+
+// Obtenemos los modelos
+const User = mongoose.model('User');
+const Race = mongoose.model('Race');
+const Registration = mongoose.model('Registration');
+
+// Conectar a MongoDB
+try {
+  await mongoose.connect('mongodb://localhost:27017/deportes', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
+  console.log('Conexión a MongoDB establecida');
+} catch (error) {
+  console.error('Error al conectar con MongoDB:', error);
+  process.exit(1);
+}
+
 // Expanded users data (10 users total)
 const expandedUsers = [
   {
@@ -625,3 +649,38 @@ const expandedData = {
 };
 
 // Then update your seedDatabase function to use expandedData instead of exampleData
+
+// Función para poblar la base de datos
+async function seedDatabase() {
+  try {
+    // Primero limpiamos las colecciones existentes
+    await User.deleteMany({});
+    await Race.deleteMany({});
+    await Registration.deleteMany({});
+    
+    console.log('Colecciones limpiadas');
+
+    // Insertamos los nuevos datos
+    await User.insertMany(expandedUsers);
+    console.log('Usuarios insertados');
+
+    await Race.insertMany(expandedRaces);
+    console.log('Carreras insertadas');
+
+    await Registration.insertMany(expandedRegistrations);
+    console.log('Inscripciones insertadas');
+
+    console.log('Base de datos poblada exitosamente');
+    
+    // Cerramos la conexión
+    await mongoose.connection.close();
+    process.exit(0);
+  } catch (error) {
+    console.error('Error al poblar la base de datos:', error);
+    await mongoose.connection.close();
+    process.exit(1);
+  }
+}
+
+// Ejecutamos la función
+seedDatabase();
