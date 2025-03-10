@@ -48,7 +48,7 @@ class InicioFragment : Fragment() {
 
             }
         }
-        binding.webHLanz.loadUrl("https://www.instagram.com/")
+        binding.webHLanz.loadUrl("http://alb-deportes-332363768.us-east-1.elb.amazonaws.com/cycling/")
     }
 
 }
