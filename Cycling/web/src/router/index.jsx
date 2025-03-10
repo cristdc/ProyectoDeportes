@@ -10,8 +10,8 @@ import CarrerasHistorial from "../pages/CarrerasHistorial";
 import CarrerasDetail from "../pages/CarrerasDetail";
 import MisCarreras from "../pages/MisCarreras";
 
-// Definir el basename antes de inicializar el router
-const basename = "/cycling";
+// Eliminar o modificar el basename
+const basename = ""; // Si estamos en producción con la configuración de Vite
 
 export const router = createBrowserRouter(
   [

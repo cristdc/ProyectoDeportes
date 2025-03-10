@@ -1,20 +1,18 @@
-import React, { useState } from 'react'
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { login, error, setError } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const success = await login({ email, password });
     if (success) {
-      navigate(
-        window.location.pathname.startsWith("/cycling") ? "/cycling" : "/"
-      );
+      navigate("/cycling");
     }
   };
 
@@ -24,7 +22,7 @@ const Login = () => {
         <h1 className="text-3xl font-bold text-center mb-8 text-[#1a1204]">
           Iniciar Sesión
         </h1>
-        
+
         {error && (
           <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
             {error}
@@ -33,8 +31,8 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label 
-              htmlFor="email" 
+            <label
+              htmlFor="email"
               className="block text-sm font-medium text-[#1a1204] mb-2"
             >
               Correo Electrónico
@@ -51,8 +49,8 @@ const Login = () => {
           </div>
 
           <div>
-            <label 
-              htmlFor="password" 
+            <label
+              htmlFor="password"
               className="block text-sm font-medium text-[#1a1204] mb-2"
             >
               Contraseña
@@ -77,7 +75,7 @@ const Login = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

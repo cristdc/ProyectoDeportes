@@ -21,8 +21,6 @@ const Footer = () => {
             <h4 className="text-[#1a1204] font-semibold mb-4">
               Enlaces Rápidos
             </h4>
-            // Modificar los enlaces del footer (~15-33) para incluir la lógica
-            de prefijos
             <ul className="space-y-2">
               <li>
                 <Link
