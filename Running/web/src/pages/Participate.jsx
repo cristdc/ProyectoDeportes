@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { FaSearch, FaMedal, FaRunning, FaClock, FaTimes, FaEye, FaMapMarkerAlt, FaCalendarAlt, FaFilter } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PuffLoader } from 'react-spinners';
 
 export default function Participate() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,20 +22,23 @@ export default function Participate() {
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const data = await apiService.getParticipations(filters);
-      setRegistrations(data);
       setError(null);
+
+      const data = await apiService.getParticipations();
+      setRegistrations(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError('Error al cargar las participaciones');
       console.error('Error fetching registrations:', err);
+      setError('Error al cargar las participaciones');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRegistrations();
-  }, [filters]);
+    if (user) {
+      fetchRegistrations();
+    }
+  }, [user]);
 
   // Prevenir el comportamiento por defecto del formulario
   const handleSubmit = (e) => {

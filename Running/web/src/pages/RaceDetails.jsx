@@ -162,25 +162,25 @@ export default function RaceDetails() {
       setMessage(null);
 
       if (isRegistered) {
-        // Si está registrado, primero obtenemos las inscripciones para encontrar el ID
+        // Si está registrado, primero obtenemos las inscripciones
         const registrations = await apiService.getParticipations();
         const registration = registrations.find(reg => 
-          reg.raceId === id && reg.status === 'registered'
+          reg.race._id === id && reg.status === 'registered'
         );
 
-        if (registration) {
-          const response = await apiService.unregisterFromRace(registration._id);
-          if (response.success) {
-            setIsRegistered(false);
-            setMessage('Inscripción cancelada con éxito');
-          } else {
-            setError(response.message);
-          }
-        } else {
+        if (!registration) {
           setError('No se encontró la inscripción activa');
+          return;
+        }
+
+        const response = await apiService.unregisterFromRace(id);
+        if (response.success) {
+          setIsRegistered(false);
+          setMessage('Inscripción cancelada con éxito');
+        } else {
+          setError(response.message);
         }
       } else {
-        // Si no está registrado, crear nueva inscripción
         const response = await apiService.registerForRace(id);
         if (response.success) {
           setIsRegistered(true);

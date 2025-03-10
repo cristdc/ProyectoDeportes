@@ -132,9 +132,21 @@ export const apiService = {
   // Participaciones
   getParticipations: async () => {
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
-      const data = await fetchWithAuth(`/registrations/${user._id}`);
-      return Array.isArray(data) ? data : [];
+      // Usar la ruta correcta según la documentación
+      const data = await fetchWithAuth('/registrations/user');
+      
+      // Asegurarnos de que siempre devolvemos un array
+      if (!data) return [];
+      
+      // Si la respuesta es un array, devolverlo directamente
+      if (Array.isArray(data)) return data;
+      
+      // Si la respuesta tiene una propiedad que contiene el array
+      if (data.registrations && Array.isArray(data.registrations)) {
+        return data.registrations;
+      }
+
+      return [];
     } catch (error) {
       console.error('Error getting participations:', error);
       return [];
@@ -223,9 +235,20 @@ export const apiService = {
 
   unregisterFromRace: async (registrationId) => {
     try {
-      const response = await fetchWithAuth(`/registrations/${registrationId}`, {
+      // Primero obtenemos las inscripciones del usuario para encontrar el ID de la inscripción correcta
+      const registrations = await apiService.getParticipations();
+      const registration = registrations.find(reg => reg.race._id === registrationId);
+      
+      if (!registration) {
+        throw new Error('No se encontró la inscripción activa');
+      }
+
+      // Usamos la ruta correcta para cancelar la inscripción
+      const response = await fetchWithAuth(`/registrations/${registration._id}/cancel`, {
         method: 'PUT',
-        body: JSON.stringify({ status: 'cancelled' })
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
 
       if (response) {
