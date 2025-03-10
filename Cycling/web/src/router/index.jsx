@@ -11,9 +11,7 @@ import CarrerasDetail from "../pages/CarrerasDetail";
 import MisCarreras from "../pages/MisCarreras";
 
 // Definir el basename antes de inicializar el router
-const basename = window.location.pathname.startsWith("/cycling")
-  ? "/cycling"
-  : "/";
+const basename = "/cycling";
 
 export const router = createBrowserRouter(
   [

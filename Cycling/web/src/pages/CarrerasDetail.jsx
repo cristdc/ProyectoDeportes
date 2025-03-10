@@ -58,9 +58,7 @@ const CarrerasDetail = () => {
       <div className="max-w-7xl mx-auto">
         {/* Botón de regreso */}
         <Link
-          to={
-            window.location.pathname.startsWith("/cycling") ? "/cycling" : "/"
-          }
+          to={"/cycling" }
           className="inline-flex items-center text-[#9B9D79] hover:text-[#8a8c6a] mb-6"
         >
           <svg

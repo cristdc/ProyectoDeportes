@@ -133,20 +133,14 @@ const Home = () => {
 
                 <div className="flex justify-end space-x-4">
                   <Link
-                    to={
-                      window.location.pathname.startsWith("/cycling")
-                        ? `/cycling/carrerasDetail/${lastRace._id}`
-                        : `/carrerasDetail/${lastRace._id}`
+                    to={ `/cycling/carrerasDetail/${lastRace._id}`
                     }
                     className="px-4 py-2 bg-[#9B9D79] text-white rounded-md hover:bg-[#8EAC93] transition-colors"
                   >
                     Ver detalles
                   </Link>
                   <Link
-                    to={
-                      window.location.pathname.startsWith("/cycling")
-                        ? "/cycling/carreras-historial"
-                        : "/carreras-historial"
+                    to={"/cycling/carreras-historial"
                     }
                     className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
                   >

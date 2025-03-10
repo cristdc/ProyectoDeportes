@@ -26,11 +26,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <Link
-                  to={
-                    window.location.pathname.startsWith("/cycling")
-                      ? "/cycling"
-                      : "/"
-                  }
+                  to={"/cycling" }
                   className="text-[#1a1204] opacity-75 hover:opacity-100 transition-opacity"
                 >
                   Inicio
@@ -38,11 +34,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to={
-                    window.location.pathname.startsWith("/cycling")
-                      ? "/cycling/carreras-disponibles"
-                      : "/carreras-disponibles"
-                  }
+                  to={"/cycling/carreras-disponibles" }
                   className="text-[#1a1204] opacity-75 hover:opacity-100 transition-opacity"
                 >
                   Carreras Disponibles
@@ -51,9 +43,7 @@ const Footer = () => {
               <li>
                 <Link
                   to={
-                    window.location.pathname.startsWith("/cycling")
-                      ? "/cycling/carreras-historial"
-                      : "/carreras-historial"
+                     "/cycling/carreras-historial"
                   }
                   className="text-[#1a1204] opacity-75 hover:opacity-100 transition-opacity"
                 >
@@ -62,11 +52,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to={
-                    window.location.pathname.startsWith("/cycling")
-                      ? "/cycling/profile"
-                      : "/profile"
-                  }
+                  to={  "/cycling/profile" }
                   className="text-[#1a1204] opacity-75 hover:opacity-100 transition-opacity"
                 >
                   Mi Perfil

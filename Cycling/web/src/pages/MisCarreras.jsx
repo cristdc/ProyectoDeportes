@@ -147,12 +147,7 @@ const MyRaces = () => {
                     </div>
 
                     <button
-                      onClick={() => {
-                        const path = window.location.pathname.startsWith(
-                          "/cycling"
-                        )
-                          ? `/cycling/carrerasDetail/${registration.race._id}`
-                          : `/carrerasDetail/${registration.race._id}`;
+                      onClick={() => { `/cycling/carrerasDetail/${registration.race._id}`
                         navigate(path);
                       }}
                       className="w-full bg-[#9B9D79] text-white py-2 px-4 rounded-md hover:bg-opacity-90 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#8EAC93] focus:ring-offset-2"

@@ -181,9 +181,7 @@ const CardRace = ({ race }) => {
         </button>
         <Link
           to={
-            window.location.pathname.startsWith("/cycling")
-              ? `/cycling/carrerasDetail/${race._id}`
-              : `/carrerasDetail/${race._id}`
+            `/cycling/carrerasDetail/${race._id}`
           }
           className="..."
         >
