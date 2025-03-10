@@ -5,7 +5,10 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   build: {
     outDir: "dist",
-    assetsDir: "assets", 
+    assetsDir: "assets",
+    rollupOptions: {
+      external: ['js-cookie']
+    }
   },
   base: "/cycling/", 
   plugins: [react(), tailwindcss()],

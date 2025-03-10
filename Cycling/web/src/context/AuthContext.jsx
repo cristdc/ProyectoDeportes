@@ -1,39 +1,30 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { loginRequest, verifyTokenRequest } from "../api/auth";
 import Cookies from "js-cookie";
 
 const AuthContext = createContext();
 const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
-
 export const AuthProvider = ({ children }) => {
+    // Inicializar estados con valores del localStorage
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return localStorage.getItem('isAuthenticated') === 'true';
+    });
     const [user, setUser] = useState(() => {
-        // Intentar recuperar el usuario del localStorage al iniciar
-        const savedUser = localStorage.getItem("user");
+        const savedUser = localStorage.getItem('user');
         return savedUser ? JSON.parse(savedUser) : null;
     });
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [errors, setErrors] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [userRegistrations, setUserRegistrations] = useState(() => {
         const savedRegistrations = localStorage.getItem('userRegistrations');
         return savedRegistrations ? JSON.parse(savedRegistrations) : [];
     });
+    const [loading, setLoading] = useState(true);
 
-    // Efecto para persistir el usuario en localStorage cuando cambie
-    useEffect(() => {
-        if (user) {
-            localStorage.setItem("user", JSON.stringify(user));
-        } else {
-            localStorage.removeItem("user");
-        }
-    }, [user]);
-
-    const checkLogin = async () => {
+    // Verificar autenticación al cargar o cuando cambie el estado
+    const checkAuth = async () => {
         const token = Cookies.get("token");
         
         if (!token) {
             setIsAuthenticated(false);
-            setUser(null); // Limpiar usuario si no hay token
             setLoading(false);
             return;
         }
@@ -42,49 +33,102 @@ export const AuthProvider = ({ children }) => {
             const res = await verifyTokenRequest(token);
             if (!res.data) {
                 setIsAuthenticated(false);
-                setUser(null);
                 setLoading(false);
                 return;
             }
 
-            // Mantener todos los datos del usuario almacenados en localStorage
-            const savedUser = localStorage.getItem("user");
-            const userData = savedUser ? JSON.parse(savedUser) : res.data;
-            
+            // Si solo recibimos id y exp, hacemos una petición adicional para obtener los datos completos
+            if (res.data.id && !res.data.name) {
+                try {
+                    const userRes = await getUserRequest(res.data.id);
+                    if (userRes.data) {
+                        setUser(userRes.data);
+                    }
+                } catch (error) {
+                    console.error("Error al obtener datos completos del usuario:", error);
+                }
+            } else {
+                setUser(res.data);
+            }
+
             setIsAuthenticated(true);
-            setUser(userData);
             setLoading(false);
+            await fetchRegistrations(); // Cargar inscripciones después de verificar autenticación
         } catch (error) {
+            console.error("Error durante la verificación de autenticación:", error);
+            localStorage.removeItem('token');
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userRegistrations');
             setIsAuthenticated(false);
             setUser(null);
+            setUserRegistrations([]);
             setLoading(false);
         }
     };
 
-    const signin = async (user) => {
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            checkAuth();
+        }
+    }, []);
+
+    const login = async (userData) => {
         try {
-            const res = await loginRequest(user);
-            
-            // Guardar el usuario completo en el estado y localStorage
-            setUser(res.data.user);
-            setIsAuthenticated(true);
-            
-            // Guardar el token en una cookie
-            Cookies.set("token", res.data.token);
-            
-        } catch (error) {
-            if (Array.isArray(error.response.data)) {
-                return setErrors(error.response.data);
+            const response = await fetch(`${API_URL}/users/login`, {
+                method: "POST",
+                credentials: "include",
+                headers: { 
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Veamos qué contiene la respuesta
+                console.log('Respuesta completa:', data);
+                console.log('Cookies disponibles:', document.cookie);
+
+                setIsAuthenticated(true);   
+                setUser(data.user);
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token);
+                setError(null);
+                await fetchRegistrations();
+                return true;
             }
-            setErrors([error.response.data.message]);
+            
+            const errorData = await response.json();
+            setError(errorData.message || 'Error en el inicio de sesión');
+            return false;
+        } catch (error) {
+            setError(error.message);
+            return false;
         }
     };
 
-    const logout = () => {
-        Cookies.remove("token");
-        localStorage.removeItem("user"); // Limpiar usuario del localStorage
-        setIsAuthenticated(false);
-        setUser(null);
+    const logout = async () => {
+        try {
+            const response = await fetch(`${API_URL}/users/logout`, {   
+                method: "POST",
+                credentials: "include",
+            });
+        } catch (error) {
+            console.error("Error durante el logout:", error);
+        } finally {
+            // Limpiar todo el localStorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userRegistrations');
+            setIsAuthenticated(false);
+            setUser(null);
+            setError(null);
+            setUserRegistrations([]);
+        }
     };
 
     const fetchWithToken = async (url, options = {}) => {
@@ -119,7 +163,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('userRegistrations', JSON.stringify(registrations));
         } catch (error) {
             console.error("Error en fetchRegistrations:", error);
-            setErrors(error.message);
+            setError(error.message);
             return false;
         }
     }
@@ -241,17 +285,18 @@ export const AuthProvider = ({ children }) => {
 
     return (
         <AuthContext.Provider value={{ 
-            signin,
-            logout,
-            user,
-            isAuthenticated,
-            errors,
-            loading,
-            userRegistrations,
-            updateUserData,
+            isAuthenticated, 
+            user, 
+            login, 
+            logout, 
+            error, 
+            setError,
+            checkAuth,
             registerToRace,
             unregisterFromRace,
-            fetchRegistrations
+            userRegistrations,
+            updateUserData,
+            loading
         }}>
             {children}
         </AuthContext.Provider>
@@ -261,7 +306,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
+        throw new Error("useAuth debe usarse dentro de un AuthProvider");
     }
     return context;
 };
