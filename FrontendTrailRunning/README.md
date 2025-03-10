@@ -1,12 +1,10 @@
-# React + Vite
+ # FRONTEND WEB TRAILRUNNING
+ #### Francisco Dámaso Giménez Escudero
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### FRONTEND
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+El frontend está construido sobre NODE mediante VITE con las siguientes dependencidas:
+- vite (react): genera de forma sencilla un frontend para utilizar archivos jsx.
+- react-router-dom: proporciona una librería para el manejo de rutas de forma sencilla.
+- sonner: lo hemos utilizado para la característica Toast para generar avisos sobre el resto de contenidos.
+- tailwind: para generar estilos a traves de clases en html.
