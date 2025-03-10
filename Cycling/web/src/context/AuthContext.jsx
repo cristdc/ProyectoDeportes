@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import Cookies from "js-cookie";
 
 const AuthContext = createContext();
 const API_URL = import.meta.env.VITE_API_CICLISMO_URL;
@@ -17,42 +16,34 @@ export const AuthProvider = ({ children }) => {
         const savedRegistrations = localStorage.getItem('userRegistrations');
         return savedRegistrations ? JSON.parse(savedRegistrations) : [];
     });
-    const [loading, setLoading] = useState(true);
 
     // Verificar autenticación al cargar o cuando cambie el estado
     const checkAuth = async () => {
-        const token = Cookies.get("token");
-        
-        if (!token) {
-            setIsAuthenticated(false);
-            setLoading(false);
-            return;
-        }
-
         try {
-            const res = await verifyTokenRequest(token);
-            if (!res.data) {
-                setIsAuthenticated(false);
-                setLoading(false);
-                return;
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('No hay token');
             }
 
-            // Si solo recibimos id y exp, hacemos una petición adicional para obtener los datos completos
-            if (res.data.id && !res.data.name) {
-                try {
-                    const userRes = await getUserRequest(res.data.id);
-                    if (userRes.data) {
-                        setUser(userRes.data);
-                    }
-                } catch (error) {
-                    console.error("Error al obtener datos completos del usuario:", error);
+            const response = await fetch(`${API_URL}/users/check-auth`, {
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
                 }
-            } else {
-                setUser(res.data);
+            });
+
+            if (!response.ok) {
+                throw new Error('No autenticado');
             }
 
+            const data = await response.json();
             setIsAuthenticated(true);
-            setLoading(false);
+            localStorage.setItem('isAuthenticated', 'true');
+            if (data.user) {
+                setUser(data.user);
+                localStorage.setItem('user', JSON.stringify(data.user));
+            }
+            setError(null);
             await fetchRegistrations(); // Cargar inscripciones después de verificar autenticación
         } catch (error) {
             console.error("Error durante la verificación de autenticación:", error);
@@ -63,7 +54,6 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(false);
             setUser(null);
             setUserRegistrations([]);
-            setLoading(false);
         }
     };
 
@@ -295,8 +285,7 @@ export const AuthProvider = ({ children }) => {
             registerToRace,
             unregisterFromRace,
             userRegistrations,
-            updateUserData,
-            loading
+            updateUserData
         }}>
             {children}
         </AuthContext.Provider>
