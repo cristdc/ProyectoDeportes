@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ const Profile = () => {
         age: user?.age || '',
         avatar: user?.avatar || ''
     });
+    const fileInputRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
 
     console.log("Datos del usuario en Profile:", user);
@@ -75,15 +76,119 @@ const Profile = () => {
         }
     };
 
-    const handleAvatarChange = async (e) => {
-        try {
-            toast.loading('Subiendo imagen...');
-            // ... lógica de subida de avatar ...
-            toast.success('¡Imagen de perfil actualizada!');
-        } catch (error) {
-            toast.error('Error al subir la imagen');
+    const handleImageClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleImageChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) { // 5MB límite
+                toast.error('La imagen es demasiado grande. Máximo 5MB');
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                toast.error('Por favor, selecciona un archivo de imagen válido');
+                return;
+            }
+
+            try {
+                toast.loading('Procesando imagen...');
+                
+                // Crear un nombre único para la imagen
+                const fileName = `avatar-${Date.now()}-${file.name}`;
+                const avatarPath = `/img/${fileName}`;
+
+                // Copiar el archivo a la carpeta public/img
+                const formData = new FormData();
+                formData.append('avatar', file);
+                formData.append('fileName', fileName);
+
+                // Actualizar el perfil con la nueva ruta de la imagen
+                const updateResponse = await fetch(`${API_URL}/users/profile`, {
+                    method: 'PUT',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        avatar: avatarPath
+                    })
+                });
+
+                if (!updateResponse.ok) {
+                    throw new Error('Error al actualizar el perfil');
+                }
+
+                const data = await updateResponse.json();
+                
+                // Actualizar el estado local
+                setFormData(prev => ({
+                    ...prev,
+                    avatar: avatarPath
+                }));
+                
+                await updateUserData(data.user);
+                toast.success('Imagen actualizada correctamente');
+
+                // Recargar el perfil para asegurarnos de que tenemos los datos más recientes
+                await fetchProfile();
+            } catch (error) {
+                console.error('Error:', error);
+                toast.error('Error al actualizar la imagen');
+            }
         }
     };
+
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch(`${API_URL}/users/profile`, {
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al obtener el perfil');
+            }
+
+            const data = await response.json();
+            
+            // Verificar si la imagen existe en /public/img
+            if (data.user.avatar) {
+                const avatarPath = data.user.avatar;
+                try {
+                    // Intentar cargar la imagen
+                    const imgResponse = await fetch(avatarPath);
+                    if (!imgResponse.ok) {
+                        // Si la imagen no existe, usar avatar por defecto
+                        data.user.avatar = '/img/default-avatar.png';
+                    }
+                } catch (error) {
+                    console.error('Error al verificar la imagen:', error);
+                    data.user.avatar = '/img/default-avatar.png';
+                }
+            }
+
+            setFormData({
+                name: data.user.name || '',
+                age: data.user.age || '',
+                avatar: data.user.avatar || ''
+            });
+            await updateUserData(data.user);
+        } catch (error) {
+            console.error('Error al obtener el perfil:', error);
+            toast.error('Error al cargar el perfil');
+        }
+    };
+
+    // Cargar el perfil cuando el componente se monta
+    useEffect(() => {
+        fetchProfile();
+    }, []);
 
     if (isLoading) {
         return (
@@ -113,21 +218,41 @@ const Profile = () => {
                 <div className="bg-white rounded-lg shadow-md overflow-hidden">
                     <div className="bg-[#9B9D79] text-white p-6">
                         <div className="flex items-center space-x-4">
-                            {user?.avatar ? (
-                                <img 
-                                    src={user.avatar} 
-                                    alt="Avatar" 
-                                    className="w-20 h-20 rounded-full object-cover border-2 border-white"
-                                />
-                            ) : (
-                                <div className="w-20 h-20 rounded-full bg-white text-[#9B9D79] flex items-center justify-center text-2xl font-bold">
-                                    {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
+                            <div 
+                                onClick={handleImageClick}
+                                className="relative cursor-pointer group"
+                            >
+                                {formData.avatar ? (
+                                    <img 
+                                        src={formData.avatar} 
+                                        alt="Avatar" 
+                                        className="w-20 h-20 rounded-full object-cover border-2 border-white transition-opacity group-hover:opacity-80"
+                                        onError={(e) => {
+                                            e.target.src = '/img/default-avatar.png';
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="w-20 h-20 rounded-full bg-white text-[#9B9D79] flex items-center justify-center text-2xl font-bold transition-opacity group-hover:opacity-80">
+                                        {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span className="text-white text-sm bg-black bg-opacity-50 px-2 py-1 rounded">
+                                        Cambiar foto
+                                    </span>
                                 </div>
-                            )}
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleImageChange}
+                                    accept="image/*"
+                                    className="hidden"
+                                />
+                            </div>
                             <div>
-                                <h1 className="text-2xl font-bold">{user?.name || 'Nombre no especificado'}</h1>
+                                <h1 className="text-2xl font-bold">{formData.name || 'Nombre no especificado'}</h1>
                                 <p className="text-white/80">{user?.email || 'Email no especificado'}</p>
-                                <p className="text-white/80">{user?.age ? `${user.age} años` : 'Edad no especificada'}</p>
+                                <p className="text-white/80">{formData.age ? `${formData.age} años` : 'Edad no especificada'}</p>
                             </div>
                         </div>
                     </div>
@@ -163,19 +288,6 @@ const Profile = () => {
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Avatar URL
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="avatar"
-                                        value={formData.avatar}
-                                        onChange={handleInputChange}
-                                        className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#9B9D79]"
-                                    />
-                                </div>
-
                                 <div className="flex justify-end space-x-4">
                                     <button
                                         type="button"
@@ -199,7 +311,7 @@ const Profile = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <p className="text-sm text-gray-600">Nombre de usuario</p>
-                                            <p className="font-medium">{user?.name || 'No especificado'}</p>
+                                            <p className="font-medium">{formData.name || 'No especificado'}</p>
                                         </div>
                                         <div>
                                             <p className="text-sm text-gray-600">Email</p>
@@ -207,7 +319,7 @@ const Profile = () => {
                                         </div>
                                         <div>
                                             <p className="text-sm text-gray-600">Edad</p>
-                                            <p className="font-medium">{user?.age || 'No especificada'}</p>
+                                            <p className="font-medium">{formData.age || 'No especificada'}</p>
                                         </div>
                                     </div>
                                 </div>
